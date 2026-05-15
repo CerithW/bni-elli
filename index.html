@@ -83,6 +83,14 @@
   .impact-tag.no-impact { background: var(--green-soft); color: #059669; }
   .impact-tag.loses-pts { background: var(--red-soft); color: #dc2626; }
 
+  /* Level steps within action categories */
+  .level-steps { margin-top: 6px; display: flex; flex-direction: column; gap: 3px; }
+  .level-step { display: flex; align-items: center; gap: 8px; font-size: .78rem; padding: 5px 8px; border-radius: 6px; background: var(--gray50); }
+  .level-step.max { background: var(--green-bg); }
+  .level-step .level-need { flex: 1; color: var(--gray700); }
+  .level-step .level-score { color: var(--gray500); font-size: .72rem; }
+  .level-step .level-gain { font-weight: 700; font-size: .7rem; padding: 1px 7px; border-radius: 8px; background: var(--green-soft); color: #059669; white-space: nowrap; }
+
   /* Score breakdown mini */
   .breakdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
   .bd { text-align: center; padding: 8px 4px; border-radius: 8px; }
@@ -321,49 +329,78 @@ function buildActions(m){
     });
   }
 
-  // === ACTIONS TO REACH MAXIMUM POINTS ===
+  // === ACTIONS TO REACH MAXIMUM POINTS (with intermediate levels) ===
   if(m.s < 100) {
-    const g=m.g;
-    const todos=[];
+    const catActions = [];
 
-    // Each action shows how many points it's worth toward the max
-    if(m.ss===0 && g.s){
-      const pts = 5 - m.ss;
-      todos.push({effort:1,icon:'🤝',title:`Sponsor 1 new member`,desc:`Worth ${pts} points — easiest route to max`,type:'do',pts:pts});
-    }
-    if(m.vs<25 && g.v!==undefined){
-      const need = Math.ceil(g.v);
-      const pts = 25 - m.vs;
-      if(need>0) todos.push({effort:need<=3?2:3,icon:'👋',title:`Bring ${need} more visitor${need>1?'s':''}`,desc:`Gets visitors to max (${m.vs}/25 now, ${pts} points available)`,type:'do',pts:pts});
-    }
-    if(m.os<20 && g.o!==undefined){
-      const need = Math.ceil(g.o);
-      const pts = 20 - m.os;
-      if(need>0) todos.push({effort:need<=4?2:3,icon:'☕',title:`Book ${need} more 1-2-1${need>1?'s':''}`,desc:`Gets 1-2-1s to max (${m.os}/20 now, ${pts} points available)`,type:'do',pts:pts});
-    }
-    if(m.rs<25 && g.r!==undefined){
-      const need = Math.ceil(g.r);
-      const pts = 25 - m.rs;
-      if(need>0) todos.push({effort:3,icon:'🎯',title:`Give ${need} more referral${need>1?'s':''}`,desc:`Gets referrals to max (${m.rs}/25 now, ${pts} points available)`,type:'do',pts:pts});
-    }
-    if(m.cs<10 && g.c!==undefined){
-      const need = Math.ceil(g.c);
-      const pts = 10 - m.cs;
-      if(need>0) todos.push({effort:2,icon:'📚',title:`Complete ${need} more CEU${need>1?'s':''}`,desc:`Gets CEUs to max (${m.cs}/10 now, ${pts} points available)`,type:'do',pts:pts});
-    }
-    if(m.ts<5 && g.t!==undefined){
-      const need = Math.ceil(g.t);
-      const pts = 5 - m.ts;
-      if(need>0) todos.push({effort:4,icon:'💰',title:`Generate £${need.toLocaleString()} more TYFCB`,desc:`Gets TYFCB to max (${m.ts}/5 now, ${pts} point${pts>1?'s':''} available)`,type:'do',pts:pts});
-    }
-    if(m.as<10){
-      const pts = 10 - m.as;
-      todos.push({effort:1,icon:'📅',title:'Improve attendance to 96%+',desc:`Gets attendance to max (${m.as}/10 now, ${pts} points available)`,type:'do',pts:pts});
+    // Helper: for rate-based categories, derive period factor from gap-to-max
+    function rateLevels(nmRate, gapMax, maxRate, thresholds, curScore) {
+      if(gapMax <= 0 || maxRate - nmRate < 0.01) return [];
+      const pf = gapMax / (maxRate - nmRate);
+      return thresholds
+        .filter(t => t.score > curScore)
+        .map(t => ({ need: Math.max(1, Math.ceil((t.rate - nmRate) * pf)), score: t.score, ptsGain: t.score - curScore }))
+        .filter(l => l.need > 0);
     }
 
-    // Sort by points available descending, then effort ascending
-    todos.sort((a,b)=> b.pts - a.pts || a.effort - b.effort);
-    acts.push(...todos.slice(0,6));
+    // --- Referrals (rate-based, max 1.25) ---
+    if(m.rs < 25 && m.g.r > 0) {
+      const th = [{rate:.25,score:5},{rate:.50,score:10},{rate:.75,score:15},{rate:1,score:20},{rate:1.25,score:25}];
+      const lvls = rateLevels(m.nm.r, m.g.r, 1.25, th, m.rs);
+      if(lvls.length) catActions.push({type:'levels',icon:'🎯',cat:'Referrals',cur:m.rs,max:25,unit:'referral',pts:25-m.rs,levels:lvls});
+    }
+
+    // --- Visitors (count-based) ---
+    if(m.vs < 25 && m.g.v > 0) {
+      const nmV = m.nm.v;
+      const th = [{c:1,score:5},{c:2,score:10},{c:3,score:15},{c:4,score:20},{c:5,score:25}];
+      const lvls = th.filter(t=>t.score>m.vs).map(t=>({need:Math.max(1,Math.ceil(t.c-nmV)),score:t.score,ptsGain:t.score-m.vs})).filter(l=>l.need>0);
+      if(lvls.length) catActions.push({type:'levels',icon:'👋',cat:'Visitors',cur:m.vs,max:25,unit:'visitor',pts:25-m.vs,levels:lvls});
+    }
+
+    // --- 1-2-1s (rate-based, max 1.0) ---
+    if(m.os < 20 && m.g.o > 0) {
+      const th = [{rate:.25,score:5},{rate:.50,score:10},{rate:.75,score:15},{rate:1,score:20}];
+      const lvls = rateLevels(m.nm.o, m.g.o, 1.0, th, m.os);
+      if(lvls.length) catActions.push({type:'levels',icon:'☕',cat:'1-2-1s',cur:m.os,max:20,unit:'1-2-1',pts:20-m.os,levels:lvls});
+    }
+
+    // --- CEUs (rate-based, 2 tiers: >0 = 5, >0.5 = 10) ---
+    if(m.cs < 10) {
+      const lvls = [];
+      if(m.cs === 0 && m.nm.c <= 0) lvls.push({need:1,score:5,ptsGain:5});
+      if(m.g.c > 0) {
+        const need = Math.max(1, Math.ceil(m.g.c));
+        lvls.push({need:need,score:10,ptsGain:10-m.cs});
+      }
+      if(lvls.length) catActions.push({type:'levels',icon:'📚',cat:'CEUs',cur:m.cs,max:10,unit:'CEU',pts:10-m.cs,levels:lvls});
+    }
+
+    // --- TYFCB (value-based thresholds) ---
+    if(m.ts < 5 && m.g.t > 0) {
+      const th = [{val:1,score:1},{val:1920,score:2},{val:4800,score:3},{val:14400,score:4},{val:28800,score:5}];
+      const nmT = m.nm.t;
+      const lvls = th.filter(t=>t.score>m.ts).map(t=>({need:Math.max(1,Math.ceil(t.val-nmT)),score:t.score,ptsGain:t.score-m.ts})).filter(l=>l.need>0);
+      if(lvls.length) catActions.push({type:'levels',icon:'💰',cat:'TYFCB',cur:m.ts,max:5,unit:'TYFCB',pts:5-m.ts,levels:lvls,isCurrency:true});
+    }
+
+    // --- Sponsors (simple — only 1 threshold) ---
+    if(m.ss===0 && m.g.s) {
+      catActions.push({type:'do',icon:'🤝',title:'Sponsor 1 new member',desc:'Worth 5 points',pts:5});
+    }
+
+    // --- Attendance (simple) ---
+    if(m.as < 10) {
+      const lvls = [];
+      if(m.as === 0) lvls.push({need:'88%+',score:5,ptsGain:5});
+      if(m.as <= 5) lvls.push({need:'96%+',score:10,ptsGain:10-m.as});
+      else lvls.push({need:'96%+',score:10,ptsGain:5});
+      catActions.push({type:'levels',icon:'📅',cat:'Attendance',cur:m.as,max:10,unit:'attendance',pts:10-m.as,levels:lvls,isRate:true});
+    }
+
+    // Sort by points available descending
+    catActions.sort((a,b) => b.pts - a.pts);
+    acts.push(...catActions);
   }
 
   // Maxed categories
@@ -453,11 +490,24 @@ function renderCard(m,i){
                 </div>
               </div>`).join('')}
           </div>` : ''}
-        ${acts.filter(a=>a.type==='do').length ? `
+        ${acts.filter(a=>a.type==='do'||a.type==='levels').length ? `
           <div class="section-label"><span class="icon">🎯</span> How to Reach 100 Points</div>
           <div class="action-list">
-            ${acts.filter(a=>a.type==='do').map(a=>`
-              <div class="action-item ${a.type}">
+            ${acts.filter(a=>a.type==='do'||a.type==='levels').map(a=> a.type==='levels' ? `
+              <div class="action-item do">
+                <div class="action-icon">${a.icon}</div>
+                <div class="action-text">
+                  <strong>${a.cat} (${a.cur}/${a.max})</strong>
+                  <div class="level-steps">
+                    ${a.levels.map((l,i)=>`<div class="level-step${i===a.levels.length-1?' max':''}">
+                      <span class="level-need">${a.isRate?'Reach '+l.need:a.isCurrency?'Generate £'+l.need.toLocaleString()+' more':'+'+l.need+' '+a.unit+(l.need!==1?'s':'')}</span>
+                      <span class="level-score">→ ${l.score}/${a.max}</span>
+                      <span class="level-gain">+${l.ptsGain} pts</span>
+                    </div>`).join('')}
+                  </div>
+                </div>
+              </div>` : `
+              <div class="action-item do">
                 <div class="action-icon">${a.icon}</div>
                 <div class="action-text">
                   <strong>${a.title}</strong>
