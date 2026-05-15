@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BNI Elli - Your Action Plan</title>
+<style>
+  :root {
+    --green: #10b981; --green-bg: #ecfdf5; --green-soft: #d1fae5;
+    --amber: #f59e0b; --amber-bg: #fffbeb; --amber-soft: #fef3c7;
+    --red: #ef4444; --red-bg: #fef2f2; --red-soft: #fee2e2;
+    --blue: #3b82f6; --blue-bg: #eff6ff;
+    --gray50: #f9fafb; --gray100: #f3f4f6; --gray200: #e5e7eb; --gray300: #d1d5db;
+    --gray500: #6b7280; --gray700: #374151; --gray900: #111827;
+    --radius: 16px; --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--gray100); color: var(--gray900); line-height: 1.5; max-width: 480px; margin: 0 auto; min-height: 100vh; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: #fff; padding: 24px 20px 20px; text-align: center; position: relative; overflow: hidden; }
+  .header::after { content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px; background: rgba(255,255,255,.03); border-radius: 50%; }
+  .header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: -.3px; }
+  .header .sub { opacity: .7; font-size: .82rem; margin-top: 2px; }
+  .badge-row { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+  .hbadge { padding: 5px 14px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+  .hbadge-g { background: rgba(16,185,129,.2); color: #6ee7b7; }
+  .hbadge-a { background: rgba(245,158,11,.2); color: #fcd34d; }
+  .hbadge-r { background: rgba(239,68,68,.2); color: #fca5a5; }
+
+  /* Search */
+  .search-wrap { padding: 12px 16px; position: sticky; top: 0; z-index: 50; background: var(--gray100); }
+  .search-wrap input { width: 100%; padding: 12px 16px 12px 42px; border: 2px solid var(--gray200); border-radius: 12px; font-size: .95rem; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") 14px center no-repeat; outline: none; transition: border-color .2s; }
+  .search-wrap input:focus { border-color: var(--blue); }
+
+  /* Filter pills */
+  .pills { display: flex; gap: 6px; padding: 0 16px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .pill { padding: 7px 16px; border-radius: 20px; font-size: .8rem; font-weight: 600; border: 2px solid var(--gray200); background: #fff; color: var(--gray500); cursor: pointer; white-space: nowrap; transition: all .2s; }
+  .pill.active { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+  .pill:active { transform: scale(.95); }
+
+  /* Member cards */
+  .cards { padding: 0 12px 30px; }
+  .card { background: #fff; border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); transition: all .2s; }
+
+  .card-header { display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; color: #fff; flex-shrink: 0; }
+  .card-info { flex: 1; min-width: 0; }
+  .card-name { font-weight: 600; font-size: .95rem; }
+  .card-meta { font-size: .78rem; color: var(--gray500); }
+
+  .score-circle { width: 52px; height: 52px; position: relative; flex-shrink: 0; }
+  .score-circle svg { transform: rotate(-90deg); }
+  .score-circle .score-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .95rem; }
+
+  /* Action section */
+  .actions-wrap { display: none; padding: 0 16px 16px; }
+  .card.open .actions-wrap { display: block; }
+
+  .status-bar { display: flex; gap: 4px; margin-bottom: 14px; border-radius: 8px; overflow: hidden; height: 6px; }
+  .status-seg { height: 100%; transition: width .4s ease; }
+
+  .section-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--gray500); margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }
+  .section-label .icon { font-size: .9rem; }
+
+  /* Action items */
+  .action-list { display: flex; flex-direction: column; gap: 6px; }
+  .action-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: var(--radius-sm); font-size: .88rem; }
+  .action-item.do { background: var(--blue-bg); border-left: 3px solid var(--blue); }
+  .action-item.warn { background: var(--amber-bg); border-left: 3px solid var(--amber); }
+  .action-item.risk { background: var(--red-bg); border-left: 3px solid var(--red); }
+  .action-item.done { background: var(--green-bg); border-left: 3px solid var(--green); }
+  .action-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .action-text { flex: 1; }
+  .action-text strong { display: block; font-size: .85rem; }
+  .action-text span { font-size: .78rem; color: var(--gray500); }
+
+  /* Score breakdown mini */
+  .breakdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
+  .bd { text-align: center; padding: 8px 4px; border-radius: 8px; }
+  .bd .v { font-weight: 700; font-size: .95rem; display: block; }
+  .bd .l { font-size: .68rem; color: var(--gray500); }
+
+  /* Forecast */
+  .forecast { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: var(--radius-sm); margin-top: 4px; }
+  .forecast .arrow { font-size: 1.3rem; }
+  .forecast .fc-text { font-size: .85rem; }
+  .forecast .fc-text strong { font-size: 1rem; }
+
+  /* Expand chevron */
+  .chevron { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: var(--gray300); transition: transform .2s; flex-shrink: 0; }
+  .card.open .chevron { transform: rotate(180deg); }
+
+  /* Nothing state */
+  .nothing { text-align: center; padding: 40px 20px; color: var(--gray500); }
+
+  @media (min-width: 500px) {
+    body { max-width: 520px; }
+    .breakdown-grid { grid-template-columns: repeat(7, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>BNI Elli &mdash; Llanelli</h1>
+  <div class="sub">April 2026 &bull; Your Monthly Action Plan</div>
+  <div class="badge-row">
+    <span class="hbadge hbadge-g" id="hg"></span>
+    <span class="hbadge hbadge-a" id="ha"></span>
+    <span class="hbadge hbadge-r" id="hr"></span>
+  </div>
+</div>
+
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="Find your name..." oninput="render()">
+</div>
+<div class="pills" id="pills">
+  <div class="pill active" data-f="all" onclick="setFilter('all',this)">All</div>
+  <div class="pill" data-f="green" onclick="setFilter('green',this)">Green</div>
+  <div class="pill" data-f="amber" onclick="setFilter('amber',this)">Amber</div>
+  <div class="pill" data-f="red" onclick="setFilter('red',this)">Red</div>
+  <div class="pill" data-f="dropping" onclick="setFilter('dropping',this)">At Risk</div>
+</div>
+
+<div class="cards" id="cards"></div>
+
+<script>
+const M=[
+{n:"Eleanor Ryan",s:94,as:10,cs:10,os:15,rs:25,ts:4,vs:25,ss:5,ar:.96,cr:.92,or:.88,rr:1.46,t:26800,vi:19,sp:1,a12:87.83,d:{ab:1,r:3,v:1,o:2,t:0,c:1,s:0},nm:{r:1.34,v:18,o:.80,t:26800,s:1,c:.88},g:{r:0,v:0,o:5.25,t:2000,c:0,s:0}},
+{n:"Rhys Davies",s:87,as:10,cs:5,os:15,rs:25,ts:2,vs:25,ss:5,ar:1,cr:.18,or:.77,rr:1.55,t:3771,vi:6,sp:1,a12:50,d:{ab:0,r:1,v:0,o:1,t:0,c:0,s:0},nm:{r:1.51,v:6,o:.73,t:3771,s:1,c:.18},g:{r:0,v:0,o:6.91,t:25029,c:8.27,s:0}},
+{n:"Cerith Williams",s:79,as:10,cs:10,os:20,rs:25,ts:4,vs:10,ss:0,ar:.96,cr:1.13,or:1.13,rr:1.54,t:19168,vi:2,sp:0,a12:82.08,d:{ab:0,r:6,v:0,o:4,t:835,c:8,s:0},nm:{r:1.31,v:2,o:.97,t:18333,s:0,c:.82},g:{r:0,v:3,o:.75,t:10467,c:0,s:1}},
+{n:"David Darkin",s:75,as:10,cs:10,os:15,rs:25,ts:5,vs:5,ss:5,ar:.96,cr:1.04,or:.83,rr:2.46,t:83872,vi:1,sp:1,a12:80.42,d:{ab:0,r:16,v:0,o:3,t:45936,c:2,s:0},nm:{r:1.84,v:1,o:.72,t:37936,s:1,c:.96},g:{r:0,v:4,o:7.33,t:0,c:0,s:0}},
+{n:"Anthony Poole",s:74,as:10,cs:10,os:5,rs:25,ts:4,vs:20,ss:0,ar:.96,cr:.63,or:.46,rr:1.46,t:21866,vi:4,sp:0,a12:58.5,d:{ab:1,r:4,v:0,o:0,t:30,c:2,s:0},nm:{r:1.30,v:4,o:.46,t:21836,s:0,c:.55},g:{r:0,v:1,o:14.08,t:6964,c:0,s:1}},
+{n:"Philip Evans",s:69,as:10,cs:10,os:10,rs:20,ts:4,vs:15,ss:0,ar:1,cr:2.83,or:.58,rr:1.21,t:28522,vi:3,sp:0,a12:66.08,d:{ab:0,r:7,v:0,o:3,t:0,c:0,s:0},nm:{r:.94,v:3,o:.47,t:28522,s:0,c:2.83},g:{r:8.08,v:2,o:13.83,t:278,c:0,s:1}},
+{n:"Carys Davies",s:67,as:10,cs:5,os:15,rs:25,ts:2,vs:10,ss:0,ar:.95,cr:.3,or:.95,rr:1.8,t:4510,vi:2,sp:0,a12:55.4,d:{ab:0,r:0,v:0,o:0,t:0,c:0,s:0},nm:{r:1.80,v:2,o:.95,t:4510,s:0,c:.3},g:{r:0,v:3,o:1.3,t:24290,c:5.2,s:1}},
+{n:"Rebecca Treseder",s:62,as:10,cs:5,os:10,rs:15,ts:2,vs:15,ss:5,ar:1,cr:.46,or:.54,rr:.79,t:4015,vi:3,sp:1,a12:49.09,d:{ab:0,r:0,v:0,o:0,t:0,c:0,s:0},nm:{r:.79,v:3,o:.54,t:4015,s:1,c:.46},g:{r:11.92,v:2,o:11.92,t:24785,c:1.08,s:0}},
+{n:"John Lewis",s:62,as:10,cs:10,os:5,rs:10,ts:2,vs:25,ss:0,ar:.96,cr:1.67,or:.38,rr:.5,t:2859,vi:5,sp:0,a12:51.92,d:{ab:0,r:3,v:0,o:1,t:780,c:6,s:0},nm:{r:.38,v:5,o:.34,t:2079,s:0,c:1.44},g:{r:22.5,v:0,o:17.25,t:26721,c:0,s:1}},
+{n:"Matthew Jeavons",s:61,as:10,cs:10,os:15,rs:10,ts:1,vs:15,ss:0,ar:1,cr:1.33,or:.88,rr:.63,t:314,vi:3,sp:0,a12:64.08,d:{ab:0,r:6,v:0,o:2,t:0,c:6,s:0},nm:{r:.39,v:3,o:.80,t:314,s:0,c:1.10},g:{r:22.25,v:2,o:5.25,t:28486,c:0,s:1}},
+{n:"Des John",s:55,as:10,cs:10,os:10,rs:20,ts:5,vs:0,ss:0,ar:.96,cr:.88,or:.58,rr:1.21,t:51556,vi:0,sp:0,a12:53.83,d:{ab:1,r:5,v:0,o:2,t:8781,c:3,s:0},nm:{r:1.02,v:0,o:.51,t:42775,s:0,c:.76},g:{r:6.08,v:5,o:12.83,t:0,c:0,s:1}},
+{n:"Rachel Bennett",s:53,as:10,cs:10,os:5,rs:15,ts:3,vs:10,ss:0,ar:1,cr:.88,or:.38,rr:.88,t:5920,vi:2,sp:0,a12:29.8,d:{ab:0,r:1,v:0,o:0,t:180,c:4,s:0},nm:{r:.84,v:2,o:.38,t:5740,s:0,c:.72},g:{r:10.75,v:3,o:16.25,t:23060,c:0,s:1}},
+{n:"Daniel Williams",s:47,as:10,cs:5,os:10,rs:15,ts:2,vs:5,ss:0,ar:.96,cr:.42,or:.58,rr:.92,t:4158,vi:1,sp:0,a12:28,d:{ab:0,r:2,v:0,o:2,t:243,c:2,s:0},nm:{r:.84,v:1,o:.51,t:3915,s:0,c:.34},g:{r:10.67,v:4,o:12.83,t:24885,c:4.17,s:1}},
+{n:"Rhys Williams",s:46,as:0,cs:10,os:10,rs:10,ts:1,vs:15,ss:0,ar:.88,cr:3,or:.58,rr:.58,t:1362,vi:3,sp:0,a12:42.17,d:{ab:0,r:0,v:2,o:0,t:138,c:2,s:0},nm:{r:.58,v:1,o:.58,t:1224,s:0,c:2.92},g:{r:17.33,v:4,o:10.83,t:27576,c:0,s:1}},
+{n:"James Reardon",s:46,as:10,cs:10,os:5,rs:15,ts:1,vs:5,ss:0,ar:1,cr:.75,or:.38,rr:.88,t:500,vi:1,sp:0,a12:40.5,d:{ab:0,r:0,v:0,o:0,t:0,c:0,s:0},nm:{r:.88,v:1,o:.38,t:500,s:0,c:.75},g:{r:9.75,v:4,o:16.25,t:28300,c:0,s:1}},
+{n:"Sonny Ohri",s:41,as:5,cs:10,os:15,rs:5,ts:1,vs:5,ss:0,ar:.92,cr:2.63,or:.83,rr:.38,t:1080,vi:1,sp:0,a12:27.73,d:{ab:1,r:1,v:0,o:1,t:0,c:10,s:0},nm:{r:.34,v:1,o:.79,t:1080,s:0,c:2.24},g:{r:23.75,v:4,o:5.33,t:27720,c:0,s:1}},
+{n:"Michael Tench",s:36,as:5,cs:5,os:0,rs:0,ts:1,vs:25,ss:0,ar:.92,cr:.5,or:.17,rr:0,t:635,vi:7,sp:0,a12:22.27,d:{ab:0,r:0,v:0,o:0,t:0,c:0,s:0},nm:{r:0,v:7,o:.17,t:635,s:0,c:.5},g:{r:32.5,v:0,o:21.67,t:28165,c:0,s:1}},
+{n:"Kieran Chilton",s:25,as:10,cs:5,os:5,rs:5,ts:0,vs:0,ss:0,ar:1,cr:.5,or:.3,rr:.3,t:0,vi:0,sp:0,a12:16.67,d:{ab:0,r:0,v:0,o:0,t:0,c:0,s:0},nm:{r:.3,v:0,o:.3,t:0,s:0,c:.5},g:{r:24.7,v:5,o:18.2,t:28800,c:0,s:1}},
+{n:"Angharad Thomas",s:21,as:0,cs:5,os:10,rs:5,ts:1,vs:0,ss:0,ar:.88,cr:.13,or:.5,rr:.38,t:120,vi:0,sp:0,a12:28,d:{ab:0,r:0,v:0,o:0,t:0,c:0,s:0},nm:{r:.38,v:0,o:.5,t:120,s:0,c:.13},g:{r:22.75,v:5,o:13,t:28680,c:9.75,s:1}}
+];
+
+const COL={green:'#10b981',amber:'#f59e0b',red:'#ef4444'};
+const ACOL=['#6366f1','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16','#ef4444','#3b82f6','#10b981'];
+
+function tl(s){return s>=70?'green':s>=50?'amber':'red';}
+function init(n){return n.split(/\s+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function acol(n){let h=0;for(let c of n)h=((h<<5)-h)+c.charCodeAt(0);return ACOL[Math.abs(h)%ACOL.length];}
+
+function hasD(d){return d.ab||d.r||d.v||d.o||d.t||d.c||d.s;}
+
+function calcNS(m){
+  const n=m.nm;
+  const aS=m.ar>=.96?10:m.ar>=.88?5:0;
+  const cS=n.c>.5?10:n.c>0?5:0;
+  const oS=n.o>=1?20:n.o>=.75?15:n.o>=.5?10:n.o>=.25?5:0;
+  const rS=n.r>=1.25?25:n.r>=1?20:n.r>=.75?15:n.r>=.5?10:n.r>=.25?5:0;
+  const vS=n.v>=5?25:n.v>=4?20:n.v>=3?15:n.v>=2?10:n.v>=1?5:0;
+  const tS=n.t>=28800?5:n.t>=14400?4:n.t>=4800?3:n.t>=1920?2:n.t>0?1:0;
+  const sS=n.s>=1?5:0;
+  return aS+cS+oS+rS+vS+tS+sS;
+}
+
+function buildActions(m){
+  const acts=[];
+  const c=tl(m.s);
+  const ns=calcNS(m);
+  const nc=tl(ns);
+
+  // Dropping off warnings
+  if(m.d.r) acts.push({type:'risk',icon:'📉',title:`${m.d.r} referral${m.d.r>1?'s':''} dropping off`,desc:'Falling out of your 6-month window'});
+  if(m.d.o) acts.push({type:'risk',icon:'📉',title:`${m.d.o} 1-2-1${m.d.o>1?'s':''} dropping off`,desc:'These leave your rolling count'});
+  if(m.d.v) acts.push({type:'risk',icon:'📉',title:`${m.d.v} visitor${m.d.v>1?'s':''} dropping off`,desc:'Visitor count will reduce'});
+  if(m.d.c) acts.push({type:'risk',icon:'📉',title:`${m.d.c} CEU${m.d.c>1?'s':''} dropping off`,desc:'Education credits leaving window'});
+  if(m.d.t) acts.push({type:'risk',icon:'📉',title:`£${m.d.t.toLocaleString()} TYFCB dropping off`,desc:'Business value leaving window'});
+  if(m.d.ab) acts.push({type:'warn',icon:'⚠️',title:`${m.d.ab} absence dropping off`,desc:'Good news — this helps your rate'});
+
+  // Forecast warning
+  if(ns < m.s) {
+    const drop = m.s - ns;
+    acts.push({type:'warn',icon:'🔮',title:`Score may drop to ${ns} next month`,desc:`Down ${drop} points if nothing changes — ${nc==='red'?'into the red zone':'stay focused'}`});
+  }
+
+  // Priority actions to improve
+  if(m.s < 100) {
+    const g=m.g;
+    // Sort by impact — easiest wins first
+    const todos=[];
+    if(m.ss===0 && g.s) todos.push({effort:1, icon:'🤝',title:'Sponsor 1 new member',desc:'+5 points — biggest single quick win',type:'do'});
+    if(g.v && g.v<=3) todos.push({effort:2, icon:'👋',title:`Bring ${Math.ceil(g.v)} more visitor${Math.ceil(g.v)>1?'s':''}`,desc:`Gets your visitor score up — ${Math.ceil(g.v)} is very doable`,type:'do'});
+    if(g.v && g.v>3) todos.push({effort:3, icon:'👋',title:`Bring ${Math.ceil(g.v)} more visitors`,desc:'Focus on inviting contacts to meetings',type:'do'});
+    if(g.o && g.o<=4) todos.push({effort:2, icon:'☕',title:`Book ${Math.ceil(g.o)} more 1-2-1${Math.ceil(g.o)>1?'s':''}`,desc:'Schedule coffee meetings this week',type:'do'});
+    if(g.o && g.o>4) todos.push({effort:3, icon:'☕',title:`Book ${Math.ceil(g.o)} more 1-2-1s`,desc:'Ramp up your networking meetings',type:'do'});
+    if(g.r && g.r>0) todos.push({effort:3, icon:'🎯',title:`Give ${Math.ceil(g.r)} more referrals`,desc:'Look through your contacts for opportunities',type:'do'});
+    if(g.t && g.t>0) todos.push({effort:4, icon:'💰',title:`Generate £${Math.ceil(g.t).toLocaleString()} more TYFCB`,desc:'Close business from member referrals',type:'do'});
+    if(g.c && g.c>0) todos.push({effort:2, icon:'📚',title:`Complete ${Math.ceil(g.c)} more CEUs`,desc:'Do your online education modules',type:'do'});
+
+    todos.sort((a,b)=>a.effort-b.effort);
+    acts.push(...todos.slice(0,5));
+  }
+
+  // Positive reinforcement for maxed categories
+  const maxed=[];
+  if(m.as===10) maxed.push('Attendance');
+  if(m.rs===25) maxed.push('Referrals');
+  if(m.vs===25) maxed.push('Visitors');
+  if(m.os===20) maxed.push('1-2-1s');
+  if(m.cs===10) maxed.push('CEUs');
+  if(m.ts===5) maxed.push('TYFCB');
+  if(m.ss===5) maxed.push('Sponsors');
+  if(maxed.length) acts.push({type:'done',icon:'✅',title:`Maxed out: ${maxed.join(', ')}`,desc:'Full marks in these — keep it up!'});
+
+  return acts;
+}
+
+function svgRing(score,size=52,stroke=5){
+  const c=tl(score);
+  const r=(size-stroke)/2;
+  const circ=2*Math.PI*r;
+  const off=circ-(score/100)*circ;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="${stroke}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${COL[c]}" stroke-width="${stroke}" stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round" style="transition:stroke-dashoffset .6s ease"/>
+  </svg>`;
+}
+
+function renderCard(m,i){
+  const c=tl(m.s);
+  const acts=buildActions(m);
+  const cats=[
+    {l:'Att',v:m.as,mx:10},{l:'CEU',v:m.cs,mx:10},{l:'121',v:m.os,mx:20},{l:'Ref',v:m.rs,mx:25},
+    {l:'TYF',v:m.ts,mx:5},{l:'Vis',v:m.vs,mx:25},{l:'Spo',v:m.ss,mx:5}
+  ];
+  const segs=cats.map(c=>{const p=c.v/c.mx;return{w:c.v,color:p>=.8?'var(--green)':p>=.5?'var(--amber)':'var(--red)'};});
+  const total=cats.reduce((s,c)=>s+c.mx,0);
+
+  return `<div class="card" id="card-${i}" onclick="toggle(${i})">
+    <div class="card-header">
+      <div class="avatar" style="background:${acol(m.n)}">${init(m.n)}</div>
+      <div class="card-info">
+        <div class="card-name">${m.n}</div>
+        <div class="card-meta">${acts.filter(a=>a.type==='do').length} action${acts.filter(a=>a.type==='do').length!==1?'s':''} to take &bull; ${hasD(m.d)?'⚠️ items dropping off':'✓ nothing dropping off'}</div>
+      </div>
+      <div class="score-circle">
+        ${svgRing(m.s)}
+        <div class="score-num" style="color:${COL[c]}">${m.s}</div>
+      </div>
+      <div class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+    </div>
+    <div class="actions-wrap">
+      <div class="status-bar">
+        ${segs.map(s=>`<div class="status-seg" style="width:${(s.w/total)*100}%;background:${s.color}"></div>`).join('')}
+      </div>
+      <div class="breakdown-grid">
+        ${cats.map(c=>{const p=c.v/c.mx;const bg=p>=.8?'var(--green-bg)':p>=.5?'var(--amber-bg)':'var(--red-bg)';return `<div class="bd" style="background:${bg}"><span class="v">${c.v}</span><span class="l">${c.l}</span></div>`;}).join('')}
+      </div>
+      ${acts.length ? `
+        ${acts.filter(a=>a.type==='risk'||a.type==='warn').length ? `<div class="section-label"><span class="icon">⚠️</span> Watch Out</div><div class="action-list">${acts.filter(a=>a.type==='risk'||a.type==='warn').map(a=>`<div class="action-item ${a.type}"><div class="action-icon">${a.icon}</div><div class="action-text"><strong>${a.title}</strong><span>${a.desc}</span></div></div>`).join('')}</div>` : ''}
+        ${acts.filter(a=>a.type==='do').length ? `<div class="section-label"><span class="icon">🎯</span> Your Actions This Month</div><div class="action-list">${acts.filter(a=>a.type==='do').map(a=>`<div class="action-item ${a.type}"><div class="action-icon">${a.icon}</div><div class="action-text"><strong>${a.title}</strong><span>${a.desc}</span></div></div>`).join('')}</div>` : ''}
+        ${acts.filter(a=>a.type==='done').length ? `<div class="section-label"><span class="icon">🏆</span> Nailed It</div><div class="action-list">${acts.filter(a=>a.type==='done').map(a=>`<div class="action-item ${a.type}"><div class="action-icon">${a.icon}</div><div class="action-text"><strong>${a.title}</strong><span>${a.desc}</span></div></div>`).join('')}</div>` : ''}
+      ` : '<div class="action-item done"><div class="action-icon">🌟</div><div class="action-text"><strong>Perfect 100!</strong><span>Nothing to do — you\'re smashing it</span></div></div>'}
+    </div>
+  </div>`;
+}
+
+let filter='all';
+function setFilter(f,el){
+  filter=f;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function toggle(i){
+  document.getElementById('card-'+i).classList.toggle('open');
+}
+
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  let list=M.filter(m=>{
+    if(q && !m.n.toLowerCase().includes(q)) return false;
+    if(filter==='green') return m.s>=70;
+    if(filter==='amber') return m.s>=50 && m.s<70;
+    if(filter==='red') return m.s<50;
+    if(filter==='dropping') return hasD(m.d);
+    return true;
+  });
+  list.sort((a,b)=>b.s-a.s);
+
+  const html=list.map((m,i)=>renderCard(m,i)).join('');
+  document.getElementById('cards').innerHTML=html||'<div class="nothing">No members match your filter</div>';
+
+  // Stats
+  const g=M.filter(m=>m.s>=70).length;
+  const a=M.filter(m=>m.s>=50&&m.s<70).length;
+  const r=M.filter(m=>m.s<50).length;
+  document.getElementById('hg').textContent=`${g} Green`;
+  document.getElementById('ha').textContent=`${a} Amber`;
+  document.getElementById('hr').textContent=`${r} Red`;
+}
+
+render();
+</script>
+</body>
+</html>
