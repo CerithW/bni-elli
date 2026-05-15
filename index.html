@@ -6,10 +6,12 @@
 <title>BNI Elli - Your Action Plan</title>
 <style>
   :root {
+    --bni-red: #CF2030; --bni-red-light: #fef2f2; --bni-red-soft: #fee2e2;
+    --bni-dark: #58595B; --bni-charcoal: #2D2D2D;
     --green: #10b981; --green-bg: #ecfdf5; --green-soft: #d1fae5;
     --amber: #f59e0b; --amber-bg: #fffbeb; --amber-soft: #fef3c7;
-    --red: #ef4444; --red-bg: #fef2f2; --red-soft: #fee2e2;
-    --blue: #3b82f6; --blue-bg: #eff6ff;
+    --red: #CF2030; --red-bg: #fef2f2; --red-soft: #fee2e2;
+    --blue: #CF2030; --blue-bg: #fef6f6;
     --gray50: #f9fafb; --gray100: #f3f4f6; --gray200: #e5e7eb; --gray300: #d1d5db;
     --gray500: #6b7280; --gray700: #374151; --gray900: #111827;
     --radius: 16px; --radius-sm: 10px;
@@ -17,26 +19,28 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--gray100); color: var(--gray900); line-height: 1.5; max-width: 480px; margin: 0 auto; min-height: 100vh; }
 
-  /* Header */
-  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: #fff; padding: 24px 20px 20px; text-align: center; position: relative; overflow: hidden; }
-  .header::after { content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px; background: rgba(255,255,255,.03); border-radius: 50%; }
-  .header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: -.3px; }
-  .header .sub { opacity: .7; font-size: .82rem; margin-top: 2px; }
-  .badge-row { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+  /* Header - BNI branded */
+  .header { background: linear-gradient(135deg, var(--bni-charcoal), var(--bni-dark)); color: #fff; padding: 20px 20px 18px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--bni-red); }
+  .header::after { content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px; background: rgba(207,32,48,.08); border-radius: 50%; }
+  .bni-logo { font-size: 1.5rem; font-weight: 900; color: var(--bni-red); letter-spacing: 2px; margin-bottom: 2px; }
+  .header h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: -.2px; opacity: .95; }
+  .header .sub { opacity: .6; font-size: .78rem; margin-top: 2px; }
+  .badge-row { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
   .hbadge { padding: 5px 14px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
   .hbadge-g { background: rgba(16,185,129,.2); color: #6ee7b7; }
   .hbadge-a { background: rgba(245,158,11,.2); color: #fcd34d; }
-  .hbadge-r { background: rgba(239,68,68,.2); color: #fca5a5; }
+  .hbadge-r { background: rgba(207,32,48,.25); color: #fca5a5; }
 
   /* Search */
   .search-wrap { padding: 12px 16px; position: sticky; top: 0; z-index: 50; background: var(--gray100); }
   .search-wrap input { width: 100%; padding: 12px 16px 12px 42px; border: 2px solid var(--gray200); border-radius: 12px; font-size: .95rem; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") 14px center no-repeat; outline: none; transition: border-color .2s; }
-  .search-wrap input:focus { border-color: var(--blue); }
+  .search-wrap input:focus { border-color: var(--bni-red); }
 
   /* Filter pills */
   .pills { display: flex; gap: 6px; padding: 0 16px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .pill { padding: 7px 16px; border-radius: 20px; font-size: .8rem; font-weight: 600; border: 2px solid var(--gray200); background: #fff; color: var(--gray500); cursor: pointer; white-space: nowrap; transition: all .2s; }
-  .pill.active { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+  .pill.active { border-color: var(--bni-red); background: var(--bni-red-light); color: var(--bni-red); }
   .pill:active { transform: scale(.95); }
 
   /* Member cards */
@@ -65,20 +69,25 @@
 
   /* Action items */
   .action-list { display: flex; flex-direction: column; gap: 6px; }
-  .action-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: var(--radius-sm); font-size: .88rem; }
-  .action-item.do { background: var(--blue-bg); border-left: 3px solid var(--blue); }
+  .action-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border-radius: var(--radius-sm); font-size: .88rem; }
+  .action-item.do { background: #fff7ed; border-left: 3px solid #f97316; }
   .action-item.warn { background: var(--amber-bg); border-left: 3px solid var(--amber); }
   .action-item.risk { background: var(--red-bg); border-left: 3px solid var(--red); }
+  .action-item.safe { background: var(--green-bg); border-left: 3px solid var(--green); }
   .action-item.done { background: var(--green-bg); border-left: 3px solid var(--green); }
-  .action-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .action-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
   .action-text { flex: 1; }
   .action-text strong { display: block; font-size: .85rem; }
   .action-text span { font-size: .78rem; color: var(--gray500); }
+  .action-text .impact-tag { display: inline-block; font-size: .7rem; font-weight: 700; padding: 1px 7px; border-radius: 8px; margin-top: 3px; }
+  .impact-tag.no-impact { background: var(--green-soft); color: #059669; }
+  .impact-tag.loses-pts { background: var(--red-soft); color: #dc2626; }
 
   /* Score breakdown mini */
   .breakdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
   .bd { text-align: center; padding: 8px 4px; border-radius: 8px; }
   .bd .v { font-weight: 700; font-size: .95rem; display: block; }
+  .bd .mx { font-size: .65rem; color: var(--gray500); }
   .bd .l { font-size: .68rem; color: var(--gray500); }
 
   /* Forecast */
@@ -94,6 +103,10 @@
   /* Nothing state */
   .nothing { text-align: center; padding: 40px 20px; color: var(--gray500); }
 
+  /* Footer */
+  .footer { text-align: center; padding: 10px 20px 24px; font-size: .72rem; color: var(--gray500); }
+  .footer span { color: var(--bni-red); font-weight: 700; }
+
   @media (min-width: 500px) {
     body { max-width: 520px; }
     .breakdown-grid { grid-template-columns: repeat(7, 1fr); }
@@ -103,8 +116,9 @@
 <body>
 
 <div class="header">
-  <h1>BNI Elli &mdash; Llanelli</h1>
-  <div class="sub">April 2026 &bull; Your Monthly Action Plan</div>
+  <div class="bni-logo">BNI</div>
+  <h1>Elli &mdash; Llanelli</h1>
+  <div class="sub">April 2026 &bull; Monthly Action Plan</div>
   <div class="badge-row">
     <span class="hbadge hbadge-g" id="hg"></span>
     <span class="hbadge hbadge-a" id="ha"></span>
@@ -125,9 +139,11 @@
 
 <div class="cards" id="cards"></div>
 
+<div class="footer">Powered by <span>BNI</span> &bull; Givers Gain</div>
+
 <script>
 const M=[
-{n:"Eleanor Ryan",s:94,as:10,cs:10,os:15,rs:25,ts:4,vs:25,ss:5,ar:.96,cr:.92,or:.88,rr:1.46,t:26800,vi:19,sp:1,a12:87.83,d:{ab:1,r:3,v:1,o:2,t:0,c:1,s:0},nm:{r:1.34,v:18,o:.80,t:26800,s:1,c:.88},g:{r:0,v:0,o:5.25,t:2000,c:0,s:0}},
+{n:"Eleanor Ryan",s:94,as:10,cs:10,os:15,rs:25,ts:4,vs:25,ss:5,ar:.96,cr:.92,or:.88,rr:1.46,t:26800,vi:19,sp:1,a12:87.83,d:{ab:0,r:3,v:1,o:2,t:0,c:1,s:0},nm:{r:1.34,v:18,o:.80,t:26800,s:1,c:.88},g:{r:0,v:0,o:5.25,t:2000,c:0,s:0}},
 {n:"Rhys Davies",s:87,as:10,cs:5,os:15,rs:25,ts:2,vs:25,ss:5,ar:1,cr:.18,or:.77,rr:1.55,t:3771,vi:6,sp:1,a12:50,d:{ab:0,r:1,v:0,o:1,t:0,c:0,s:0},nm:{r:1.51,v:6,o:.73,t:3771,s:1,c:.18},g:{r:0,v:0,o:6.91,t:25029,c:8.27,s:0}},
 {n:"Cerith Williams",s:79,as:10,cs:10,os:20,rs:25,ts:4,vs:10,ss:0,ar:.96,cr:1.13,or:1.13,rr:1.54,t:19168,vi:2,sp:0,a12:82.08,d:{ab:0,r:6,v:0,o:4,t:835,c:8,s:0},nm:{r:1.31,v:2,o:.97,t:18333,s:0,c:.82},g:{r:0,v:3,o:.75,t:10467,c:0,s:1}},
 {n:"David Darkin",s:75,as:10,cs:10,os:15,rs:25,ts:5,vs:5,ss:5,ar:.96,cr:1.04,or:.83,rr:2.46,t:83872,vi:1,sp:1,a12:80.42,d:{ab:0,r:16,v:0,o:3,t:45936,c:2,s:0},nm:{r:1.84,v:1,o:.72,t:37936,s:1,c:.96},g:{r:0,v:4,o:7.33,t:0,c:0,s:0}},
@@ -148,8 +164,8 @@ const M=[
 {n:"Angharad Thomas",s:21,as:0,cs:5,os:10,rs:5,ts:1,vs:0,ss:0,ar:.88,cr:.13,or:.5,rr:.38,t:120,vi:0,sp:0,a12:28,d:{ab:0,r:0,v:0,o:0,t:0,c:0,s:0},nm:{r:.38,v:0,o:.5,t:120,s:0,c:.13},g:{r:22.75,v:5,o:13,t:28680,c:9.75,s:1}}
 ];
 
-const COL={green:'#10b981',amber:'#f59e0b',red:'#ef4444'};
-const ACOL=['#6366f1','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16','#ef4444','#3b82f6','#10b981'];
+const COL={green:'#10b981',amber:'#f59e0b',red:'#CF2030'};
+const ACOL=['#CF2030','#58595B','#8b5cf6','#14b8a6','#f97316','#06b6d4','#84cc16','#374151','#3b82f6','#10b981'];
 
 function tl(s){return s>=70?'green':s>=50?'amber':'red';}
 function init(n){return n.split(/\s+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);}
@@ -157,57 +173,200 @@ function acol(n){let h=0;for(let c of n)h=((h<<5)-h)+c.charCodeAt(0);return ACOL
 
 function hasD(d){return d.ab||d.r||d.v||d.o||d.t||d.c||d.s;}
 
+// Scoring functions for each category given a rate/count
+function scoreAtt(rate){ return rate>=.96?10:rate>=.88?5:0; }
+function scoreCEU(rate){ return rate>.5?10:rate>0?5:0; }
+function score121(rate){ return rate>=1?20:rate>=.75?15:rate>=.5?10:rate>=.25?5:0; }
+function scoreRef(rate){ return rate>=1.25?25:rate>=1?20:rate>=.75?15:rate>=.5?10:rate>=.25?5:0; }
+function scoreVis(count){ return count>=5?25:count>=4?20:count>=3?15:count>=2?10:count>=1?5:0; }
+function scoreTYF(val){ return val>=28800?5:val>=14400?4:val>=4800?3:val>=1920?2:val>0?1:0; }
+function scoreSpo(count){ return count>=1?5:0; }
+
 function calcNS(m){
   const n=m.nm;
-  const aS=m.ar>=.96?10:m.ar>=.88?5:0;
-  const cS=n.c>.5?10:n.c>0?5:0;
-  const oS=n.o>=1?20:n.o>=.75?15:n.o>=.5?10:n.o>=.25?5:0;
-  const rS=n.r>=1.25?25:n.r>=1?20:n.r>=.75?15:n.r>=.5?10:n.r>=.25?5:0;
-  const vS=n.v>=5?25:n.v>=4?20:n.v>=3?15:n.v>=2?10:n.v>=1?5:0;
-  const tS=n.t>=28800?5:n.t>=14400?4:n.t>=4800?3:n.t>=1920?2:n.t>0?1:0;
-  const sS=n.s>=1?5:0;
-  return aS+cS+oS+rS+vS+tS+sS;
+  return scoreAtt(m.ar) + scoreCEU(n.c) + score121(n.o) + scoreRef(n.r) + scoreVis(n.v) + scoreTYF(n.t) + scoreSpo(n.s);
+}
+
+// Calculate impact of a drop-off: compare current category score vs projected next month score
+function dropImpact(m){
+  const impacts = [];
+  const d = m.d;
+  const n = m.nm;
+
+  if(d.r){
+    const curS = scoreRef(m.rr);
+    const nxtS = scoreRef(n.r);
+    const diff = curS - nxtS;
+    impacts.push({
+      cat:'referral', count:d.r, unit:'referral',
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:25,
+      icon: diff>0 ? '🔴' : '✅'
+    });
+  }
+  if(d.o){
+    const curS = score121(m.or);
+    const nxtS = score121(n.o);
+    const diff = curS - nxtS;
+    impacts.push({
+      cat:'1-2-1', count:d.o, unit:'1-2-1',
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:20,
+      icon: diff>0 ? '🔴' : '✅'
+    });
+  }
+  if(d.v){
+    const curS = scoreVis(m.vi);
+    const nxtS = scoreVis(n.v);
+    const diff = curS - nxtS;
+    impacts.push({
+      cat:'visitor', count:d.v, unit:'visitor',
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:25,
+      icon: diff>0 ? '🔴' : '✅'
+    });
+  }
+  if(d.c){
+    const curS = scoreCEU(m.cr);
+    const nxtS = scoreCEU(n.c);
+    const diff = curS - nxtS;
+    impacts.push({
+      cat:'CEU', count:d.c, unit:'CEU',
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:10,
+      icon: diff>0 ? '🔴' : '✅'
+    });
+  }
+  if(d.t){
+    const curS = scoreTYF(m.t);
+    const nxtS = scoreTYF(n.t);
+    const diff = curS - nxtS;
+    impacts.push({
+      cat:'TYFCB', count:null, value:d.t, unit:'TYFCB',
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:5,
+      icon: diff>0 ? '🔴' : '✅'
+    });
+  }
+  if(d.s){
+    const curS = scoreSpo(m.sp);
+    const nxtS = scoreSpo(n.s);
+    const diff = curS - nxtS;
+    impacts.push({
+      cat:'sponsor', count:d.s, unit:'sponsor',
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:5,
+      icon: diff>0 ? '🔴' : '✅'
+    });
+  }
+  if(d.ab){
+    impacts.push({
+      cat:'absence', count:d.ab, unit:'absence',
+      curScore:null, nxtScore:null, diff:0, maxScore:null,
+      icon:'👍', isGood:true
+    });
+  }
+  return impacts;
 }
 
 function buildActions(m){
   const acts=[];
-  const c=tl(m.s);
   const ns=calcNS(m);
   const nc=tl(ns);
 
-  // Dropping off warnings
-  if(m.d.r) acts.push({type:'risk',icon:'📉',title:`${m.d.r} referral${m.d.r>1?'s':''} dropping off`,desc:'Falling out of your 6-month window'});
-  if(m.d.o) acts.push({type:'risk',icon:'📉',title:`${m.d.o} 1-2-1${m.d.o>1?'s':''} dropping off`,desc:'These leave your rolling count'});
-  if(m.d.v) acts.push({type:'risk',icon:'📉',title:`${m.d.v} visitor${m.d.v>1?'s':''} dropping off`,desc:'Visitor count will reduce'});
-  if(m.d.c) acts.push({type:'risk',icon:'📉',title:`${m.d.c} CEU${m.d.c>1?'s':''} dropping off`,desc:'Education credits leaving window'});
-  if(m.d.t) acts.push({type:'risk',icon:'📉',title:`£${m.d.t.toLocaleString()} TYFCB dropping off`,desc:'Business value leaving window'});
-  if(m.d.ab) acts.push({type:'warn',icon:'⚠️',title:`${m.d.ab} absence dropping off`,desc:'Good news — this helps your rate'});
+  // === DROP-OFFS WITH IMPACT CONTEXT ===
+  const impacts = dropImpact(m);
+  const hasRealImpact = impacts.some(i=>i.diff>0);
+
+  impacts.forEach(imp => {
+    if(imp.isGood){
+      acts.push({type:'safe',icon:'👍',
+        title:`${imp.count} absence${imp.count>1?'s':''} dropping off`,
+        desc:'Good news — this improves your attendance rate',
+        impactTag: null
+      });
+      return;
+    }
+
+    let countStr;
+    if(imp.cat==='TYFCB'){
+      countStr = `£${imp.value.toLocaleString()} TYFCB`;
+    } else {
+      countStr = `${imp.count} ${imp.unit}${imp.count>1?'s':''}`;
+    }
+
+    if(imp.diff > 0){
+      acts.push({type:'risk',icon:'🔴',
+        title:`${countStr} dropping off`,
+        desc:`Score drops from ${imp.curScore}/${imp.maxScore} to ${imp.nxtScore}/${imp.maxScore} — costs you ${imp.diff} point${imp.diff>1?'s':''}`,
+        impactTag: 'loses-pts', impactText: `-${imp.diff} pts`
+      });
+    } else {
+      acts.push({type:'safe',icon:'✅',
+        title:`${countStr} dropping off`,
+        desc:`No score impact — you still score ${imp.nxtScore}/${imp.maxScore} for ${imp.cat}${imp.cat==='CEU'?'s':''}`,
+        impactTag: 'no-impact', impactText: 'No impact'
+      });
+    }
+  });
 
   // Forecast warning
   if(ns < m.s) {
     const drop = m.s - ns;
-    acts.push({type:'warn',icon:'🔮',title:`Score may drop to ${ns} next month`,desc:`Down ${drop} points if nothing changes — ${nc==='red'?'into the red zone':'stay focused'}`});
+    acts.push({type:'warn',icon:'🔮',
+      title:`Score may drop to ${ns} next month`,
+      desc:`Down ${drop} point${drop>1?'s':''} if nothing changes${nc==='red'?' — into the red zone':nc==='amber'?' — into amber':' — stay focused'}`,
+      impactTag: null
+    });
+  } else if(ns > m.s) {
+    const gain = ns - m.s;
+    acts.push({type:'safe',icon:'📈',
+      title:`Score should rise to ${ns} next month`,
+      desc:`Up ${gain} point${gain>1?'s':''} as your rolling window improves`,
+      impactTag: null
+    });
   }
 
-  // Priority actions to improve
+  // === ACTIONS TO REACH MAXIMUM POINTS ===
   if(m.s < 100) {
     const g=m.g;
-    // Sort by impact — easiest wins first
     const todos=[];
-    if(m.ss===0 && g.s) todos.push({effort:1, icon:'🤝',title:'Sponsor 1 new member',desc:'+5 points — biggest single quick win',type:'do'});
-    if(g.v && g.v<=3) todos.push({effort:2, icon:'👋',title:`Bring ${Math.ceil(g.v)} more visitor${Math.ceil(g.v)>1?'s':''}`,desc:`Gets your visitor score up — ${Math.ceil(g.v)} is very doable`,type:'do'});
-    if(g.v && g.v>3) todos.push({effort:3, icon:'👋',title:`Bring ${Math.ceil(g.v)} more visitors`,desc:'Focus on inviting contacts to meetings',type:'do'});
-    if(g.o && g.o<=4) todos.push({effort:2, icon:'☕',title:`Book ${Math.ceil(g.o)} more 1-2-1${Math.ceil(g.o)>1?'s':''}`,desc:'Schedule coffee meetings this week',type:'do'});
-    if(g.o && g.o>4) todos.push({effort:3, icon:'☕',title:`Book ${Math.ceil(g.o)} more 1-2-1s`,desc:'Ramp up your networking meetings',type:'do'});
-    if(g.r && g.r>0) todos.push({effort:3, icon:'🎯',title:`Give ${Math.ceil(g.r)} more referrals`,desc:'Look through your contacts for opportunities',type:'do'});
-    if(g.t && g.t>0) todos.push({effort:4, icon:'💰',title:`Generate £${Math.ceil(g.t).toLocaleString()} more TYFCB`,desc:'Close business from member referrals',type:'do'});
-    if(g.c && g.c>0) todos.push({effort:2, icon:'📚',title:`Complete ${Math.ceil(g.c)} more CEUs`,desc:'Do your online education modules',type:'do'});
 
-    todos.sort((a,b)=>a.effort-b.effort);
-    acts.push(...todos.slice(0,5));
+    // Each action shows how many points it's worth toward the max
+    if(m.ss===0 && g.s){
+      const pts = 5 - m.ss;
+      todos.push({effort:1,icon:'🤝',title:`Sponsor 1 new member`,desc:`Worth ${pts} points — easiest route to max`,type:'do',pts:pts});
+    }
+    if(m.vs<25 && g.v!==undefined){
+      const need = Math.ceil(g.v);
+      const pts = 25 - m.vs;
+      if(need>0) todos.push({effort:need<=3?2:3,icon:'👋',title:`Bring ${need} more visitor${need>1?'s':''}`,desc:`Gets visitors to max (${m.vs}/25 now, ${pts} points available)`,type:'do',pts:pts});
+    }
+    if(m.os<20 && g.o!==undefined){
+      const need = Math.ceil(g.o);
+      const pts = 20 - m.os;
+      if(need>0) todos.push({effort:need<=4?2:3,icon:'☕',title:`Book ${need} more 1-2-1${need>1?'s':''}`,desc:`Gets 1-2-1s to max (${m.os}/20 now, ${pts} points available)`,type:'do',pts:pts});
+    }
+    if(m.rs<25 && g.r!==undefined){
+      const need = Math.ceil(g.r);
+      const pts = 25 - m.rs;
+      if(need>0) todos.push({effort:3,icon:'🎯',title:`Give ${need} more referral${need>1?'s':''}`,desc:`Gets referrals to max (${m.rs}/25 now, ${pts} points available)`,type:'do',pts:pts});
+    }
+    if(m.cs<10 && g.c!==undefined){
+      const need = Math.ceil(g.c);
+      const pts = 10 - m.cs;
+      if(need>0) todos.push({effort:2,icon:'📚',title:`Complete ${need} more CEU${need>1?'s':''}`,desc:`Gets CEUs to max (${m.cs}/10 now, ${pts} points available)`,type:'do',pts:pts});
+    }
+    if(m.ts<5 && g.t!==undefined){
+      const need = Math.ceil(g.t);
+      const pts = 5 - m.ts;
+      if(need>0) todos.push({effort:4,icon:'💰',title:`Generate £${need.toLocaleString()} more TYFCB`,desc:`Gets TYFCB to max (${m.ts}/5 now, ${pts} point${pts>1?'s':''} available)`,type:'do',pts:pts});
+    }
+    if(m.as<10){
+      const pts = 10 - m.as;
+      todos.push({effort:1,icon:'📅',title:'Improve attendance to 96%+',desc:`Gets attendance to max (${m.as}/10 now, ${pts} points available)`,type:'do',pts:pts});
+    }
+
+    // Sort by points available descending, then effort ascending
+    todos.sort((a,b)=> b.pts - a.pts || a.effort - b.effort);
+    acts.push(...todos.slice(0,6));
   }
 
-  // Positive reinforcement for maxed categories
+  // Maxed categories
   const maxed=[];
   if(m.as===10) maxed.push('Attendance');
   if(m.rs===25) maxed.push('Referrals');
@@ -216,7 +375,7 @@ function buildActions(m){
   if(m.cs===10) maxed.push('CEUs');
   if(m.ts===5) maxed.push('TYFCB');
   if(m.ss===5) maxed.push('Sponsors');
-  if(maxed.length) acts.push({type:'done',icon:'✅',title:`Maxed out: ${maxed.join(', ')}`,desc:'Full marks in these — keep it up!'});
+  if(maxed.length) acts.push({type:'done',icon:'🏆',title:`Maxed: ${maxed.join(', ')}`,desc:`Full marks in ${maxed.length} of 7 categories — keep it up!`});
 
   return acts;
 }
@@ -242,12 +401,30 @@ function renderCard(m,i){
   const segs=cats.map(c=>{const p=c.v/c.mx;return{w:c.v,color:p>=.8?'var(--green)':p>=.5?'var(--amber)':'var(--red)'};});
   const total=cats.reduce((s,c)=>s+c.mx,0);
 
+  const dropCount = acts.filter(a=>a.type==='risk').length;
+  const safeDrops = acts.filter(a=>a.type==='safe' && a.impactTag==='no-impact').length;
+  const totalDrops = dropCount + safeDrops;
+
+  let metaText;
+  if(totalDrops > 0 && dropCount === 0){
+    metaText = `${totalDrops} dropping off — no score impact`;
+  } else if(dropCount > 0){
+    metaText = `${dropCount} drop-off${dropCount>1?'s':''} will cost points`;
+  } else if(hasD(m.d)){
+    metaText = 'Items dropping off — check details';
+  } else {
+    metaText = 'Nothing dropping off';
+  }
+
+  const actionCount = acts.filter(a=>a.type==='do').length;
+  const ptsAvail = 100 - m.s;
+
   return `<div class="card" id="card-${i}" onclick="toggle(${i})">
     <div class="card-header">
       <div class="avatar" style="background:${acol(m.n)}">${init(m.n)}</div>
       <div class="card-info">
         <div class="card-name">${m.n}</div>
-        <div class="card-meta">${acts.filter(a=>a.type==='do').length} action${acts.filter(a=>a.type==='do').length!==1?'s':''} to take &bull; ${hasD(m.d)?'⚠️ items dropping off':'✓ nothing dropping off'}</div>
+        <div class="card-meta">${ptsAvail>0?ptsAvail+' pts to max':'At maximum'} &bull; ${metaText}</div>
       </div>
       <div class="score-circle">
         ${svgRing(m.s)}
@@ -260,13 +437,47 @@ function renderCard(m,i){
         ${segs.map(s=>`<div class="status-seg" style="width:${(s.w/total)*100}%;background:${s.color}"></div>`).join('')}
       </div>
       <div class="breakdown-grid">
-        ${cats.map(c=>{const p=c.v/c.mx;const bg=p>=.8?'var(--green-bg)':p>=.5?'var(--amber-bg)':'var(--red-bg)';return `<div class="bd" style="background:${bg}"><span class="v">${c.v}</span><span class="l">${c.l}</span></div>`;}).join('')}
+        ${cats.map(c=>{const p=c.v/c.mx;const bg=p>=1?'var(--green-bg)':p>=.5?'var(--amber-bg)':'var(--red-bg)';return `<div class="bd" style="background:${bg}"><span class="v">${c.v}</span><span class="mx">/${c.mx}</span><span class="l">${c.l}</span></div>`;}).join('')}
       </div>
       ${acts.length ? `
-        ${acts.filter(a=>a.type==='risk'||a.type==='warn').length ? `<div class="section-label"><span class="icon">⚠️</span> Watch Out</div><div class="action-list">${acts.filter(a=>a.type==='risk'||a.type==='warn').map(a=>`<div class="action-item ${a.type}"><div class="action-icon">${a.icon}</div><div class="action-text"><strong>${a.title}</strong><span>${a.desc}</span></div></div>`).join('')}</div>` : ''}
-        ${acts.filter(a=>a.type==='do').length ? `<div class="section-label"><span class="icon">🎯</span> Your Actions This Month</div><div class="action-list">${acts.filter(a=>a.type==='do').map(a=>`<div class="action-item ${a.type}"><div class="action-icon">${a.icon}</div><div class="action-text"><strong>${a.title}</strong><span>${a.desc}</span></div></div>`).join('')}</div>` : ''}
-        ${acts.filter(a=>a.type==='done').length ? `<div class="section-label"><span class="icon">🏆</span> Nailed It</div><div class="action-list">${acts.filter(a=>a.type==='done').map(a=>`<div class="action-item ${a.type}"><div class="action-icon">${a.icon}</div><div class="action-text"><strong>${a.title}</strong><span>${a.desc}</span></div></div>`).join('')}</div>` : ''}
-      ` : '<div class="action-item done"><div class="action-icon">🌟</div><div class="action-text"><strong>Perfect 100!</strong><span>Nothing to do — you\'re smashing it</span></div></div>'}
+        ${acts.filter(a=>a.type==='risk'||a.type==='safe'&&a.impactTag||a.type==='warn').length ? `
+          <div class="section-label"><span class="icon">📉</span> What's Dropping Off</div>
+          <div class="action-list">
+            ${acts.filter(a=>a.type==='risk'||a.type==='safe'&&a.impactTag||a.type==='warn').map(a=>`
+              <div class="action-item ${a.type}">
+                <div class="action-icon">${a.icon}</div>
+                <div class="action-text">
+                  <strong>${a.title}</strong>
+                  <span>${a.desc}</span>
+                  ${a.impactTag ? `<span class="impact-tag ${a.impactTag}">${a.impactText}</span>` : ''}
+                </div>
+              </div>`).join('')}
+          </div>` : ''}
+        ${acts.filter(a=>a.type==='do').length ? `
+          <div class="section-label"><span class="icon">🎯</span> How to Reach 100 Points</div>
+          <div class="action-list">
+            ${acts.filter(a=>a.type==='do').map(a=>`
+              <div class="action-item ${a.type}">
+                <div class="action-icon">${a.icon}</div>
+                <div class="action-text">
+                  <strong>${a.title}</strong>
+                  <span>${a.desc}</span>
+                </div>
+              </div>`).join('')}
+          </div>` : ''}
+        ${acts.filter(a=>a.type==='done').length ? `
+          <div class="section-label"><span class="icon">🏆</span> Maxed Out</div>
+          <div class="action-list">
+            ${acts.filter(a=>a.type==='done').map(a=>`
+              <div class="action-item ${a.type}">
+                <div class="action-icon">${a.icon}</div>
+                <div class="action-text">
+                  <strong>${a.title}</strong>
+                  <span>${a.desc}</span>
+                </div>
+              </div>`).join('')}
+          </div>` : ''}
+      ` : '<div class="action-item done"><div class="action-icon">🌟</div><div class="action-text"><strong>Perfect 100!</strong><span>Maximum points in every category</span></div></div>'}
     </div>
   </div>`;
 }
@@ -298,7 +509,6 @@ function render(){
   const html=list.map((m,i)=>renderCard(m,i)).join('');
   document.getElementById('cards').innerHTML=html||'<div class="nothing">No members match your filter</div>';
 
-  // Stats
   const g=M.filter(m=>m.s>=70).length;
   const a=M.filter(m=>m.s>=50&&m.s<70).length;
   const r=M.filter(m=>m.s<50).length;
