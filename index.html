@@ -27,10 +27,10 @@
   .header h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: -.2px; opacity: .95; }
   .header .sub { opacity: .6; font-size: .78rem; margin-top: 2px; }
   .badge-row { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
-  .hbadge { padding: 5px 14px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
-  .hbadge-g { background: rgba(16,185,129,.2); color: #6ee7b7; }
-  .hbadge-a { background: rgba(245,158,11,.2); color: #fcd34d; }
-  .hbadge-r { background: rgba(207,32,48,.25); color: #fca5a5; }
+  .hbadge { padding: 5px 14px; border-radius: 20px; font-size: .75rem; font-weight: 700; }
+  .hbadge-g { background: #059669; color: #fff; }
+  .hbadge-a { background: #d97706; color: #fff; }
+  .hbadge-r { background: var(--bni-red); color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.25); }
 
   /* Search */
   .search-wrap { padding: 12px 16px; position: sticky; top: 0; z-index: 50; background: var(--gray100); }
@@ -39,19 +39,26 @@
 
   /* Filter pills */
   .pills { display: flex; gap: 6px; padding: 0 16px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .pill { padding: 7px 16px; border-radius: 20px; font-size: .8rem; font-weight: 600; border: 2px solid var(--gray200); background: #fff; color: var(--gray500); cursor: pointer; white-space: nowrap; transition: all .2s; }
+  .pill { padding: 7px 14px; border-radius: 20px; font-size: .8rem; font-weight: 600; border: 2px solid var(--gray200); background: #fff; color: var(--gray500); cursor: pointer; white-space: nowrap; transition: all .2s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
   .pill.active { border-color: var(--bni-red); background: var(--bni-red-light); color: var(--bni-red); }
   .pill:active { transform: scale(.95); }
+  .pill:focus-visible { outline: 2px solid var(--bni-red); outline-offset: 2px; }
+  .pill-count { font-size: .68rem; font-weight: 800; padding: 1px 6px; border-radius: 10px; background: var(--gray100); color: var(--gray700); min-width: 18px; text-align: center; }
+  .pill.active .pill-count { background: var(--bni-red); color: #fff; }
 
   /* Member cards */
   .cards { padding: 0 12px 30px; }
   .card { background: #fff; border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); transition: all .2s; }
 
   .card-header { display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; }
+  .card-header:focus-visible { outline: 2px solid var(--bni-red); outline-offset: -2px; border-radius: var(--radius); }
   .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; color: #fff; flex-shrink: 0; }
   .card-info { flex: 1; min-width: 0; }
   .card-name { font-weight: 600; font-size: .95rem; }
   .card-meta { font-size: .78rem; color: var(--gray500); }
+  .trend-chip { display: inline-block; font-size: .7rem; font-weight: 700; padding: 1px 6px; border-radius: 6px; margin-left: 4px; vertical-align: 1px; }
+  .trend-chip.down { background: var(--red-soft); color: #b91c1c; }
+  .trend-chip.up { background: var(--green-soft); color: #047857; }
 
   .score-circle { width: 52px; height: 52px; position: relative; flex-shrink: 0; }
   .score-circle svg { transform: rotate(-90deg); }
@@ -156,6 +163,13 @@
     body { max-width: 520px; }
     .breakdown-grid { grid-template-columns: repeat(7, 1fr); }
   }
+
+  @media (min-width: 900px) {
+    body { max-width: 960px; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 0 16px 30px; align-items: start; }
+    .card { margin-bottom: 0; }
+    .card.is-me { grid-column: 1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -176,12 +190,12 @@
 <div class="search-wrap">
   <input type="text" id="search" placeholder="Find a name..." oninput="render()">
 </div>
-<div class="pills" id="pills">
-  <div class="pill active" data-f="all" onclick="setFilter('all',this)">All</div>
-  <div class="pill" data-f="green" onclick="setFilter('green',this)">Green</div>
-  <div class="pill" data-f="amber" onclick="setFilter('amber',this)">Amber</div>
-  <div class="pill" data-f="red" onclick="setFilter('red',this)">Red</div>
-  <div class="pill" data-f="dropping" onclick="setFilter('dropping',this)">At Risk</div>
+<div class="pills" id="pills" role="group" aria-label="Filter members">
+  <button class="pill active" data-f="all" onclick="setFilter('all',this)" aria-pressed="true">All</button>
+  <button class="pill" data-f="green" onclick="setFilter('green',this)" aria-pressed="false">Green</button>
+  <button class="pill" data-f="amber" onclick="setFilter('amber',this)" aria-pressed="false">Amber</button>
+  <button class="pill" data-f="red" onclick="setFilter('red',this)" aria-pressed="false">Red</button>
+  <button class="pill" data-f="dropping" onclick="setFilter('dropping',this)" aria-pressed="false">At Risk</button>
 </div>
 <div class="legend-wrap">
   <button class="legend-toggle" id="lgToggle" onclick="toggleLegend()"><span class="lg-arrow">›</span> How scoring works</button>
@@ -551,18 +565,31 @@ function renderCard(m,i,me){
   const actionCount = acts.filter(a=>a.type==='do').length;
   const ptsAvail = 100 - m.s;
 
+  const projected=calcNS(m);
+  const delta=projected-m.s;
+  let trendChip='', trendAria='';
+  if(delta<0){
+    trendChip=` <span class="trend-chip down" aria-hidden="true">▾ ${-delta}</span>`;
+    trendAria=`, projected to drop ${-delta} ${-delta===1?'point':'points'} next month`;
+  } else if(delta>0){
+    trendChip=` <span class="trend-chip up" aria-hidden="true">▴ ${delta}</span>`;
+    trendAria=`, projected to rise ${delta} ${delta===1?'point':'points'} next month`;
+  }
+  const tierName=c==='green'?'Green':c==='amber'?'Amber':'Red';
+  const scoreLabel=`Score ${m.s} of 100, ${tierName}${trendAria}`;
+
   return `<div class="card${isOpen?' open':''}${isMe?' is-me':''}" id="card-${id}" onclick="toggle('${m.n.replace(/'/g,"\\'")}')">
-    <div class="card-header">
-      <div class="avatar" style="background:${acol(m.n)}">${init(m.n)}</div>
+    <div class="card-header" role="button" tabindex="0" aria-expanded="${isOpen?'true':'false'}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle('${m.n.replace(/'/g,"\\'")}');}">
+      <div class="avatar" aria-hidden="true" style="background:${acol(m.n)}">${init(m.n)}</div>
       <div class="card-info">
         <div class="card-name">${m.n}${isMe?'<span class="you-badge">YOU</span>':''}</div>
-        <div class="card-meta">${ptsAvail>0?ptsAvail+' pts to max':'At maximum'} &bull; ${metaText}</div>
+        <div class="card-meta">${ptsAvail>0?ptsAvail+' pts to max':'At maximum'}${trendChip} &bull; ${metaText}</div>
       </div>
-      <div class="score-circle">
+      <div class="score-circle" role="img" aria-label="${scoreLabel}">
         ${svgRing(m.s)}
         <div class="score-num" style="color:${COL[c]}">${m.s}</div>
       </div>
-      <div class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+      <div class="chevron" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
     </div>
     <div class="actions-wrap">
       <div class="status-bar">
@@ -641,9 +668,28 @@ function renderCard(m,i,me){
 let filter='all';
 function setFilter(f,el){
   filter=f;
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.pill').forEach(p=>{
+    p.classList.remove('active');
+    p.setAttribute('aria-pressed','false');
+  });
   el.classList.add('active');
+  el.setAttribute('aria-pressed','true');
   render();
+}
+
+const PILL_LABELS={all:'All',green:'Green',amber:'Amber',red:'Red',dropping:'At Risk'};
+function updatePillCounts(){
+  const counts={
+    all:M.length,
+    green:M.filter(m=>m.s>=70).length,
+    amber:M.filter(m=>m.s>=50&&m.s<70).length,
+    red:M.filter(m=>m.s<50).length,
+    dropping:M.filter(m=>hasD(m.d)).length
+  };
+  document.querySelectorAll('.pill').forEach(p=>{
+    const f=p.dataset.f;
+    if(counts[f]!==undefined) p.innerHTML=`${PILL_LABELS[f]} <span class="pill-count">${counts[f]}</span>`;
+  });
 }
 
 function toggle(name){
@@ -671,6 +717,7 @@ function renderMeBar(){
 
 function render(){
   renderMeBar();
+  updatePillCounts();
   const me=getMe();
   const q=document.getElementById('search').value.toLowerCase();
   let list=M.filter(m=>{
