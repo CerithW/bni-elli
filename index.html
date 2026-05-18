@@ -15,6 +15,7 @@
     --gray50: #f9fafb; --gray100: #f3f4f6; --gray200: #e5e7eb; --gray300: #d1d5db;
     --gray500: #6b7280; --gray700: #374151; --gray900: #111827;
     --radius: 16px; --radius-sm: 10px;
+    --search-h: 72px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--gray100); color: var(--gray900); line-height: 1.5; max-width: 480px; margin: 0 auto; min-height: 100vh; }
@@ -27,10 +28,10 @@
   .header h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: -.2px; opacity: .95; }
   .header .sub { opacity: .6; font-size: .78rem; margin-top: 2px; }
   .badge-row { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
-  .hbadge { padding: 5px 14px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
-  .hbadge-g { background: rgba(16,185,129,.2); color: #6ee7b7; }
-  .hbadge-a { background: rgba(245,158,11,.2); color: #fcd34d; }
-  .hbadge-r { background: rgba(207,32,48,.25); color: #fca5a5; }
+  .hbadge { padding: 5px 14px; border-radius: 20px; font-size: .75rem; font-weight: 700; }
+  .hbadge-g { background: #059669; color: #fff; }
+  .hbadge-a { background: #d97706; color: #fff; }
+  .hbadge-r { background: var(--bni-red); color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.25); }
 
   /* Search */
   .search-wrap { padding: 12px 16px; position: sticky; top: 0; z-index: 50; background: var(--gray100); }
@@ -39,19 +40,28 @@
 
   /* Filter pills */
   .pills { display: flex; gap: 6px; padding: 0 16px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .pill { padding: 7px 16px; border-radius: 20px; font-size: .8rem; font-weight: 600; border: 2px solid var(--gray200); background: #fff; color: var(--gray500); cursor: pointer; white-space: nowrap; transition: all .2s; }
+  .pill { padding: 7px 14px; border-radius: 20px; font-size: .8rem; font-weight: 600; border: 2px solid var(--gray200); background: #fff; color: var(--gray500); cursor: pointer; white-space: nowrap; transition: all .2s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
   .pill.active { border-color: var(--bni-red); background: var(--bni-red-light); color: var(--bni-red); }
   .pill:active { transform: scale(.95); }
+  .pill:focus-visible { outline: 2px solid var(--bni-red); outline-offset: 2px; }
+  .pill-count { font-size: .72rem; font-weight: 800; padding: 1px 7px; border-radius: 10px; background: var(--gray100); color: var(--gray700); min-width: 20px; text-align: center; }
+  .pill.active .pill-count { background: var(--bni-red); color: #fff; }
 
   /* Member cards */
   .cards { padding: 0 12px 30px; }
-  .card { background: #fff; border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); transition: all .2s; }
+  .card { background: #fff; border-radius: var(--radius); margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); transition: all .2s; }
 
-  .card-header { display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; }
+  .card-header { display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; background: #fff; border-radius: var(--radius); }
+  .card-header:focus-visible { outline: 2px solid var(--bni-red); outline-offset: -2px; }
+  .card.open .card-header { position: sticky; top: var(--search-h); z-index: 5; border-radius: var(--radius) var(--radius) 0 0; box-shadow: 0 1px 0 var(--gray100); }
+  .card.open.is-me .card-header { box-shadow: 0 1px 0 rgba(207,32,48,.15); }
   .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; color: #fff; flex-shrink: 0; }
   .card-info { flex: 1; min-width: 0; }
   .card-name { font-weight: 600; font-size: .95rem; }
   .card-meta { font-size: .78rem; color: var(--gray500); }
+  .trend-chip { display: inline-block; font-size: .72rem; font-weight: 700; padding: 1px 6px; border-radius: 6px; margin-left: 4px; vertical-align: 1px; }
+  .trend-chip.down { background: var(--red-soft); color: #b91c1c; }
+  .trend-chip.up { background: var(--green-soft); color: #047857; }
 
   .score-circle { width: 52px; height: 52px; position: relative; flex-shrink: 0; }
   .score-circle svg { transform: rotate(-90deg); }
@@ -64,8 +74,9 @@
   .status-bar { display: flex; gap: 4px; margin-bottom: 14px; border-radius: 8px; overflow: hidden; height: 6px; }
   .status-seg { height: 100%; transition: width .4s ease; }
 
-  .section-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--gray500); margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }
-  .section-label .icon { font-size: .9rem; }
+  .section-label { font-size: .76rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--gray500); margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }
+  .section-label .icon { display: inline-flex; align-items: center; }
+  .section-label .icon svg { width: 14px; height: 14px; }
 
   /* Action items */
   .action-list { display: flex; flex-direction: column; gap: 6px; }
@@ -75,28 +86,29 @@
   .action-item.risk { background: var(--red-bg); border-left: 3px solid var(--red); }
   .action-item.safe { background: var(--green-bg); border-left: 3px solid var(--green); }
   .action-item.done { background: var(--green-bg); border-left: 3px solid var(--green); }
-  .action-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .action-icon { flex-shrink: 0; display: flex; align-items: center; margin-top: 1px; }
+  .action-icon svg { width: 22px; height: 22px; display: block; }
   .action-text { flex: 1; }
-  .action-text strong { display: block; font-size: .85rem; }
-  .action-text span { font-size: .78rem; color: var(--gray500); }
-  .action-text .impact-tag { display: inline-block; font-size: .7rem; font-weight: 700; padding: 1px 7px; border-radius: 8px; margin-top: 3px; }
+  .action-text strong { display: block; font-size: .88rem; }
+  .action-text span { font-size: .8rem; color: var(--gray500); }
+  .action-text .impact-tag { display: inline-block; font-size: .72rem; font-weight: 700; padding: 1px 7px; border-radius: 8px; margin-top: 3px; }
   .impact-tag.no-impact { background: var(--green-soft); color: #059669; }
   .impact-tag.loses-pts { background: var(--red-soft); color: #dc2626; }
 
   /* Level steps within action categories */
   .level-steps { margin-top: 6px; display: flex; flex-direction: column; gap: 3px; }
-  .level-step { display: flex; align-items: center; gap: 8px; font-size: .78rem; padding: 5px 8px; border-radius: 6px; background: var(--gray50); }
+  .level-step { display: flex; align-items: center; gap: 8px; font-size: .8rem; padding: 6px 8px; border-radius: 6px; background: var(--gray50); }
   .level-step.max { background: var(--green-bg); }
   .level-step .level-need { flex: 1; color: var(--gray700); }
-  .level-step .level-score { color: var(--gray500); font-size: .72rem; }
-  .level-step .level-gain { font-weight: 700; font-size: .7rem; padding: 1px 7px; border-radius: 8px; background: var(--green-soft); color: #059669; white-space: nowrap; }
+  .level-step .level-score { color: var(--gray500); font-size: .74rem; }
+  .level-step .level-gain { font-weight: 700; font-size: .72rem; padding: 1px 7px; border-radius: 8px; background: var(--green-soft); color: #059669; white-space: nowrap; }
 
   /* Score breakdown mini */
   .breakdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
-  .bd { text-align: center; padding: 8px 4px; border-radius: 8px; }
-  .bd .v { font-weight: 700; font-size: .95rem; display: block; }
-  .bd .mx { font-size: .65rem; color: var(--gray500); }
-  .bd .l { font-size: .68rem; color: var(--gray500); }
+  .bd { text-align: center; padding: 9px 4px; border-radius: 8px; }
+  .bd .v { font-weight: 700; font-size: 1rem; display: block; }
+  .bd .mx { font-size: .72rem; color: var(--gray500); }
+  .bd .l { font-size: .74rem; color: var(--gray500); margin-top: 1px; display: block; }
 
   /* Forecast */
   .forecast { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: var(--radius-sm); margin-top: 4px; }
@@ -111,13 +123,60 @@
   /* Nothing state */
   .nothing { text-align: center; padding: 40px 20px; color: var(--gray500); }
 
+  /* Me bar — "this is me" picker */
+  .me-bar { background: #fff; margin: 12px 16px 0; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--gray200); }
+  .me-bar.set { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; }
+  .me-bar .me-q { font-size: .85rem; color: var(--gray700); margin-bottom: 8px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .me-bar .me-q svg, .me-bar .me-info svg { width: 16px; height: 16px; vertical-align: -3px; }
+  .me-bar .me-info { font-size: .88rem; color: var(--gray700); display: inline-flex; align-items: center; gap: 6px; }
+  .me-bar select { width: 100%; padding: 10px 12px; border: 2px solid var(--gray200); border-radius: 8px; font-size: .9rem; background: #fff; font-family: inherit; color: var(--gray900); outline: none; }
+  .me-bar select:focus { border-color: var(--bni-red); }
+  .me-bar .me-info strong { color: var(--bni-red); font-weight: 700; }
+  .me-bar .me-change { background: none; border: 1px solid var(--gray300); padding: 5px 12px; border-radius: 8px; font-size: .75rem; color: var(--gray700); cursor: pointer; font-family: inherit; font-weight: 600; }
+  .me-bar .me-change:active { transform: scale(.95); }
+
+  /* YOU badge + highlight */
+  .you-badge { display: inline-block; background: var(--bni-red); color: #fff; font-size: .68rem; font-weight: 700; padding: 2px 7px; border-radius: 5px; margin-left: 6px; letter-spacing: .5px; vertical-align: middle; }
+  .card.is-me { border: 2px solid var(--bni-red); box-shadow: 0 2px 8px rgba(207,32,48,.12); }
+
+  /* Top focus — single CTA */
+  .top-focus { background: linear-gradient(135deg, #fff7ed, #fef3c7); border-radius: var(--radius-sm); padding: 12px; margin: 0 0 14px; border-left: 3px solid var(--bni-red); }
+  .top-focus .tf-label { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--bni-red); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+  .top-focus .tf-action { display: flex; gap: 10px; align-items: flex-start; }
+  .top-focus .tf-icon { display: flex; align-items: center; flex-shrink: 0; }
+  .top-focus .tf-icon svg { width: 24px; height: 24px; display: block; }
+  .top-focus .tf-label svg { width: 14px; height: 14px; }
+  .top-focus .tf-content strong { display: block; font-size: .92rem; margin-bottom: 2px; }
+  .top-focus .tf-content span { font-size: .82rem; color: var(--gray700); }
+
+  /* Legend toggle + panel */
+  .legend-wrap { padding: 0 16px 8px; }
+  .legend-toggle { display: inline-flex; align-items: center; gap: 4px; font-size: .76rem; color: var(--gray500); cursor: pointer; padding: 4px 0; border: none; background: none; font-family: inherit; }
+  .legend-toggle:hover { color: var(--bni-red); }
+  .legend-toggle .lg-arrow { transition: transform .2s; display: inline-block; }
+  .legend-toggle.open .lg-arrow { transform: rotate(90deg); }
+  .legend { background: #fff; border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 6px; font-size: .82rem; border: 1px solid var(--gray200); display: none; }
+  .legend.open { display: block; }
+  .legend-row { padding: 7px 0; border-bottom: 1px solid var(--gray100); display: flex; gap: 10px; align-items: baseline; }
+  .legend-row:last-child { border-bottom: none; }
+  .legend-row .lg-abbr { font-weight: 700; min-width: 36px; color: var(--bni-red); font-size: .82rem; }
+  .legend-row .lg-name { flex: 1; color: var(--gray900); }
+  .legend-row .lg-rule { color: var(--gray500); font-size: .76rem; }
+
   /* Footer */
-  .footer { text-align: center; padding: 10px 20px 24px; font-size: .72rem; color: var(--gray500); }
+  .footer { text-align: center; padding: 10px 20px 24px; font-size: .76rem; color: var(--gray500); }
   .footer span { color: var(--bni-red); font-weight: 700; }
 
   @media (min-width: 500px) {
     body { max-width: 520px; }
     .breakdown-grid { grid-template-columns: repeat(7, 1fr); }
+  }
+
+  @media (min-width: 900px) {
+    body { max-width: 960px; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 0 16px 30px; align-items: start; }
+    .card { margin-bottom: 0; }
+    .card.is-me { grid-column: 1 / -1; }
   }
 </style>
 </head>
@@ -134,15 +193,29 @@
   </div>
 </div>
 
+<div class="me-bar" id="meBar"></div>
+
 <div class="search-wrap">
-  <input type="text" id="search" placeholder="Find your name..." oninput="render()">
+  <input type="text" id="search" placeholder="Find a name..." oninput="render()">
 </div>
-<div class="pills" id="pills">
-  <div class="pill active" data-f="all" onclick="setFilter('all',this)">All</div>
-  <div class="pill" data-f="green" onclick="setFilter('green',this)">Green</div>
-  <div class="pill" data-f="amber" onclick="setFilter('amber',this)">Amber</div>
-  <div class="pill" data-f="red" onclick="setFilter('red',this)">Red</div>
-  <div class="pill" data-f="dropping" onclick="setFilter('dropping',this)">At Risk</div>
+<div class="pills" id="pills" role="group" aria-label="Filter members">
+  <button class="pill active" data-f="all" onclick="setFilter('all',this)" aria-pressed="true">All</button>
+  <button class="pill" data-f="green" onclick="setFilter('green',this)" aria-pressed="false">Green</button>
+  <button class="pill" data-f="amber" onclick="setFilter('amber',this)" aria-pressed="false">Amber</button>
+  <button class="pill" data-f="red" onclick="setFilter('red',this)" aria-pressed="false">Red</button>
+  <button class="pill" data-f="dropping" onclick="setFilter('dropping',this)" aria-pressed="false">At Risk</button>
+</div>
+<div class="legend-wrap">
+  <button class="legend-toggle" id="lgToggle" onclick="toggleLegend()"><span class="lg-arrow">›</span> How scoring works</button>
+  <div class="legend" id="legend">
+    <div class="legend-row"><span class="lg-abbr">Att</span><span class="lg-name">Attendance</span><span class="lg-rule">96%+ → 10 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">CEU</span><span class="lg-name">Continuing Education Units</span><span class="lg-rule">&gt;0.5/mo → 10 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">121</span><span class="lg-name">One-to-Ones</span><span class="lg-rule">1+/mo → 20 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">Ref</span><span class="lg-name">Referrals given</span><span class="lg-rule">1.25+/mo → 25 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">TYF</span><span class="lg-name">Thank You For Closed Business</span><span class="lg-rule">£28,800+ → 5 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">Vis</span><span class="lg-name">Visitors invited</span><span class="lg-rule">5+ → 25 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">Spo</span><span class="lg-name">Members sponsored</span><span class="lg-rule">1+ → 5 pts</span></div>
+  </div>
 </div>
 
 <div class="cards" id="cards"></div>
@@ -173,6 +246,38 @@ const M=[
 
 const COL={green:'#10b981',amber:'#f59e0b',red:'#CF2030'};
 const ACOL=['#CF2030','#58595B','#8b5cf6','#14b8a6','#f97316','#06b6d4','#84cc16','#374151','#3b82f6','#10b981'];
+
+// Inline SVG icon library (Lucide-style outlines, viewBox 24x24)
+const ICON_PATHS={
+  risk:'<circle cx="12" cy="12" r="10" fill="#fee2e2" stroke="#dc2626"/><line x1="12" y1="8" x2="12" y2="13" stroke="#dc2626"/><circle cx="12" cy="16.5" r="1" fill="#dc2626" stroke="none"/>',
+  safe:'<circle cx="12" cy="12" r="10" fill="#d1fae5" stroke="#059669"/><path d="M8 12.5 11 15l5-6" stroke="#059669"/>',
+  thumb:'<path d="M7 11v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3z" fill="#d1fae5" stroke="#059669"/><path d="M7 11l4-7a2 2 0 0 1 3.6 1.55L13 10h5.7a2 2 0 0 1 1.96 2.4l-1.6 7A2 2 0 0 1 17.1 21H7" fill="#d1fae5" stroke="#059669"/>',
+  alertTri:'<path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0z" fill="#fef3c7" stroke="#d97706"/><line x1="12" y1="9" x2="12" y2="13" stroke="#d97706"/><circle cx="12" cy="17" r="1" fill="#d97706" stroke="none"/>',
+  trendUp:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17" stroke="#059669"/><polyline points="16 7 22 7 22 13" stroke="#059669"/>',
+  trendDown:'<polyline points="22 17 13.5 8.5 8.5 13.5 2 7" stroke="#dc2626"/><polyline points="16 17 22 17 22 11" stroke="#dc2626"/>',
+  trophy:'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" fill="#fef3c7" stroke="#d97706"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" fill="#fef3c7" stroke="#d97706"/><path d="M4 22h16" stroke="#d97706"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" stroke="#d97706"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" stroke="#d97706"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" fill="#fef3c7" stroke="#d97706"/>',
+  target:'<circle cx="12" cy="12" r="10" stroke="#CF2030"/><circle cx="12" cy="12" r="6" stroke="#CF2030"/><circle cx="12" cy="12" r="2" fill="#CF2030" stroke="none"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#374151"/><circle cx="9" cy="7" r="4" stroke="#374151"/><path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke="#374151"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="#374151"/>',
+  coffee:'<path d="M17 8h1a4 4 0 0 1 0 8h-1" stroke="#8b5cf6"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z" stroke="#8b5cf6"/><line x1="7" y1="2" x2="7" y2="5" stroke="#8b5cf6"/><line x1="11" y1="2" x2="11" y2="5" stroke="#8b5cf6"/><line x1="15" y1="2" x2="15" y2="5" stroke="#8b5cf6"/>',
+  book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="#0891b2"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="#0891b2"/>',
+  coin:'<circle cx="12" cy="12" r="10" fill="#fef3c7" stroke="#d97706"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4.5" stroke="#d97706" fill="none"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="#0d9488"/><line x1="16" y1="2" x2="16" y2="6" stroke="#0d9488"/><line x1="8" y1="2" x2="8" y2="6" stroke="#0d9488"/><line x1="3" y1="10" x2="21" y2="10" stroke="#0d9488"/>',
+  sparkles:'<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z" fill="#fef3c7" stroke="#d97706"/>',
+  star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26" fill="#fbbf24" stroke="#d97706"/>',
+  user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor"/><circle cx="12" cy="7" r="4" stroke="currentColor"/>'
+};
+function svgI(name){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[name]||''}</svg>`;
+}
+
+const ME_KEY='bni-elli-me';
+const openCards=new Set();
+function getMe(){try{return localStorage.getItem(ME_KEY);}catch(e){return null;}}
+function setMe(n){try{n?localStorage.setItem(ME_KEY,n):localStorage.removeItem(ME_KEY);}catch(e){}}
+function pickMe(n){if(!n)return;setMe(n);openCards.add(n);render();}
+function clearMe(){const m=getMe();if(m)openCards.delete(m);setMe(null);render();}
+function nameId(n){return n.replace(/\s+/g,'-').toLowerCase();}
+function toggleLegend(){document.getElementById('legend').classList.toggle('open');document.getElementById('lgToggle').classList.toggle('open');}
 
 function tl(s){return s>=70?'green':s>=50?'amber':'red';}
 function init(n){return n.split(/\s+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);}
@@ -206,8 +311,7 @@ function dropImpact(m){
     const diff = curS - nxtS;
     impacts.push({
       cat:'referral', count:d.r, unit:'referral',
-      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:25,
-      icon: diff>0 ? '🔴' : '✅'
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:25
     });
   }
   if(d.o){
@@ -216,8 +320,7 @@ function dropImpact(m){
     const diff = curS - nxtS;
     impacts.push({
       cat:'1-2-1', count:d.o, unit:'1-2-1',
-      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:20,
-      icon: diff>0 ? '🔴' : '✅'
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:20
     });
   }
   if(d.v){
@@ -226,8 +329,7 @@ function dropImpact(m){
     const diff = curS - nxtS;
     impacts.push({
       cat:'visitor', count:d.v, unit:'visitor',
-      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:25,
-      icon: diff>0 ? '🔴' : '✅'
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:25
     });
   }
   if(d.c){
@@ -236,8 +338,7 @@ function dropImpact(m){
     const diff = curS - nxtS;
     impacts.push({
       cat:'CEU', count:d.c, unit:'CEU',
-      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:10,
-      icon: diff>0 ? '🔴' : '✅'
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:10
     });
   }
   if(d.t){
@@ -246,8 +347,7 @@ function dropImpact(m){
     const diff = curS - nxtS;
     impacts.push({
       cat:'TYFCB', count:null, value:d.t, unit:'TYFCB',
-      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:5,
-      icon: diff>0 ? '🔴' : '✅'
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:5
     });
   }
   if(d.s){
@@ -256,15 +356,14 @@ function dropImpact(m){
     const diff = curS - nxtS;
     impacts.push({
       cat:'sponsor', count:d.s, unit:'sponsor',
-      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:5,
-      icon: diff>0 ? '🔴' : '✅'
+      curScore:curS, nxtScore:nxtS, diff:diff, maxScore:5
     });
   }
   if(d.ab){
     impacts.push({
       cat:'absence', count:d.ab, unit:'absence',
       curScore:null, nxtScore:null, diff:0, maxScore:null,
-      icon:'👍', isGood:true
+      isGood:true
     });
   }
   return impacts;
@@ -281,7 +380,7 @@ function buildActions(m){
 
   impacts.forEach(imp => {
     if(imp.isGood){
-      acts.push({type:'safe',icon:'👍',
+      acts.push({type:'safe',icon:svgI('thumb'),
         title:`${imp.count} absence${imp.count>1?'s':''} dropping off`,
         desc:'Good news — this improves your attendance rate',
         impactTag: null
@@ -297,13 +396,13 @@ function buildActions(m){
     }
 
     if(imp.diff > 0){
-      acts.push({type:'risk',icon:'🔴',
+      acts.push({type:'risk',icon:svgI('risk'),
         title:`${countStr} dropping off`,
         desc:`Score drops from ${imp.curScore}/${imp.maxScore} to ${imp.nxtScore}/${imp.maxScore} — costs you ${imp.diff} point${imp.diff>1?'s':''}`,
         impactTag: 'loses-pts', impactText: `-${imp.diff} pts`
       });
     } else {
-      acts.push({type:'safe',icon:'✅',
+      acts.push({type:'safe',icon:svgI('safe'),
         title:`${countStr} dropping off`,
         desc:`No score impact — you still score ${imp.nxtScore}/${imp.maxScore} for ${imp.cat}${imp.cat==='CEU'?'s':''}`,
         impactTag: 'no-impact', impactText: 'No impact'
@@ -314,14 +413,14 @@ function buildActions(m){
   // Forecast warning
   if(ns < m.s) {
     const drop = m.s - ns;
-    acts.push({type:'warn',icon:'🔮',
+    acts.push({type:'warn',icon:svgI('alertTri'),
       title:`Score may drop to ${ns} next month`,
       desc:`Down ${drop} point${drop>1?'s':''} if nothing changes${nc==='red'?' — into the red zone':nc==='amber'?' — into amber':' — stay focused'}`,
       impactTag: null
     });
   } else if(ns > m.s) {
     const gain = ns - m.s;
-    acts.push({type:'safe',icon:'📈',
+    acts.push({type:'safe',icon:svgI('trendUp'),
       title:`Score should rise to ${ns} next month`,
       desc:`Up ${gain} point${gain>1?'s':''} as your rolling window improves`,
       impactTag: null
@@ -346,7 +445,7 @@ function buildActions(m){
     if(m.rs < 25 && m.g.r > 0) {
       const th = [{rate:.25,score:5},{rate:.50,score:10},{rate:.75,score:15},{rate:1,score:20},{rate:1.25,score:25}];
       const lvls = rateLevels(m.nm.r, m.g.r, 1.25, th, m.rs);
-      if(lvls.length) catActions.push({type:'levels',icon:'🎯',cat:'Referrals',cur:m.rs,max:25,unit:'referral',pts:25-m.rs,levels:lvls});
+      if(lvls.length) catActions.push({type:'levels',icon:svgI('target'),cat:'Referrals',cur:m.rs,max:25,unit:'referral',pts:25-m.rs,levels:lvls});
     }
 
     // --- Visitors (count-based) ---
@@ -354,14 +453,14 @@ function buildActions(m){
       const nmV = m.nm.v;
       const th = [{c:1,score:5},{c:2,score:10},{c:3,score:15},{c:4,score:20},{c:5,score:25}];
       const lvls = th.filter(t=>t.score>m.vs).map(t=>({need:Math.max(1,Math.ceil(t.c-nmV)),score:t.score,ptsGain:t.score-m.vs})).filter(l=>l.need>0);
-      if(lvls.length) catActions.push({type:'levels',icon:'👋',cat:'Visitors',cur:m.vs,max:25,unit:'visitor',pts:25-m.vs,levels:lvls});
+      if(lvls.length) catActions.push({type:'levels',icon:svgI('users'),cat:'Visitors',cur:m.vs,max:25,unit:'visitor',pts:25-m.vs,levels:lvls});
     }
 
     // --- 1-2-1s (rate-based, max 1.0) ---
     if(m.os < 20 && m.g.o > 0) {
       const th = [{rate:.25,score:5},{rate:.50,score:10},{rate:.75,score:15},{rate:1,score:20}];
       const lvls = rateLevels(m.nm.o, m.g.o, 1.0, th, m.os);
-      if(lvls.length) catActions.push({type:'levels',icon:'☕',cat:'1-2-1s',cur:m.os,max:20,unit:'1-2-1',pts:20-m.os,levels:lvls});
+      if(lvls.length) catActions.push({type:'levels',icon:svgI('coffee'),cat:'1-2-1s',cur:m.os,max:20,unit:'1-2-1',pts:20-m.os,levels:lvls});
     }
 
     // --- CEUs (rate-based, 2 tiers: >0 = 5, >0.5 = 10) ---
@@ -372,7 +471,7 @@ function buildActions(m){
         const need = Math.max(1, Math.ceil(m.g.c));
         lvls.push({need:need,score:10,ptsGain:10-m.cs});
       }
-      if(lvls.length) catActions.push({type:'levels',icon:'📚',cat:'CEUs',cur:m.cs,max:10,unit:'CEU',pts:10-m.cs,levels:lvls});
+      if(lvls.length) catActions.push({type:'levels',icon:svgI('book'),cat:'CEUs',cur:m.cs,max:10,unit:'CEU',pts:10-m.cs,levels:lvls});
     }
 
     // --- TYFCB (value-based thresholds) ---
@@ -380,12 +479,12 @@ function buildActions(m){
       const th = [{val:1,score:1},{val:1920,score:2},{val:4800,score:3},{val:14400,score:4},{val:28800,score:5}];
       const nmT = m.nm.t;
       const lvls = th.filter(t=>t.score>m.ts).map(t=>({need:Math.max(1,Math.ceil(t.val-nmT)),score:t.score,ptsGain:t.score-m.ts})).filter(l=>l.need>0);
-      if(lvls.length) catActions.push({type:'levels',icon:'💰',cat:'TYFCB',cur:m.ts,max:5,unit:'TYFCB',pts:5-m.ts,levels:lvls,isCurrency:true});
+      if(lvls.length) catActions.push({type:'levels',icon:svgI('coin'),cat:'TYFCB',cur:m.ts,max:5,unit:'TYFCB',pts:5-m.ts,levels:lvls,isCurrency:true});
     }
 
     // --- Sponsors (simple — only 1 threshold) ---
     if(m.ss===0 && m.g.s) {
-      catActions.push({type:'do',icon:'🤝',title:'Sponsor 1 new member',desc:'Worth 5 points',pts:5});
+      catActions.push({type:'do',icon:svgI('users'),title:'Sponsor 1 new member',desc:'Worth 5 points',pts:5});
     }
 
     // --- Attendance (simple) ---
@@ -394,7 +493,7 @@ function buildActions(m){
       if(m.as === 0) lvls.push({need:'88%+',score:5,ptsGain:5});
       if(m.as <= 5) lvls.push({need:'96%+',score:10,ptsGain:10-m.as});
       else lvls.push({need:'96%+',score:10,ptsGain:5});
-      catActions.push({type:'levels',icon:'📅',cat:'Attendance',cur:m.as,max:10,unit:'attendance',pts:10-m.as,levels:lvls,isRate:true});
+      catActions.push({type:'levels',icon:svgI('calendar'),cat:'Attendance',cur:m.as,max:10,unit:'attendance',pts:10-m.as,levels:lvls,isRate:true});
     }
 
     // Sort by points available descending
@@ -411,9 +510,41 @@ function buildActions(m){
   if(m.cs===10) maxed.push('CEUs');
   if(m.ts===5) maxed.push('TYFCB');
   if(m.ss===5) maxed.push('Sponsors');
-  if(maxed.length) acts.push({type:'done',icon:'🏆',title:`Maxed: ${maxed.join(', ')}`,desc:`Full marks in ${maxed.length} of 7 categories — keep it up!`});
+  if(maxed.length) acts.push({type:'done',icon:svgI('trophy'),title:`Maxed: ${maxed.join(', ')}`,desc:`Full marks in ${maxed.length} of 7 categories — keep it up!`});
 
   return acts;
+}
+
+// Pick the single best next action: highest points-per-unit-of-effort
+function topFocus(m){
+  if(m.s>=100) return null;
+  const acts=buildActions(m);
+  const candidates=acts.filter(a=>a.type==='do'||a.type==='levels');
+  if(!candidates.length) return null;
+
+  function ratio(a){
+    if(a.type==='do') return a.pts;
+    const lvl=a.levels[0];
+    let effort=typeof lvl.need==='number'?lvl.need:1;
+    if(a.isCurrency) effort=Math.max(effort/1000,0.5);
+    return lvl.ptsGain/Math.max(effort,0.5);
+  }
+  candidates.sort((a,b)=>ratio(b)-ratio(a));
+  const best=candidates[0];
+
+  if(best.type==='do'){
+    return {icon:best.icon,title:best.title,desc:`${best.desc} — your easiest win`};
+  }
+  const lvl=best.levels[0];
+  let title;
+  if(best.isRate) title=`Reach ${lvl.need} ${best.cat.toLowerCase()}`;
+  else if(best.isCurrency) title=`Close £${lvl.need.toLocaleString()} more in business`;
+  else title=`Give ${lvl.need} more ${best.unit}${lvl.need!==1?'s':''}`;
+  return {
+    icon:best.icon,
+    title:title,
+    desc:`+${lvl.ptsGain} point${lvl.ptsGain>1?'s':''} (${best.cat} ${best.cur} → ${lvl.score}/${best.max})`
+  };
 }
 
 function svgRing(score,size=52,stroke=5){
@@ -427,9 +558,13 @@ function svgRing(score,size=52,stroke=5){
   </svg>`;
 }
 
-function renderCard(m,i){
+function renderCard(m,i,me){
   const c=tl(m.s);
   const acts=buildActions(m);
+  const focus=topFocus(m);
+  const isMe=m.n===me;
+  const isOpen=openCards.has(m.n);
+  const id=nameId(m.n);
   const cats=[
     {l:'Att',v:m.as,mx:10},{l:'CEU',v:m.cs,mx:10},{l:'121',v:m.os,mx:20},{l:'Ref',v:m.rs,mx:25},
     {l:'TYF',v:m.ts,mx:5},{l:'Vis',v:m.vs,mx:25},{l:'Spo',v:m.ss,mx:5}
@@ -455,18 +590,31 @@ function renderCard(m,i){
   const actionCount = acts.filter(a=>a.type==='do').length;
   const ptsAvail = 100 - m.s;
 
-  return `<div class="card" id="card-${i}" onclick="toggle(${i})">
-    <div class="card-header">
-      <div class="avatar" style="background:${acol(m.n)}">${init(m.n)}</div>
+  const projected=calcNS(m);
+  const delta=projected-m.s;
+  let trendChip='', trendAria='';
+  if(delta<0){
+    trendChip=` <span class="trend-chip down" aria-hidden="true">▾ ${-delta}</span>`;
+    trendAria=`, projected to drop ${-delta} ${-delta===1?'point':'points'} next month`;
+  } else if(delta>0){
+    trendChip=` <span class="trend-chip up" aria-hidden="true">▴ ${delta}</span>`;
+    trendAria=`, projected to rise ${delta} ${delta===1?'point':'points'} next month`;
+  }
+  const tierName=c==='green'?'Green':c==='amber'?'Amber':'Red';
+  const scoreLabel=`Score ${m.s} of 100, ${tierName}${trendAria}`;
+
+  return `<div class="card${isOpen?' open':''}${isMe?' is-me':''}" id="card-${id}" onclick="toggle('${m.n.replace(/'/g,"\\'")}')">
+    <div class="card-header" role="button" tabindex="0" aria-expanded="${isOpen?'true':'false'}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle('${m.n.replace(/'/g,"\\'")}');}">
+      <div class="avatar" aria-hidden="true" style="background:${acol(m.n)}">${init(m.n)}</div>
       <div class="card-info">
-        <div class="card-name">${m.n}</div>
-        <div class="card-meta">${ptsAvail>0?ptsAvail+' pts to max':'At maximum'} &bull; ${metaText}</div>
+        <div class="card-name">${m.n}${isMe?'<span class="you-badge">YOU</span>':''}</div>
+        <div class="card-meta">${ptsAvail>0?ptsAvail+' pts to max':'At maximum'}${trendChip} &bull; ${metaText}</div>
       </div>
-      <div class="score-circle">
+      <div class="score-circle" role="img" aria-label="${scoreLabel}">
         ${svgRing(m.s)}
         <div class="score-num" style="color:${COL[c]}">${m.s}</div>
       </div>
-      <div class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
+      <div class="chevron" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>
     </div>
     <div class="actions-wrap">
       <div class="status-bar">
@@ -475,9 +623,20 @@ function renderCard(m,i){
       <div class="breakdown-grid">
         ${cats.map(c=>{const p=c.v/c.mx;const bg=p>=1?'var(--green-bg)':p>=.5?'var(--amber-bg)':'var(--red-bg)';return `<div class="bd" style="background:${bg}"><span class="v">${c.v}</span><span class="mx">/${c.mx}</span><span class="l">${c.l}</span></div>`;}).join('')}
       </div>
+      ${focus ? `
+        <div class="top-focus">
+          <div class="tf-label">${svgI('star')} Your top focus this month</div>
+          <div class="tf-action">
+            <div class="tf-icon">${focus.icon}</div>
+            <div class="tf-content">
+              <strong>${focus.title}</strong>
+              <span>${focus.desc}</span>
+            </div>
+          </div>
+        </div>` : ''}
       ${acts.length ? `
         ${acts.filter(a=>a.type==='risk'||a.type==='safe'&&a.impactTag||a.type==='warn').length ? `
-          <div class="section-label"><span class="icon">📉</span> What's Dropping Off</div>
+          <div class="section-label"><span class="icon">${svgI('trendDown')}</span> What's Dropping Off</div>
           <div class="action-list">
             ${acts.filter(a=>a.type==='risk'||a.type==='safe'&&a.impactTag||a.type==='warn').map(a=>`
               <div class="action-item ${a.type}">
@@ -490,7 +649,7 @@ function renderCard(m,i){
               </div>`).join('')}
           </div>` : ''}
         ${acts.filter(a=>a.type==='do'||a.type==='levels').length ? `
-          <div class="section-label"><span class="icon">🎯</span> How to Reach 100 Points</div>
+          <div class="section-label"><span class="icon">${svgI('target')}</span> How to Reach 100 Points</div>
           <div class="action-list">
             ${acts.filter(a=>a.type==='do'||a.type==='levels').map(a=> a.type==='levels' ? `
               <div class="action-item do">
@@ -515,7 +674,7 @@ function renderCard(m,i){
               </div>`).join('')}
           </div>` : ''}
         ${acts.filter(a=>a.type==='done').length ? `
-          <div class="section-label"><span class="icon">🏆</span> Maxed Out</div>
+          <div class="section-label"><span class="icon">${svgI('trophy')}</span> Maxed Out</div>
           <div class="action-list">
             ${acts.filter(a=>a.type==='done').map(a=>`
               <div class="action-item ${a.type}">
@@ -526,7 +685,7 @@ function renderCard(m,i){
                 </div>
               </div>`).join('')}
           </div>` : ''}
-      ` : '<div class="action-item done"><div class="action-icon">🌟</div><div class="action-text"><strong>Perfect 100!</strong><span>Maximum points in every category</span></div></div>'}
+      ` : `<div class="action-item done"><div class="action-icon">${svgI('sparkles')}</div><div class="action-text"><strong>Perfect 100!</strong><span>Maximum points in every category</span></div></div>`}
     </div>
   </div>`;
 }
@@ -534,18 +693,60 @@ function renderCard(m,i){
 let filter='all';
 function setFilter(f,el){
   filter=f;
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.pill').forEach(p=>{
+    p.classList.remove('active');
+    p.setAttribute('aria-pressed','false');
+  });
   el.classList.add('active');
+  el.setAttribute('aria-pressed','true');
   render();
 }
 
-function toggle(i){
-  document.getElementById('card-'+i).classList.toggle('open');
+const PILL_LABELS={all:'All',green:'Green',amber:'Amber',red:'Red',dropping:'At Risk'};
+function updatePillCounts(){
+  const counts={
+    all:M.length,
+    green:M.filter(m=>m.s>=70).length,
+    amber:M.filter(m=>m.s>=50&&m.s<70).length,
+    red:M.filter(m=>m.s<50).length,
+    dropping:M.filter(m=>hasD(m.d)).length
+  };
+  document.querySelectorAll('.pill').forEach(p=>{
+    const f=p.dataset.f;
+    if(counts[f]!==undefined) p.innerHTML=`${PILL_LABELS[f]} <span class="pill-count">${counts[f]}</span>`;
+  });
+}
+
+function toggle(name){
+  if(openCards.has(name)) openCards.delete(name);
+  else openCards.add(name);
+  document.getElementById('card-'+nameId(name)).classList.toggle('open');
+}
+
+function renderMeBar(){
+  const me=getMe();
+  const bar=document.getElementById('meBar');
+  if(me){
+    bar.className='me-bar set';
+    bar.innerHTML=`<span class="me-info">${svgI('user')} You: <strong>${me}</strong></span><button class="me-change" onclick="clearMe()">Change</button>`;
+  } else {
+    bar.className='me-bar';
+    const sorted=[...M].sort((a,b)=>a.n.localeCompare(b.n));
+    bar.innerHTML=`<div class="me-q">${svgI('user')} Which member are you?</div>
+      <select onchange="pickMe(this.value)">
+        <option value="">Choose your name…</option>
+        ${sorted.map(m=>`<option value="${m.n}">${m.n}</option>`).join('')}
+      </select>`;
+  }
 }
 
 function render(){
+  renderMeBar();
+  updatePillCounts();
+  const me=getMe();
   const q=document.getElementById('search').value.toLowerCase();
   let list=M.filter(m=>{
+    if(m.n===me) return true;
     if(q && !m.n.toLowerCase().includes(q)) return false;
     if(filter==='green') return m.s>=70;
     if(filter==='amber') return m.s>=50 && m.s<70;
@@ -553,9 +754,13 @@ function render(){
     if(filter==='dropping') return hasD(m.d);
     return true;
   });
-  list.sort((a,b)=>b.s-a.s);
+  list.sort((a,b)=>{
+    if(a.n===me) return -1;
+    if(b.n===me) return 1;
+    return b.s-a.s;
+  });
 
-  const html=list.map((m,i)=>renderCard(m,i)).join('');
+  const html=list.map((m,i)=>renderCard(m,i,me)).join('');
   document.getElementById('cards').innerHTML=html||'<div class="nothing">No members match your filter</div>';
 
   const g=M.filter(m=>m.s>=70).length;
@@ -566,7 +771,19 @@ function render(){
   document.getElementById('hr').textContent=`${r} Red`;
 }
 
-render();
+function updateStickyOffset(){
+  const sw=document.querySelector('.search-wrap');
+  if(sw) document.documentElement.style.setProperty('--search-h', sw.offsetHeight+'px');
+}
+
+// On first load, auto-open the user's card if they've already chosen
+(function bootstrap(){
+  const me=getMe();
+  if(me && M.some(m=>m.n===me)) openCards.add(me);
+  render();
+  updateStickyOffset();
+  window.addEventListener('resize', updateStickyOffset);
+})();
 </script>
 </body>
 </html>
