@@ -111,6 +111,43 @@
   /* Nothing state */
   .nothing { text-align: center; padding: 40px 20px; color: var(--gray500); }
 
+  /* Me bar — "this is me" picker */
+  .me-bar { background: #fff; margin: 12px 16px 0; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--gray200); }
+  .me-bar.set { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; }
+  .me-bar .me-q { font-size: .82rem; color: var(--gray700); margin-bottom: 8px; font-weight: 600; }
+  .me-bar select { width: 100%; padding: 10px 12px; border: 2px solid var(--gray200); border-radius: 8px; font-size: .9rem; background: #fff; font-family: inherit; color: var(--gray900); outline: none; }
+  .me-bar select:focus { border-color: var(--bni-red); }
+  .me-bar .me-info { font-size: .85rem; color: var(--gray700); }
+  .me-bar .me-info strong { color: var(--bni-red); font-weight: 700; }
+  .me-bar .me-change { background: none; border: 1px solid var(--gray300); padding: 5px 12px; border-radius: 8px; font-size: .75rem; color: var(--gray700); cursor: pointer; font-family: inherit; font-weight: 600; }
+  .me-bar .me-change:active { transform: scale(.95); }
+
+  /* YOU badge + highlight */
+  .you-badge { display: inline-block; background: var(--bni-red); color: #fff; font-size: .6rem; font-weight: 700; padding: 2px 6px; border-radius: 5px; margin-left: 6px; letter-spacing: .5px; vertical-align: middle; }
+  .card.is-me { border: 2px solid var(--bni-red); box-shadow: 0 2px 8px rgba(207,32,48,.12); }
+
+  /* Top focus — single CTA */
+  .top-focus { background: linear-gradient(135deg, #fff7ed, #fef3c7); border-radius: var(--radius-sm); padding: 12px; margin: 0 0 14px; border-left: 3px solid var(--bni-red); }
+  .top-focus .tf-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--bni-red); margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+  .top-focus .tf-action { display: flex; gap: 10px; align-items: flex-start; }
+  .top-focus .tf-icon { font-size: 1.3rem; line-height: 1; }
+  .top-focus .tf-content strong { display: block; font-size: .9rem; margin-bottom: 2px; }
+  .top-focus .tf-content span { font-size: .78rem; color: var(--gray700); }
+
+  /* Legend toggle + panel */
+  .legend-wrap { padding: 0 16px 8px; }
+  .legend-toggle { display: inline-flex; align-items: center; gap: 4px; font-size: .76rem; color: var(--gray500); cursor: pointer; padding: 4px 0; border: none; background: none; font-family: inherit; }
+  .legend-toggle:hover { color: var(--bni-red); }
+  .legend-toggle .lg-arrow { transition: transform .2s; display: inline-block; }
+  .legend-toggle.open .lg-arrow { transform: rotate(90deg); }
+  .legend { background: #fff; border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 6px; font-size: .78rem; border: 1px solid var(--gray200); display: none; }
+  .legend.open { display: block; }
+  .legend-row { padding: 7px 0; border-bottom: 1px solid var(--gray100); display: flex; gap: 10px; align-items: baseline; }
+  .legend-row:last-child { border-bottom: none; }
+  .legend-row .lg-abbr { font-weight: 700; min-width: 36px; color: var(--bni-red); font-size: .8rem; }
+  .legend-row .lg-name { flex: 1; color: var(--gray900); }
+  .legend-row .lg-rule { color: var(--gray500); font-size: .72rem; }
+
   /* Footer */
   .footer { text-align: center; padding: 10px 20px 24px; font-size: .72rem; color: var(--gray500); }
   .footer span { color: var(--bni-red); font-weight: 700; }
@@ -134,8 +171,10 @@
   </div>
 </div>
 
+<div class="me-bar" id="meBar"></div>
+
 <div class="search-wrap">
-  <input type="text" id="search" placeholder="Find your name..." oninput="render()">
+  <input type="text" id="search" placeholder="Find a name..." oninput="render()">
 </div>
 <div class="pills" id="pills">
   <div class="pill active" data-f="all" onclick="setFilter('all',this)">All</div>
@@ -143,6 +182,18 @@
   <div class="pill" data-f="amber" onclick="setFilter('amber',this)">Amber</div>
   <div class="pill" data-f="red" onclick="setFilter('red',this)">Red</div>
   <div class="pill" data-f="dropping" onclick="setFilter('dropping',this)">At Risk</div>
+</div>
+<div class="legend-wrap">
+  <button class="legend-toggle" id="lgToggle" onclick="toggleLegend()"><span class="lg-arrow">›</span> How scoring works</button>
+  <div class="legend" id="legend">
+    <div class="legend-row"><span class="lg-abbr">Att</span><span class="lg-name">Attendance</span><span class="lg-rule">96%+ → 10 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">CEU</span><span class="lg-name">Continuing Education Units</span><span class="lg-rule">&gt;0.5/mo → 10 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">121</span><span class="lg-name">One-to-Ones</span><span class="lg-rule">1+/mo → 20 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">Ref</span><span class="lg-name">Referrals given</span><span class="lg-rule">1.25+/mo → 25 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">TYF</span><span class="lg-name">Thank You For Closed Business</span><span class="lg-rule">£28,800+ → 5 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">Vis</span><span class="lg-name">Visitors invited</span><span class="lg-rule">5+ → 25 pts</span></div>
+    <div class="legend-row"><span class="lg-abbr">Spo</span><span class="lg-name">Members sponsored</span><span class="lg-rule">1+ → 5 pts</span></div>
+  </div>
 </div>
 
 <div class="cards" id="cards"></div>
@@ -173,6 +224,15 @@ const M=[
 
 const COL={green:'#10b981',amber:'#f59e0b',red:'#CF2030'};
 const ACOL=['#CF2030','#58595B','#8b5cf6','#14b8a6','#f97316','#06b6d4','#84cc16','#374151','#3b82f6','#10b981'];
+
+const ME_KEY='bni-elli-me';
+const openCards=new Set();
+function getMe(){try{return localStorage.getItem(ME_KEY);}catch(e){return null;}}
+function setMe(n){try{n?localStorage.setItem(ME_KEY,n):localStorage.removeItem(ME_KEY);}catch(e){}}
+function pickMe(n){if(!n)return;setMe(n);openCards.add(n);render();}
+function clearMe(){const m=getMe();if(m)openCards.delete(m);setMe(null);render();}
+function nameId(n){return n.replace(/\s+/g,'-').toLowerCase();}
+function toggleLegend(){document.getElementById('legend').classList.toggle('open');document.getElementById('lgToggle').classList.toggle('open');}
 
 function tl(s){return s>=70?'green':s>=50?'amber':'red';}
 function init(n){return n.split(/\s+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);}
@@ -416,6 +476,38 @@ function buildActions(m){
   return acts;
 }
 
+// Pick the single best next action: highest points-per-unit-of-effort
+function topFocus(m){
+  if(m.s>=100) return null;
+  const acts=buildActions(m);
+  const candidates=acts.filter(a=>a.type==='do'||a.type==='levels');
+  if(!candidates.length) return null;
+
+  function ratio(a){
+    if(a.type==='do') return a.pts;
+    const lvl=a.levels[0];
+    let effort=typeof lvl.need==='number'?lvl.need:1;
+    if(a.isCurrency) effort=Math.max(effort/1000,0.5);
+    return lvl.ptsGain/Math.max(effort,0.5);
+  }
+  candidates.sort((a,b)=>ratio(b)-ratio(a));
+  const best=candidates[0];
+
+  if(best.type==='do'){
+    return {icon:best.icon,title:best.title,desc:`${best.desc} — your easiest win`};
+  }
+  const lvl=best.levels[0];
+  let title;
+  if(best.isRate) title=`Reach ${lvl.need} ${best.cat.toLowerCase()}`;
+  else if(best.isCurrency) title=`Close £${lvl.need.toLocaleString()} more in business`;
+  else title=`Give ${lvl.need} more ${best.unit}${lvl.need!==1?'s':''}`;
+  return {
+    icon:best.icon,
+    title:title,
+    desc:`+${lvl.ptsGain} point${lvl.ptsGain>1?'s':''} (${best.cat} ${best.cur} → ${lvl.score}/${best.max})`
+  };
+}
+
 function svgRing(score,size=52,stroke=5){
   const c=tl(score);
   const r=(size-stroke)/2;
@@ -427,9 +519,13 @@ function svgRing(score,size=52,stroke=5){
   </svg>`;
 }
 
-function renderCard(m,i){
+function renderCard(m,i,me){
   const c=tl(m.s);
   const acts=buildActions(m);
+  const focus=topFocus(m);
+  const isMe=m.n===me;
+  const isOpen=openCards.has(m.n);
+  const id=nameId(m.n);
   const cats=[
     {l:'Att',v:m.as,mx:10},{l:'CEU',v:m.cs,mx:10},{l:'121',v:m.os,mx:20},{l:'Ref',v:m.rs,mx:25},
     {l:'TYF',v:m.ts,mx:5},{l:'Vis',v:m.vs,mx:25},{l:'Spo',v:m.ss,mx:5}
@@ -455,11 +551,11 @@ function renderCard(m,i){
   const actionCount = acts.filter(a=>a.type==='do').length;
   const ptsAvail = 100 - m.s;
 
-  return `<div class="card" id="card-${i}" onclick="toggle(${i})">
+  return `<div class="card${isOpen?' open':''}${isMe?' is-me':''}" id="card-${id}" onclick="toggle('${m.n.replace(/'/g,"\\'")}')">
     <div class="card-header">
       <div class="avatar" style="background:${acol(m.n)}">${init(m.n)}</div>
       <div class="card-info">
-        <div class="card-name">${m.n}</div>
+        <div class="card-name">${m.n}${isMe?'<span class="you-badge">YOU</span>':''}</div>
         <div class="card-meta">${ptsAvail>0?ptsAvail+' pts to max':'At maximum'} &bull; ${metaText}</div>
       </div>
       <div class="score-circle">
@@ -475,6 +571,17 @@ function renderCard(m,i){
       <div class="breakdown-grid">
         ${cats.map(c=>{const p=c.v/c.mx;const bg=p>=1?'var(--green-bg)':p>=.5?'var(--amber-bg)':'var(--red-bg)';return `<div class="bd" style="background:${bg}"><span class="v">${c.v}</span><span class="mx">/${c.mx}</span><span class="l">${c.l}</span></div>`;}).join('')}
       </div>
+      ${focus ? `
+        <div class="top-focus">
+          <div class="tf-label">⭐ Your top focus this month</div>
+          <div class="tf-action">
+            <div class="tf-icon">${focus.icon}</div>
+            <div class="tf-content">
+              <strong>${focus.title}</strong>
+              <span>${focus.desc}</span>
+            </div>
+          </div>
+        </div>` : ''}
       ${acts.length ? `
         ${acts.filter(a=>a.type==='risk'||a.type==='safe'&&a.impactTag||a.type==='warn').length ? `
           <div class="section-label"><span class="icon">📉</span> What's Dropping Off</div>
@@ -539,13 +646,35 @@ function setFilter(f,el){
   render();
 }
 
-function toggle(i){
-  document.getElementById('card-'+i).classList.toggle('open');
+function toggle(name){
+  if(openCards.has(name)) openCards.delete(name);
+  else openCards.add(name);
+  document.getElementById('card-'+nameId(name)).classList.toggle('open');
+}
+
+function renderMeBar(){
+  const me=getMe();
+  const bar=document.getElementById('meBar');
+  if(me){
+    bar.className='me-bar set';
+    bar.innerHTML=`<span class="me-info">👤 You: <strong>${me}</strong></span><button class="me-change" onclick="clearMe()">Change</button>`;
+  } else {
+    bar.className='me-bar';
+    const sorted=[...M].sort((a,b)=>a.n.localeCompare(b.n));
+    bar.innerHTML=`<div class="me-q">👋 Which member are you?</div>
+      <select onchange="pickMe(this.value)">
+        <option value="">Choose your name…</option>
+        ${sorted.map(m=>`<option value="${m.n}">${m.n}</option>`).join('')}
+      </select>`;
+  }
 }
 
 function render(){
+  renderMeBar();
+  const me=getMe();
   const q=document.getElementById('search').value.toLowerCase();
   let list=M.filter(m=>{
+    if(m.n===me) return true;
     if(q && !m.n.toLowerCase().includes(q)) return false;
     if(filter==='green') return m.s>=70;
     if(filter==='amber') return m.s>=50 && m.s<70;
@@ -553,9 +682,13 @@ function render(){
     if(filter==='dropping') return hasD(m.d);
     return true;
   });
-  list.sort((a,b)=>b.s-a.s);
+  list.sort((a,b)=>{
+    if(a.n===me) return -1;
+    if(b.n===me) return 1;
+    return b.s-a.s;
+  });
 
-  const html=list.map((m,i)=>renderCard(m,i)).join('');
+  const html=list.map((m,i)=>renderCard(m,i,me)).join('');
   document.getElementById('cards').innerHTML=html||'<div class="nothing">No members match your filter</div>';
 
   const g=M.filter(m=>m.s>=70).length;
@@ -566,7 +699,12 @@ function render(){
   document.getElementById('hr').textContent=`${r} Red`;
 }
 
-render();
+// On first load, auto-open the user's card if they've already chosen
+(function init(){
+  const me=getMe();
+  if(me && M.some(m=>m.n===me)) openCards.add(me);
+  render();
+})();
 </script>
 </body>
 </html>
