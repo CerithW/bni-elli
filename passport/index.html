@@ -182,6 +182,8 @@ details .body{padding:0 1.1rem 1rem;display:grid;gap:.75rem}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media (max-width:700px){.two{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.signin select{width:100%}
+button.chip{font:inherit;line-height:inherit}
 </style>
 </head>
 <body>
@@ -220,7 +222,9 @@ details .body{padding:0 1.1rem 1rem;display:grid;gap:.75rem}
 /* ---------------- Chapter setup: edit this block for your chapter ---------------- */
 const CHAPTER = {
   name: 'BNI Elli',
-  // Who delivers each session: the usual mentor first, then the alternative. From the chapter's Mentor Tracking Sheet.
+  // Web app address of the Google Sheet script (see README). Leave empty and everything stays on each person's own device.
+  apiUrl: '',
+  // Who delivers each session: the usual mentor first, then the alternative. Online, the Settings tab of the sheet overrides this.
   mentors: {
     '1': ['Matthew', 'Eleanor'],
     '2': ['Rhys D', 'Cerith'],
@@ -235,7 +239,7 @@ const CHAPTER = {
   },
   // Tracked beyond the ten sessions and MSP. Add 'LP' for Launch Pad and 'RT' for the Regional Team sign-off if the chapter uses them.
   extraItems: [],
-  // New members already in the programme, loaded the first time the tracker opens on a device.
+  // On-device mode only: new members loaded the first time the tracker opens on a device. Online, the sheet holds them instead.
   seedDate: '2026-10-22',
   seed: [
     { name: 'Luke E',  inducted: '2026-05-01', msp: true },
@@ -489,13 +493,6 @@ const MILESTONES = {
            text: 'BNI’s foundation training, delivered in the region. Book it within your first six weeks. It is required before you can give a Feature Presentation and before your Completion Certificate.' }
 };
 
-const EXTRA = new Set(CHAPTER.extraItems || []);
-const ORDER = ['1','2','3','4', ...(EXTRA.has('LP') ? ['LP'] : []), '5','6','7','8','9','10', ...(EXTRA.has('RT') ? ['RT'] : []), 'MSP'];  // as the tracker sheet lists them
-const RECOMMENDED = ['7', ...ORDER.filter(k => k !== '7')];   // Chapter Tools first
-function mentorsFor(k){ return (CHAPTER.mentors && CHAPTER.mentors[k]) || []; }
-function mentorText(k){ const m = mentorsFor(k); return m.length ? m.join(' or ') : ''; }
-function hasDate(s){ return !!parseISO(s); }
-const TARGET_DAYS = 84;
 
 const QUICK_TIPS = [
   'The Passport is an engagement tool, not a training tool. Mentors spend most of the hour on the relationship and GAINS.',
@@ -601,12 +598,13 @@ const GAINS = [
   ['Skills','What are you good at that people might not know about?']
 ];
 
+
 /* ---------------- Helpers ---------------- */
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function parseISO(s){ if(!s) return null; const [y,m,d]=s.split('-').map(Number); if(!y||!m||!d) return null; return new Date(y,m-1,d); }
+function parseISO(s){ if(!s || typeof s !== 'string') return null; const [y,m,d]=s.split('-').map(Number); if(!y||!m||!d) return null; return new Date(y,m-1,d); }
 function fmt(s){ const d=parseISO(s); return d ? `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : ''; }
 function fmtShort(s){ const d=parseISO(s); return d ? `${d.getDate()} ${MONTHS[d.getMonth()]}` : ''; }
 function addDays(s,n){ const d=parseISO(s); if(!d) return ''; d.setDate(d.getDate()+n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
@@ -614,86 +612,242 @@ function daysBetween(a,b){ const da=parseISO(a), db=parseISO(b); if(!da||!db) re
 function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
 function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 function uid(){ return Math.random().toString(36).slice(2,9); }
+function hasDate(s){ return !!parseISO(s); }
+function lcA(s){ return String(s).replace(/^A /,'a '); }
+/* Accept a date only once it is complete: empty (cleared) or a year between 2000 and 2100. Half-typed years such as 0002 are ignored. */
+function saneDate(v){ if (v === '') return true; const d = parseISO(v); return !!d && d.getFullYear() >= 2000 && d.getFullYear() <= 2100; }
+
+/* Live chapter settings: start from CHAPTER; online, the sheet's Settings tab overrides. */
+let cfg = { name: CHAPTER.name || '', apiUrl: CHAPTER.apiUrl || '', mentors: CHAPTER.mentors || {}, extraItems: CHAPTER.extraItems || [] };
+const ONLINE = () => !!cfg.apiUrl;
+const TARGET_DAYS = 84;
+function ORDER(){ const x = new Set(cfg.extraItems || []); return ['1','2','3','4', ...(x.has('LP') ? ['LP'] : []), '5','6','7','8','9','10', ...(x.has('RT') ? ['RT'] : []), 'MSP']; }
+function RECOMMENDED(){ return ['7', ...ORDER().filter(k => k !== '7')]; }
+function mentorsFor(k){ return (cfg.mentors && cfg.mentors[k]) || []; }
+function mentorText(k){ const m = mentorsFor(k); return m.length ? m.join(' or ') : ''; }
 function itemTitle(k){ return SESSIONS[k] ? SESSIONS[k].title : MILESTONES[k].title; }
 function itemShort(k){ return SESSIONS[k] ? SESSIONS[k].short : MILESTONES[k].short; }
 function itemLabel(k){ return SESSIONS[k] ? 'S'+k : MILESTONES[k].label; }
-function lcA(s){ return String(s).replace(/^A /,'a '); }
 function itemBy(k){ return SESSIONS[k] ? SESSIONS[k].by : MILESTONES[k].by; }
-function blankItems(){ const o={}; ORDER.forEach(k=>o[k]={done:'',mentor:''}); return o; }
-function normalise(items){ const o=blankItems(); if(items) ORDER.forEach(k=>{ if(items[k]) o[k]={done:items[k].done||'',mentor:items[k].mentor||''}; }); return o; }
+function blankItems(){ const o={}; ORDER().forEach(k=>o[k]={done:'',mentor:''}); return o; }
+function normalise(items){ const o=blankItems(); if(items) ORDER().forEach(k=>{ if(items[k]) o[k]={done:items[k].done||'',mentor:items[k].mentor||''}; }); return o; }
+function idFor(name){ let h = 5381; const t = String(name||'').trim().toLowerCase(); for (let i=0;i<t.length;i++) h = ((h*33) ^ t.charCodeAt(i)) >>> 0; return 'n' + h.toString(36); }
+function normMember(m){ return { id:m.id||idFor(m.name)||uid(), name:m.name||'', password:m.password||'', trade:m.trade||'', inducted:m.inducted||'', completed:m.completed||'', items:normalise(m.items), open:!!m.open }; }
 
 /* Progress and pace. Expected pace: one session a week from induction, over 10 weeks; milestones are extra. */
 function progress(m, asOf){
   asOf = asOf || todayISO();
-  const items = normalise(m.items);
-  const done = ORDER.filter(k=>items[k].done).length;
+  const order = ORDER(), items = normalise(m.items);
+  const done = order.filter(k=>items[k].done).length;
   const sessionsDone = Object.keys(SESSIONS).filter(k=>items[k].done).length;
   const days = m.inducted ? daysBetween(m.inducted, asOf) : null;
   const week = days==null ? null : Math.floor(Math.max(0,days)/7)+1;
   const target = m.inducted ? addDays(m.inducted, TARGET_DAYS) : '';
-  const next = RECOMMENDED.find(k => SESSIONS[k] && !items[k].done) || null;
+  const next = RECOMMENDED().find(k => SESSIONS[k] && !items[k].done) || null;
   let status, tone;
-  if (done === ORDER.length) { status='Complete'; tone='grey'; }
+  if (done === order.length) { status='Complete'; tone='grey'; }
   else if (days==null) { status='No induction date'; tone='grey'; }
   else if (days > TARGET_DAYS) { status='Overdue'; tone='red'; }
   else {
-    const expected = Math.min(10, Math.floor(days/7));   // sessions you would expect by now at one a week
+    const expected = Math.min(10, Math.floor(days/7));
     if (sessionsDone < expected - 1) { status='Behind pace'; tone='amber'; }
     else { status='On track'; tone='green'; }
   }
-  return { items, done, sessionsDone, days, week, target, next, status, tone, total: ORDER.length };
+  return { items, done, sessionsDone, days, week, target, next, status, tone, total: order.length };
 }
 
 /* ---------------- State ---------------- */
-const KEY_ME = 'p2s.me.v1', KEY_TR = 'p2s.tracker.v1', KEY_CK = 'p2s.checklist.v1', KEY_UI = 'p2s.ui.v1';
-let me = load(KEY_ME, { name:'', trade:'', inducted:'', items: blankItems(), open: { setup: true } });
-me.items = normalise(me.items); me.open = me.open || {};
+const KEY_ME = 'p2s.me.v1', KEY_TR = 'p2s.tracker.v1', KEY_CK = 'p2s.checklist.v1', KEY_UI = 'p2s.ui.v1', KEY_SESS = 'p2s.session.v1', KEY_CACHE = 'p2s.cache.v1';
+let me = load(KEY_ME, { name:'', trade:'', inducted:'', items: {}, open: { setup: true } });
+me = Object.assign({ open: { setup: true } }, me, { items: normalise(me.items) }); me.open = me.open || {};
 function seedTracker(){
-  return { chapter: CHAPTER.name || '', seeded: CHAPTER.seedDate || '', members: (CHAPTER.seed || []).map(x => {
-    const items = blankItems(); if (x.msp) items.MSP.done = 'yes'; (x.done || []).forEach(k => { if (items[k]) items[k].done = 'yes'; });
-    return { id: uid(), name: x.name || '', trade: x.trade || '', inducted: x.inducted || '', items, open: false };
+  return { chapter: cfg.name || '', seeded: CHAPTER.seedDate || '', archived: [], members: (CHAPTER.seed || []).map(x => {
+    const items = blankItems(); if (x.msp && items.MSP) items.MSP.done = 'yes'; (x.done || []).forEach(k => { if (items[k]) items[k].done = 'yes'; });
+    return normMember({ name: x.name, trade: x.trade, inducted: x.inducted, items });
   }) };
 }
 let tracker = load(KEY_TR, null); if (!tracker) tracker = seedTracker();
-tracker.members = (tracker.members||[]).map(m => ({ id:m.id||uid(), name:m.name||'', trade:m.trade||'', inducted:m.inducted||'', items:normalise(m.items), open:!!m.open }));
+tracker.members = (tracker.members||[]).map(normMember); tracker.archived = (tracker.archived||[]).map(normMember);
 let checks = load(KEY_CK, {});
 let ui = load(KEY_UI, { view:'passport', session:'7' });
-let confirmId = null;
+let sess = load(KEY_SESS, { member:null, coord:null });
+let cache = load(KEY_CACHE, { me:null, list:null, names:null });
+/* Online-only state (never persisted beyond the cache above) */
+let online = { me: cache.me ? normMember(cache.me) : null, members: [], archived: [], names: cache.names || null, loaded:false, listLoaded:false };
+let net = { busy:false, status:'', error:'', namesError:'' };    // status: '' | 'saving' | 'saved' | 'failed'
+let confirmId = null, pageOpen = {};   // per-session UI: which member cards / passport pages are expanded
+
+/* ---------------- Online store (Google Sheet web app) ---------------- */
+async function api(payload){
+  const r = await fetch(cfg.apiUrl, { method:'POST', body: JSON.stringify(payload), headers: { 'Content-Type':'text/plain;charset=utf-8' }, redirect:'follow' });
+  let j; try { j = await r.json(); } catch(e){ throw new Error('The chapter store gave an unexpected reply. Check the web app address.'); }
+  if (!j.ok) throw new Error(j.error || 'The chapter store refused the request.');
+  return j;
+}
+function applySettings(s){
+  if (!s) return;
+  if (s.chapter) cfg.name = s.chapter;
+  if (s.mentors && Object.keys(s.mentors).length) cfg.mentors = s.mentors;
+  if (Array.isArray(s.extraItems)) cfg.extraItems = s.extraItems;
+  if (cfg.name) $('#eyebrow').textContent = cfg.name + ' · new member mentoring';
+}
+async function loadNames(){
+  if (net.namesLoading) return; net.namesLoading = true; net.namesError = '';
+  try { const r = await fetch(cfg.apiUrl + (cfg.apiUrl.includes('?') ? '&' : '?') + 'action=names', { redirect:'follow' }); const j = await r.json(); if (!j.ok) throw new Error(j.error || 'failed');
+    online.names = j.names || []; cache.names = online.names; save(KEY_CACHE, cache); applySettings(j.settings); }
+  catch(e){ net.namesError = 'Could not fetch the member list. Check your signal, or type your name below.'; }
+  net.namesLoading = false; render();
+}
+async function signIn(name, password){
+  net.busy = true; net.error = ''; render();
+  try { const j = await api({ action:'login', name, password });
+    sess.member = { name: j.member.name, password }; save(KEY_SESS, sess);
+    online.me = normMember(j.member); online.loaded = true; cache.me = online.me; save(KEY_CACHE, cache); applySettings(j.settings); pageOpen = {};
+  } catch(e){ net.error = /recognis|password|name/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
+  net.busy = false; render();
+}
+function signOut(){ sess.member = null; online.me = null; online.loaded = false; cache.me = null; net.status=''; save(KEY_SESS, sess); save(KEY_CACHE, cache); render(); }
+async function coordSignIn(password){
+  net.busy = true; net.error = ''; render();
+  try { const j = await api({ action:'list', password }); sess.coord = { password }; save(KEY_SESS, sess); takeList(j); }
+  catch(e){ net.error = /password/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
+  net.busy = false; render();
+}
+function coordSignOut(){ sess.coord = null; online.members = []; online.archived = []; online.listLoaded = false; cache.list = null; save(KEY_SESS, sess); save(KEY_CACHE, cache); render(); }
+function takeList(j){ online.members = (j.members||[]).map(normMember); online.archived = (j.archived||[]).map(normMember); online.listLoaded = true; cache.list = { members: online.members, archived: online.archived }; save(KEY_CACHE, cache); applySettings(j.settings); }
+async function refreshOnline(){
+  if (!ONLINE()) return; net.busy = true; net.error=''; render();
+  try {
+    if (sess.member) { const j = await api({ action:'login', name: sess.member.name, password: sess.member.password }); online.me = normMember(j.member); online.loaded = true; cache.me = online.me; applySettings(j.settings); }
+    if (sess.coord) { const j = await api({ action:'list', password: sess.coord.password }); takeList(j); }
+    save(KEY_CACHE, cache);
+  } catch(e){ net.error = e.message; if (/recognis|password/i.test(e.message)) { if (sess.member && /name/i.test(e.message)) sess.member = null; } }
+  net.busy = false; render();
+}
+let saveTimer = null, saveQueue = null;
+function queue(fn){   // coalesce rapid edits into one request; the last one wins
+  saveQueue = fn; clearTimeout(saveTimer); net.status = 'saving'; paintStatus();
+  saveTimer = setTimeout(async () => { const f = saveQueue; saveQueue = null;
+    try { await f(); net.status = 'saved'; net.error=''; } catch(e){ net.status = 'failed'; net.error = e.message; }
+    paintStatus(); if (net.status === 'saved') requestRender(); }, 400);
+}
+function retrySave(){ if (net.lastSave) queue(net.lastSave); }
+function paintStatus(){ document.querySelectorAll('[data-netstatus]').forEach(el => { el.innerHTML = statusHTML(); }); }
+function statusHTML(){
+  if (!ONLINE()) return '';
+  if (net.status === 'saving') return `<span class="chip blue"><i class="dot"></i>Saving…</span>`;
+  if (net.status === 'saved') return `<span class="chip green"><i class="dot"></i>Saved to the chapter sheet</span>`;
+  if (net.status === 'failed') return `<button class="chip red" data-act="retry-save" style="border:0;cursor:pointer"><i class="dot"></i>Not saved — tap to retry</button>`;
+  return '';
+}
+
+/* Persisting the member's own record */
+function persistMe(){
+  if (!ONLINE()) { save(KEY_ME, me); return; }
+  if (!sess.member || !online.me) return;
+  cache.me = online.me; save(KEY_CACHE, cache);
+  const snapshot = { action:'save', name: sess.member.name, password: sess.member.password, trade: online.me.trade, items: online.me.items };
+  net.lastSave = async () => { const j = await api(snapshot); online.me = normMember(j.member); cache.me = online.me; save(KEY_CACHE, cache); };
+  queue(net.lastSave);
+}
+/* Persisting a coordinator edit to one member */
+function persistMember(m){
+  if (!ONLINE()) { save(KEY_TR, tracker); return; }
+  cache.list = { members: online.members, archived: online.archived }; save(KEY_CACHE, cache);
+  const snapshot = { action:'upsert', password: sess.coord.password, member: { name:m.name, password:m.password, trade:m.trade, inducted:m.inducted, items:m.items, originalName: m.originalName || m.name } };
+  net.lastSave = async () => { const j = await api(snapshot); takeList(j); delete m.originalName; };
+  queue(net.lastSave);
+}
+function currentMe(){ return ONLINE() ? online.me : me; }
+function currentMembers(){ return ONLINE() ? online.members : tracker.members; }
+function currentArchived(){ return ONLINE() ? online.archived : tracker.archived; }
+function memberById(id){ return currentMembers().find(m=>m.id===id) || currentArchived().find(m=>m.id===id); }
+async function coordAction(payload, after){
+  net.busy = true; net.error=''; render();
+  try { const j = await api(Object.assign({ password: sess.coord.password }, payload)); takeList(j); if (after) after(); }
+  catch(e){ net.error = e.message; }
+  net.busy = false; render();
+}
+function addMember(name, trade, inducted, password){
+  const m = normMember({ name, trade, inducted, password });
+  if (!ONLINE()) { tracker.members.push(m); save(KEY_TR, tracker); render(); toast(name + ' added'); return; }
+  coordAction({ action:'upsert', member: { name, password, trade, inducted, items: m.items } }, () => toast(name + ' added'));
+}
+function archiveMember(id){
+  const m = memberById(id); if (!m) return; const completed = todayISO();
+  if (!ONLINE()) { tracker.members = tracker.members.filter(x=>x.id!==id); m.completed = completed; m.open=false; tracker.archived.unshift(m); save(KEY_TR, tracker); render(); toast(m.name + ' archived'); return; }
+  coordAction({ action:'archive', name: m.name, completed }, () => toast(m.name + ' archived'));
+}
+function removeMember(id){
+  const m = memberById(id); if (!m) return; confirmId = null;
+  if (!ONLINE()) { tracker.members = tracker.members.filter(x=>x.id!==id); tracker.archived = tracker.archived.filter(x=>x.id!==id); save(KEY_TR, tracker); render(); toast('Removed'); return; }
+  coordAction({ action:'remove', name: m.name, archived: !!m.completed }, () => toast('Removed'));
+}
 
 /* ---------------- Views ---------------- */
+function signInCard(){
+  const names = online.names;
+  if (names === null && !net.namesError && !net.namesLoading) loadNames();
+  return `<div class="card stack signin">
+    <div><h4>Your passport</h4><h2>Sign in</h2><p class="small muted prose">Pick your name and enter the password your Mentor Coordinator gave you. You will only see your own passport.</p></div>
+    <form id="signin-form" class="stack" style="max-width:380px">
+      <label class="small muted" style="display:grid;gap:.25rem">Your name
+        ${names && names.length ? `<select id="si-name" required><option value="">Choose…</option>${names.map(n=>`<option value="${esc(n)}" ${cache.lastName===n?'selected':''}>${esc(n)}</option>`).join('')}</select>` : `<input id="si-name" required placeholder="${net.namesLoading ? 'Loading names…' : 'Type your name as the Coordinator has it'}" value="${esc(cache.lastName||'')}">`}
+      </label>
+      <label class="small muted" style="display:grid;gap:.25rem">Password<input id="si-pass" type="password" required autocomplete="current-password"></label>
+      ${net.namesError ? `<p class="tiny muted">${esc(net.namesError)}</p>` : ''}
+      ${net.error ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
+      <div class="row"><button class="btn primary" type="submit" ${net.busy?'disabled':''}>${net.busy?'Signing in…':'Sign in'}</button></div>
+    </form>
+    <p class="tiny muted">Mentor crib sheets and Reference are open to everyone without signing in.</p>
+  </div>`;
+}
+
 function renderPassport(){
-  const p = progress(me);
-  const setupOpen = !me.name || !me.inducted || me.open.setup;
+  if (ONLINE()) {
+    if (!sess.member) return signInCard();
+    if (!online.me) { if (!net.busy && !online.loaded) refreshOnline(); return `<div class="card"><p class="small muted">Loading your passport…${net.error ? ' ' + esc(net.error) : ''}</p></div>`; }
+    return passportHTML(online.me, { online: true });
+  }
+  return passportHTML(me, { online: false });
+}
+
+function passportHTML(m, o){
+  const p = progress(m), order = ORDER();
+  const setupOpen = !o.online && (!m.name || !m.inducted || m.open.setup);
   let h = '';
   h += `<div class="card">
     <div class="row between">
       <div class="grow">
         <h4>Your passport</h4>
-        <h2>${me.name ? esc(me.name) : 'New member'}${me.trade ? ` <span class="muted" style="font-family:var(--body);font-weight:400;font-size:.95rem">· ${esc(me.trade)}</span>` : ''}</h2>
-        <p class="small muted">${me.inducted ? `Inducted ${fmt(me.inducted)} · week ${p.week} · complete by ${fmt(p.target)}` : 'Add your induction date to see your 12-week target'}</p>
+        <h2>${m.name ? esc(m.name) : 'New member'}${m.trade ? ` <span class="muted" style="font-family:var(--body);font-weight:400;font-size:.95rem">· ${esc(m.trade)}</span>` : ''}</h2>
+        <p class="small muted">${m.inducted ? `Inducted ${fmt(m.inducted)} · week ${p.week} · complete by ${fmt(p.target)}` : (o.online ? 'Ask your Mentor Coordinator to add your induction date' : 'Add your induction date to see your 12-week target')}</p>
       </div>
-      ${(me.name && me.inducted) ? `<button class="btn sm" data-act="toggle-setup">${setupOpen ? 'Hide details' : 'Edit details'}</button>` : ''}
+      <div class="row" style="gap:.4rem">
+        <span data-netstatus>${statusHTML()}</span>
+        ${o.online ? `<button class="btn sm" data-act="refresh">Refresh</button><button class="btn sm ghost" data-act="signout">Sign out</button>` : ((m.name && m.inducted) ? `<button class="btn sm" data-act="toggle-setup">${setupOpen ? 'Hide details' : 'Edit details'}</button>` : '')}
+      </div>
     </div>
     ${setupOpen ? `<div class="form" style="margin-top:.9rem">
-      <label>Your name<input id="me-name" data-bind="me.name" value="${esc(me.name)}" placeholder="e.g. James Rees"></label>
-      <label>Business / classification<input id="me-trade" data-bind="me.trade" value="${esc(me.trade)}" placeholder="e.g. Plumber"></label>
-      <label>Date inducted<input id="me-inducted" type="date" data-bind="me.inducted" value="${esc(me.inducted)}"></label>
+      <label>Your name<input id="me-name" data-bind="me.name" value="${esc(m.name)}" placeholder="e.g. James Rees"></label>
+      <label>Business / classification<input id="me-trade" data-bind="me.trade" value="${esc(m.trade)}" placeholder="e.g. Plumber"></label>
+      <label>Date inducted<input id="me-inducted" type="date" data-bind="me.inducted" value="${esc(m.inducted)}"></label>
       <div class="tiny muted span">Saved on this device only. Your mentors sign the paper Passport; this is your own record.</div>
     </div>` : ''}
+    ${o.online && !m.trade ? `<div class="row" style="margin-top:.75rem;align-items:end"><label class="small muted" style="display:grid;gap:.25rem">Business / classification<input id="me-trade" data-bind="me.trade" value="" placeholder="e.g. Plumber" style="max-width:240px"></label></div>` : ''}
     <div style="margin-top:1rem" class="stack">
       <div class="row between"><span class="small"><strong>${p.done}</strong> of ${p.total} stamped</span><span class="chip ${p.tone}"><i class="dot"></i>${p.status}</span></div>
-      <div class="prog" style="grid-template-columns:repeat(${ORDER.length},1fr)" aria-label="${p.done} of ${p.total} stamped">${ORDER.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}" title="${esc(itemTitle(k))}"></i>`).join('')}</div>
+      <div class="prog" style="grid-template-columns:repeat(${order.length},1fr)" aria-label="${p.done} of ${p.total} stamped">${order.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}" title="${esc(itemTitle(k))}"></i>`).join('')}</div>
     </div>
   </div>`;
 
-  if (!me.name && !p.done) {
+  if (!m.name && !p.done) {
     h += `<div class="card flat prose stack">
       <h3>How this works</h3>
       <p>You will have ten one-hour 121s, each with a different member of the chapter. Each covers ten to fifteen minutes of BNI content; the rest is the two of you getting to know each other using GAINS. Your mentor gets a page of your Passport signed at the end of each one.</p>
       <p>Mentors are meant to book the sessions, but chase them if they don’t. Aim to have everything stamped within twelve weeks, with the Member Success Programme done in your first six.</p>
     </div>`;
   }
-
   if (p.next) {
     h += `<div class="notice"><strong>Next up: Session ${p.next} · ${esc(SESSIONS[p.next].short)}</strong><br><span class="small">Book it with ${mentorText(p.next) ? esc(mentorText(p.next)) + ' (' + esc(lcA(SESSIONS[p.next].by)) + ')' : esc(lcA(SESSIONS[p.next].by))}. ${p.next==='7' ? 'Chapter Tools comes first so you can pass referrals and register visitors from week one.' : ''}</span></div>`;
   } else if (p.done === p.total) {
@@ -701,10 +855,10 @@ function renderPassport(){
   }
 
   h += `<h4 style="margin-top:.25rem">Sessions</h4>`;
-  ORDER.forEach(k => {
-    const it = p.items[k]; const isMs = !!MILESTONES[k]; const s = SESSIONS[k]; const open = !!me.open[k];
+  order.forEach(k => {
+    const it = p.items[k]; const isMs = !!MILESTONES[k]; const s = SESSIONS[k]; const open = !!pageOpen[k];
     const stamp = it.done
-      ? `<div class="stamp">Stamped<b>${fmtShort(it.done)}</b></div>`
+      ? `<div class="stamp">Stamped<b>${fmtShort(it.done) || '✓'}</b></div>`
       : (p.next===k ? `<div class="stamp next">Next</div>` : `<div class="stamp todo">Not yet</div>`);
     h += `<div class="card" id="page-${k}">
       <button class="pagehead" data-act="toggle-page" data-k="${k}" aria-expanded="${open}">
@@ -725,7 +879,7 @@ function renderPassport(){
           </div>`}
         <div class="row" style="gap:.75rem;align-items:end">
           <label class="small muted" style="display:grid;gap:.25rem">${isMs?'Signed by':'Mentor'}<input data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="${esc(mentorText(k) || 'Name')}" style="max-width:220px"></label>
-          <label class="small muted" style="display:grid;gap:.25rem">Date<input type="date" data-item="${k}" data-field="done" value="${esc(it.done)}"></label>
+          <label class="small muted" style="display:grid;gap:.25rem">Date<input type="date" data-item="${k}" data-field="done" value="${hasDate(it.done)?esc(it.done):''}"></label>
           ${it.done ? `<button class="btn sm" data-act="unstamp" data-k="${k}">Remove stamp</button>` : `<button class="btn primary sm" data-act="stamp" data-k="${k}">Stamp today</button>`}
         </div>
       </div>` : ''}
@@ -735,7 +889,7 @@ function renderPassport(){
   h += `<div class="card flat prose stack">
     <h3>Finishing</h3>
     <p class="small">Before the certificate there is a last check: the Member Success Programme done and a 100% complete BNI Connect profile. The President then presents your Mentor Completion Certificate during the Notable Networker part of the meeting.</p>
-    <div class="row"><button class="btn sm" data-act="reset-me">Clear my passport on this device</button></div>
+    ${o.online ? '' : `<div class="row"><button class="btn sm" data-act="reset-me">Clear my passport on this device</button></div>`}
   </div>`;
   return h;
 }
@@ -745,15 +899,14 @@ function renderMentor(){
   const s = SESSIONS[k];
   let h = `<div class="card stack">
     <div><h4>Member Mentor crib sheets</h4><p class="small muted prose">Pick your session. Everything from the pack for that session is on one screen: what to bring, what to talk through, what to leave the new member doing, and the booking message to send them.</p></div>
-    <div class="picker" role="group" aria-label="Session">${RECOMMENDED.filter(x=>SESSIONS[x]).map(x=>`<button class="pick" data-act="pick" data-k="${x}" aria-pressed="${x===k}"><span class="n">${x}</span><span class="t">${esc(SESSIONS[x].short)}</span></button>`).join('')}</div>
+    <div class="picker" role="group" aria-label="Session">${RECOMMENDED().filter(x=>SESSIONS[x]).map(x=>`<button class="pick" data-act="pick" data-k="${x}" aria-pressed="${x===k}"><span class="n">${x}</span><span class="t">${esc(SESSIONS[x].short)}</span></button>`).join('')}</div>
   </div>`;
-
   h += `<div class="card crib" id="crib">
     <div>
       <h4>Member Mentor #${k}</h4>
       <h2>${esc(s.title)}</h2>
       <p class="small muted" style="margin-top:.3rem">Delivered by ${esc(lcA(s.by))}</p>
-      ${mentorsFor(k).length ? `<p class="small" style="margin-top:.35rem"><strong>${esc(CHAPTER.name)}:</strong> ${esc(mentorsFor(k)[0])}${mentorsFor(k)[1] ? `, with ${esc(mentorsFor(k)[1])} as the alternative` : ''}</p>` : ''}
+      ${mentorsFor(k).length ? `<p class="small" style="margin-top:.35rem"><strong>${esc(cfg.name)}:</strong> ${esc(mentorsFor(k)[0])}${mentorsFor(k)[1] ? `, with ${esc(mentorsFor(k)[1])} as the alternative` : ''}</p>` : ''}
     </div>
     <div class="timing"><div class="big">10–15</div><div class="small"><strong>minutes on the BNI content.</strong> The balance of the hour is for getting to know each other using GAINS. The Passport is an engagement tool, not a training tool.</div></div>
     <p class="prose small">${esc(s.why)}</p>
@@ -775,7 +928,6 @@ function renderMentor(){
       <button class="btn ghost" data-act="copy-link" data-k="${k}">Copy link to this session</button>
     </div>
   </div>`;
-
   h += `<div class="card stack">
     <h3>Ten things every mentor should know</h3>
     <ol class="small prose">${QUICK_TIPS.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
@@ -788,8 +940,7 @@ function bookingMessage(k, name){
   return `Hi${name ? ' ' + name : ''}, I’m your Member Mentor for Passport session ${k}: ${s.short}. It’s an hour, mostly the two of us getting to know each other, with about fifteen minutes on ${s.short.toLowerCase()}. Could you do one of these?\n\n• [day/time option 1]\n• [day/time option 2]\n\nBefore we meet: ${s.prep[0].replace(/\.$/,'')}. Bring your Passport so I can sign it.`;
 }
 function cribText(k){
-  const s = SESSIONS[k];
-  const L = [];
+  const s = SESSIONS[k]; const L = [];
   L.push(`MEMBER MENTOR #${k}: ${s.title.toUpperCase()}`);
   L.push(`Delivered by: ${s.by}`);
   L.push(`Timing: 10–15 minutes on BNI content; the rest of the hour on GAINS and the relationship.`);
@@ -801,27 +952,45 @@ function cribText(k){
   return L.join('\n');
 }
 
+function coordSignInCard(){
+  return `<div class="card stack signin">
+    <div><h4>Mentor Coordinator</h4><h2>Coordinator sign-in</h2><p class="small muted prose">Enter the coordinator password from the Settings tab of the chapter sheet to see every new member’s progress.</p></div>
+    <form id="coord-form" class="stack" style="max-width:380px">
+      <label class="small muted" style="display:grid;gap:.25rem">Coordinator password<input id="co-pass" type="password" required autocomplete="current-password"></label>
+      ${net.error ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
+      <div class="row"><button class="btn primary" type="submit" ${net.busy?'disabled':''}>${net.busy?'Signing in…':'Sign in'}</button></div>
+    </form>
+  </div>`;
+}
+
 function renderTracker(){
-  const ms = tracker.members.slice().sort((a,b)=> (a.inducted||'9') < (b.inducted||'9') ? -1 : 1);
+  const isOnline = ONLINE();
+  if (isOnline && !sess.coord) return coordSignInCard();
+  if (isOnline && !online.listLoaded) { if (!net.busy) refreshOnline(); if (cache.list) { online.members = (cache.list.members||[]).map(normMember); online.archived = (cache.list.archived||[]).map(normMember); } else return `<div class="card"><p class="small muted">Loading the chapter tracker…${net.error ? ' ' + esc(net.error) : ''}</p></div>`; }
+  const order = ORDER();
+  const ms = currentMembers().slice().sort((a,b)=> (a.inducted||'9') < (b.inducted||'9') ? -1 : 1);
+  const arch = currentArchived();
   const ps = ms.map(m => ({ m, p: progress(m) }));
   const counts = { total: ms.length, complete: ps.filter(x=>x.p.status==='Complete').length, behind: ps.filter(x=>x.p.tone==='amber').length, overdue: ps.filter(x=>x.p.tone==='red').length };
+  const chapterName = isOnline ? cfg.name : tracker.chapter;
   let h = `<div class="card stack">
     <div class="row between">
-      <div class="grow"><h4>Mentor Coordinator</h4><h2>${tracker.chapter ? esc(tracker.chapter) : 'Chapter tracker'}</h2></div>
-      <label class="small muted" style="display:grid;gap:.25rem">Chapter name<input id="tr-chapter" data-bind="tracker.chapter" value="${esc(tracker.chapter)}" placeholder="e.g. BNI Elli" style="max-width:200px"></label>
+      <div class="grow"><h4>Mentor Coordinator</h4><h2>${chapterName ? esc(chapterName) : 'Chapter tracker'}</h2></div>
+      ${isOnline ? `<div class="row" style="gap:.4rem"><span data-netstatus>${statusHTML()}</span><button class="btn sm" data-act="refresh" ${net.busy?'disabled':''}>${net.busy?'Loading…':'Refresh'}</button><button class="btn sm ghost" data-act="coord-signout">Sign out</button></div>`
+                 : `<label class="small muted" style="display:grid;gap:.25rem">Chapter name<input id="tr-chapter" data-bind="tracker.chapter" value="${esc(tracker.chapter)}" placeholder="e.g. BNI Elli" style="max-width:200px"></label>`}
     </div>
+    ${net.error && isOnline ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
     <div class="stats">
       <div class="stat"><div class="v">${counts.total}</div><div class="l">In programme</div></div>
-      <div class="stat"><div class="v">${counts.complete}</div><div class="l">Complete</div></div>
+      <div class="stat"><div class="v">${counts.complete}</div><div class="l">Ready to archive</div></div>
       <div class="stat"><div class="v" style="color:${counts.behind?'var(--amber)':'inherit'}">${counts.behind}</div><div class="l">Behind pace</div></div>
       <div class="stat"><div class="v" style="color:${counts.overdue?'var(--accent-ink)':'inherit'}">${counts.overdue}</div><div class="l">Past 84 days</div></div>
     </div>
     <div class="row">
       <button class="btn primary" data-act="copy-summary" ${ms.length?'':'disabled'}>Copy weekly summary</button>
-      <button class="btn" data-act="export">Export</button>
-      <button class="btn" data-act="import">Import</button>
+      ${isOnline ? '' : `<button class="btn" data-act="export">Export</button><button class="btn" data-act="import">Import</button>`}
     </div>
-    <p class="tiny muted">Data lives on this device. Export before changing phone or handing over to the next Coordinator, and paste the weekly summary into Announcements or the chapter WhatsApp.${tracker.seeded ? ` Started from the chapter sheet dated ${fmt(tracker.seeded)}: add classifications and any sessions already done.` : ''}</p>
+    <p class="tiny muted">${isOnline ? 'Everything here is read from and saved to the chapter’s Google Sheet. Members sign in to the page and see only their own passport; passwords are in the Members tab of the sheet.' : `Data lives on this device. Export before changing phone or handing over to the next Coordinator, and paste the weekly summary into Announcements or the chapter WhatsApp.${tracker.seeded ? ` Started from the chapter sheet dated ${fmt(tracker.seeded)}: add classifications and any sessions already done.` : ''}`}</p>
   </div>`;
 
   h += `<div class="card stack">
@@ -830,15 +999,15 @@ function renderTracker(){
       <label>Name<input id="add-name" required placeholder="Name"></label>
       <label>Business / classification<input id="add-trade" placeholder="e.g. Plumber"></label>
       <label>Date inducted<input id="add-inducted" type="date" required value="${todayISO()}"></label>
-      <button class="btn primary span" type="submit">Add</button>
+      ${isOnline ? `<label>Password for them<input id="add-pass" required placeholder="e.g. elli-4821"></label>` : ''}
+      <button class="btn primary span" type="submit" ${net.busy?'disabled':''}>Add</button>
     </form>
   </div>`;
 
-  if (!ms.length) {
-    h += `<div class="empty">No new members yet. Add the first one above and tap the cells as each session is signed off.</div>`;
-  }
+  if (!ms.length) h += `<div class="empty">No new members in the programme. Add the first one above and tap the cells as each session is signed off.</div>`;
 
   ps.forEach(({m,p}) => {
+    const complete = p.status === 'Complete';
     h += `<div class="card member" id="m-${m.id}">
       <div class="top">
         <div>
@@ -847,33 +1016,29 @@ function renderTracker(){
         </div>
         <span class="chip ${p.tone}"><i class="dot"></i>${p.status}</span>
       </div>
-      <div class="prog" style="grid-template-columns:repeat(${ORDER.length},1fr)" aria-label="${p.done} of ${p.total} stamped">${ORDER.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}"></i>`).join('')}</div>
+      <div class="prog" style="grid-template-columns:repeat(${order.length},1fr)" aria-label="${p.done} of ${p.total} stamped">${order.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}"></i>`).join('')}</div>
       <div class="strip" role="group" aria-label="Sessions for ${esc(m.name)}">
-        ${ORDER.map(k=>{ const it=p.items[k]; return `<button class="cell ${it.done?'on':''} ${MILESTONES[k]?'ms':''}" data-act="cell" data-id="${m.id}" data-k="${k}" title="${esc(itemTitle(k))}${it.mentor?' · '+esc(it.mentor):''}${it.done?' · '+fmt(it.done):''}" aria-pressed="${!!it.done}"><span>${itemLabel(k)}</span>${it.done?`<small>${fmtShort(it.done)}</small>`:(it.mentor?`<small>${esc(it.mentor.split(' ')[0])}</small>`:'')}</button>`; }).join('')}
+        ${order.map(k=>{ const it=p.items[k]; return `<button class="cell ${it.done?'on':''} ${MILESTONES[k]?'ms':''}" data-act="cell" data-id="${m.id}" data-k="${k}" title="${esc(itemTitle(k))}${it.mentor?' · '+esc(it.mentor):''}${hasDate(it.done)?' · '+fmt(it.done):''}" aria-pressed="${!!it.done}"><span>${itemLabel(k)}</span>${it.done?`<small>${fmtShort(it.done)||'done'}</small>`:(it.mentor?`<small>${esc(it.mentor.split(' ')[0])}</small>`:'')}</button>`; }).join('')}
       </div>
+      ${complete ? `<div class="notice"><strong>Passport complete.</strong> <span class="small">Once the President has presented the certificate, archive ${esc(m.name)} to take them off the weekly summary. Their record is kept on the Archive list.</span></div>` : ''}
       <div class="row between">
         <span class="small muted">${p.done} of ${p.total} stamped${p.next?` · next S${p.next} ${esc(SESSIONS[p.next].short)}${p.items[p.next].mentor?' with '+esc(p.items[p.next].mentor):(mentorText(p.next)?' · '+esc(mentorText(p.next)):'')}`:''}</span>
         <div class="row">
-          <button class="btn sm" data-act="toggle-member" data-id="${m.id}">${m.open?'Hide details':'Dates & mentors'}</button>
+          ${complete ? `<button class="btn sm primary" data-act="archive" data-id="${m.id}">Certificate presented — archive</button>` : ''}
+          <button class="btn sm" data-act="toggle-member" data-id="${m.id}">${pageOpen['m'+m.id]?'Hide details':'Dates & mentors'}</button>
           ${confirmId===m.id ? `<button class="btn sm danger" data-act="remove-confirm" data-id="${m.id}">Confirm remove</button><button class="btn sm" data-act="remove-cancel">Keep</button>` : `<button class="btn sm ghost" data-act="remove" data-id="${m.id}">Remove</button>`}
         </div>
       </div>
-      ${m.open ? `<div class="tablewrap"><table>
-        <thead><tr><th></th><th>Session</th><th>Mentor</th><th>Signed off</th></tr></thead>
-        <tbody>${ORDER.map(k=>{ const it=p.items[k]; return `<tr>
-          <td><strong>${itemLabel(k)}</strong></td>
-          <td>${esc(itemShort(k))}<div class="tiny muted">${esc(itemBy(k))}</div></td>
-          <td><input data-mid="${m.id}" data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="${esc(mentorText(k) || 'Paired mentor')}" style="min-width:140px"></td>
-          <td><input type="date" data-mid="${m.id}" data-item="${k}" data-field="done" value="${hasDate(it.done)?esc(it.done):''}">${it.done && !hasDate(it.done) ? '<div class="tiny muted">Done, date not recorded</div>' : ''}</td>
-        </tr>`; }).join('')}</tbody>
-      </table></div>
-      <div class="row" style="justify-content:flex-start;gap:.75rem;align-items:end">
-        <label class="small muted" style="display:grid;gap:.25rem">Name<input data-mid="${m.id}" data-mfield="name" value="${esc(m.name)}"></label>
-        <label class="small muted" style="display:grid;gap:.25rem">Classification<input data-mid="${m.id}" data-mfield="trade" value="${esc(m.trade)}"></label>
-        <label class="small muted" style="display:grid;gap:.25rem">Inducted<input type="date" data-mid="${m.id}" data-mfield="inducted" value="${esc(m.inducted)}"></label>
-      </div>` : ''}
+      ${pageOpen['m'+m.id] ? memberDetails(m, p, isOnline) : ''}
     </div>`;
   });
+
+  // Archive
+  const within = arch.filter(a => a.inducted && a.completed && daysBetween(a.inducted, a.completed) !== null && daysBetween(a.inducted, a.completed) <= 90).length;
+  h += `<div class="card stack">
+    <div class="row between"><h3>Archive</h3><span class="chip grey">${arch.length} completed${arch.length ? ` · ${within} within 90 days` : ''}</span></div>
+    ${arch.length ? `<div class="tablewrap"><table><thead><tr><th>Name</th><th>Inducted</th><th>Completed</th><th>Days</th><th></th></tr></thead><tbody>${arch.map(a=>`<tr><td><strong>${esc(a.name)}</strong>${a.trade?`<div class="tiny muted">${esc(a.trade)}</div>`:''}</td><td>${fmt(a.inducted)||'—'}</td><td>${fmt(a.completed)||'—'}</td><td>${daysBetween(a.inducted,a.completed) ?? '—'}</td><td>${confirmId===a.id ? `<button class="btn sm danger" data-act="remove-confirm" data-id="${a.id}">Confirm</button> <button class="btn sm" data-act="remove-cancel">Keep</button>` : `<button class="btn sm ghost" data-act="remove" data-id="${a.id}">Remove</button>`}</td></tr>`).join('')}</tbody></table></div>` : `<p class="small muted">Members whose certificate has been presented appear here, with how long their Passport took. The effectiveness review asks what share complete within 90 days.</p>`}
+  </div>`;
 
   h += `<div class="card stack">
     <h3>Running the programme</h3>
@@ -881,15 +1046,34 @@ function renderTracker(){
     <h4>Effectiveness review</h4>
     <p class="tiny muted">The Membership Committee’s self-check. Ticks are saved on this device.</p>
     ${CHECKLIST.map((g,gi)=>`<div class="stack" style="gap:.35rem"><strong class="small">${esc(g.g)}</strong><div class="checklist">${g.items.map((x,i)=>{ const id=`c${gi}-${i}`; const on=!!checks[id]; return `<label class="${on?'done':''}"><input type="checkbox" id="${id}" data-check="${id}" ${on?'checked':''}><span>${esc(x)}</span></label>`; }).join('')}</div></div>`).join('')}
-    <div class="row"><button class="btn sm" data-act="reset-checks">Reset ticks</button>${CHAPTER.seed && CHAPTER.seed.length ? `<button class="btn sm" data-act="reset-tracker">Reset tracker to the chapter sheet</button>` : ''}</div>
+    <div class="row"><button class="btn sm" data-act="reset-checks">Reset ticks</button>${!isOnline && CHAPTER.seed && CHAPTER.seed.length ? `<button class="btn sm" data-act="reset-tracker">Reset tracker to the chapter sheet</button>` : ''}</div>
   </div>`;
   return h;
 }
 
+function memberDetails(m, p, isOnline){
+  return `<div class="tablewrap"><table>
+    <thead><tr><th></th><th>Session</th><th>Mentor</th><th>Signed off</th></tr></thead>
+    <tbody>${ORDER().map(k=>{ const it=p.items[k]; return `<tr>
+      <td><strong>${itemLabel(k)}</strong></td>
+      <td>${esc(itemShort(k))}<div class="tiny muted">${esc(itemBy(k))}</div></td>
+      <td><input data-mid="${m.id}" data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="${esc(mentorText(k) || 'Paired mentor')}" style="min-width:140px"></td>
+      <td><input type="date" data-mid="${m.id}" data-item="${k}" data-field="done" value="${hasDate(it.done)?esc(it.done):''}">${it.done && !hasDate(it.done) ? '<div class="tiny muted">Done, date not recorded</div>' : ''}</td>
+    </tr>`; }).join('')}</tbody>
+  </table></div>
+  <div class="row" style="justify-content:flex-start;gap:.75rem;align-items:end">
+    <label class="small muted" style="display:grid;gap:.25rem">Name<input data-mid="${m.id}" data-mfield="name" value="${esc(m.name)}"></label>
+    <label class="small muted" style="display:grid;gap:.25rem">Classification<input data-mid="${m.id}" data-mfield="trade" value="${esc(m.trade)}"></label>
+    <label class="small muted" style="display:grid;gap:.25rem">Inducted<input type="date" data-mid="${m.id}" data-mfield="inducted" value="${esc(m.inducted)}"></label>
+    ${isOnline ? `<label class="small muted" style="display:grid;gap:.25rem">Password<input data-mid="${m.id}" data-mfield="password" value="${esc(m.password)}" style="max-width:160px"></label>` : ''}
+  </div>`;
+}
+
 function weeklySummary(){
-  const ms = tracker.members.slice().sort((a,b)=> (a.inducted||'9') < (b.inducted||'9') ? -1 : 1);
+  const ms = currentMembers().slice().sort((a,b)=> (a.inducted||'9') < (b.inducted||'9') ? -1 : 1);
+  const chapterName = ONLINE() ? cfg.name : tracker.chapter;
   const L = [];
-  L.push(`Passport to Success${tracker.chapter?' – '+tracker.chapter:''} – ${fmt(todayISO())}`);
+  L.push(`Passport to Success${chapterName?' – '+chapterName:''} – ${fmt(todayISO())}`);
   ms.forEach(m => {
     const p = progress(m);
     let line = `• ${m.name}${m.trade?' ('+m.trade+')':''} – `;
@@ -993,8 +1177,8 @@ function render(){
 }
 /* A date box fires a change on every keystroke in desktop browsers; redrawing then would throw the cursor out. Wait until focus leaves it. */
 function requestRender(){ if (isDateBoxFocused()) { renderPending = true; return; } render(); }
-/* Accept a date only once it is complete: empty (cleared) or a year between 2000 and 2100. Half-typed years such as 0002 are ignored. */
-function saneDate(v){ if (v === '') return true; const d = parseISO(v); return !!d && d.getFullYear() >= 2000 && d.getFullYear() <= 2100; }
+/* After a change event, let focus settle on the next box before deciding whether to redraw. */
+function deferRender(){ setTimeout(requestRender, 0); }
 function setView(v, opts={}){
   ui.view = v; if (opts.session) ui.session = opts.session;
   render();
@@ -1030,17 +1214,20 @@ $('#sheet-close').addEventListener('click', closeSheet);
 $('#overlay').addEventListener('click', e => { if (e.target.id==='overlay') closeSheet(); });
 document.addEventListener('keydown', e => { if (e.key==='Escape') closeSheet(); });
 
-function memberById(id){ return tracker.members.find(m=>m.id===id); }
-
 $('#view').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act, k = b.dataset.k, id = b.dataset.id;
+  const my = currentMe();
   switch (act) {
     case 'toggle-setup': me.open.setup = !me.open.setup; save(KEY_ME, me); render(); break;
-    case 'toggle-page': me.open[k] = !me.open[k]; save(KEY_ME, me); render(); break;
-    case 'stamp': me.items[k].done = todayISO(); save(KEY_ME, me); render(); toast('Stamped'); break;
-    case 'unstamp': me.items[k].done = ''; save(KEY_ME, me); render(); break;
+    case 'toggle-page': pageOpen[k] = !pageOpen[k]; render(); break;
+    case 'stamp': if (my) { my.items[k].done = todayISO(); persistMe(); render(); toast('Stamped'); } break;
+    case 'unstamp': if (my) { my.items[k].done = ''; persistMe(); render(); } break;
     case 'reset-me': if (b.dataset.sure) { me = { name:'', trade:'', inducted:'', items: blankItems(), open:{ setup: true } }; save(KEY_ME, me); render(); toast('Cleared'); } else { b.dataset.sure='1'; b.textContent='Tap again to clear'; b.classList.add('danger'); } break;
+    case 'signout': signOut(); break;
+    case 'coord-signout': coordSignOut(); break;
+    case 'refresh': refreshOnline(); break;
+    case 'retry-save': retrySave(); break;
     case 'pick': setView('mentor', { session: k, keepScroll: true }); $('#crib')?.scrollIntoView({ behavior:'smooth', block:'start' }); break;
     case 'copy-booking': copyText(bookingMessage(k, ''), 'Booking message'); break;
     case 'copy-crib': copyText(cribText(k), 'Crib sheet'); break;
@@ -1050,30 +1237,32 @@ $('#view').addEventListener('click', e => {
     case 'export': openSheet('Export tracker', 'Copy this and keep it somewhere safe, or paste it into the Import box on another device.', JSON.stringify(tracker, null, 2), [{label:'Copy', primary:true, run: ta => copyText(ta.value, 'Tracker data')}, {label:'Close', run: closeSheet}]); break;
     case 'import': openSheet('Import tracker', 'Paste an export here. It replaces what is on this device.', '', [{id:'load', label:'Load', primary:true, run: ta => {
         try { const d = JSON.parse(ta.value); if (!d || !Array.isArray(d.members)) throw new Error('shape');
-          tracker = { chapter: d.chapter||'', members: d.members.map(m => ({ id:m.id||uid(), name:m.name||'', trade:m.trade||'', inducted:m.inducted||'', items:normalise(m.items), open:false })) };
+          tracker = { chapter: d.chapter||'', seeded: d.seeded||'', members: d.members.map(normMember), archived: (d.archived||[]).map(normMember) };
           save(KEY_TR, tracker); closeSheet(); render(); toast('Tracker loaded'); }
         catch(err){ $('#sheet-help').textContent = 'That does not look like an export from this tracker. Paste the whole text, starting with { and ending with }.'; }
       }}, {label:'Cancel', run: closeSheet}]); break;
-    case 'cell': { const m = memberById(id); if (!m) return; const it = m.items[k]; it.done = it.done ? '' : todayISO(); save(KEY_TR, tracker); render(); break; }
-    case 'toggle-member': { const m = memberById(id); if (m) { m.open = !m.open; save(KEY_TR, tracker); render(); } break; }
+    case 'cell': { const m = memberById(id); if (!m) return; const it = m.items[k]; it.done = it.done ? '' : todayISO(); persistMember(m); render(); break; }
+    case 'toggle-member': pageOpen['m'+id] = !pageOpen['m'+id]; render(); break;
+    case 'archive': archiveMember(id); break;
     case 'remove': confirmId = id; render(); break;
     case 'remove-cancel': confirmId = null; render(); break;
-    case 'remove-confirm': tracker.members = tracker.members.filter(m=>m.id!==id); confirmId=null; save(KEY_TR, tracker); render(); toast('Removed'); break;
+    case 'remove-confirm': removeMember(id); break;
     case 'reset-checks': checks = {}; save(KEY_CK, checks); render(); break;
     case 'reset-tracker': if (b.dataset.sure) { tracker = seedTracker(); save(KEY_TR, tracker); render(); toast('Tracker reset'); } else { b.dataset.sure='1'; b.textContent='Tap again to replace everything on this device'; b.classList.add('danger'); } break;
   }
 });
 
 $('#view').addEventListener('change', e => {
-  const el = e.target;
+  const el = e.target; const my = currentMe();
   if (el.dataset.check) { checks[el.dataset.check] = el.checked; save(KEY_CK, checks); el.closest('label').classList.toggle('done', el.checked); return; }
   if (el.type === 'date' && !saneDate(el.value)) return;   // still being typed
-  if (el.dataset.bind === 'me.inducted') { me.inducted = el.value; save(KEY_ME, me); requestRender(); return; }
-  if (el.dataset.item && !el.dataset.mid) { me.items[el.dataset.item][el.dataset.field] = el.value; save(KEY_ME, me); if (el.dataset.field==='done') requestRender(); return; }
+  if (el.dataset.bind === 'me.inducted') { me.inducted = el.value; save(KEY_ME, me); deferRender(); return; }
+  if (el.dataset.item && !el.dataset.mid) { if (!my) return; my.items[el.dataset.item][el.dataset.field] = el.value; persistMe(); if (el.dataset.field==='done') deferRender(); return; }
   if (el.dataset.mid) {
     const m = memberById(el.dataset.mid); if (!m) return;
-    if (el.dataset.mfield) m[el.dataset.mfield] = el.value; else m.items[el.dataset.item][el.dataset.field] = el.value;
-    save(KEY_TR, tracker); requestRender(); return;
+    if (el.dataset.mfield) { if (el.dataset.mfield === 'name' && !m.originalName) m.originalName = m.name; m[el.dataset.mfield] = el.value; }
+    else m.items[el.dataset.item][el.dataset.field] = el.value;
+    persistMember(m); deferRender(); return;
   }
 });
 $('#view').addEventListener('focusout', () => {
@@ -1081,25 +1270,33 @@ $('#view').addEventListener('focusout', () => {
   setTimeout(() => { if (renderPending && !isDateBoxFocused()) render(); }, 0);
 });
 $('#view').addEventListener('input', e => {
-  const el = e.target;
+  const el = e.target; const my = currentMe();
   if (el.dataset.bind === 'me.name') { me.name = el.value; save(KEY_ME, me); }
-  else if (el.dataset.bind === 'me.trade') { me.trade = el.value; save(KEY_ME, me); }
+  else if (el.dataset.bind === 'me.trade') { if (my) { my.trade = el.value; persistMe(); } }
   else if (el.dataset.bind === 'tracker.chapter') { tracker.chapter = el.value; save(KEY_TR, tracker); const h = el.closest('.card').querySelector('h2'); if (h) h.textContent = el.value || 'Chapter tracker'; }
-  else if (el.dataset.item && !el.dataset.mid && el.dataset.field==='mentor') { me.items[el.dataset.item].mentor = el.value; save(KEY_ME, me); }
-  else if (el.dataset.mid && el.dataset.field==='mentor') { const m = memberById(el.dataset.mid); if (m) { m.items[el.dataset.item].mentor = el.value; save(KEY_TR, tracker); } }
+  else if (el.dataset.item && !el.dataset.mid && el.dataset.field==='mentor') { if (my) { my.items[el.dataset.item].mentor = el.value; persistMe(); } }
+  else if (el.dataset.mid && el.dataset.field==='mentor') { const m = memberById(el.dataset.mid); if (m) { m.items[el.dataset.item].mentor = el.value; persistMember(m); } }
+  else if (el.dataset.mid && el.dataset.mfield && el.type !== 'date') { const m = memberById(el.dataset.mid); if (m) { if (el.dataset.mfield === 'name' && !m.originalName) m.originalName = m.name; m[el.dataset.mfield] = el.value; persistMember(m); } }
 });
 $('#view').addEventListener('submit', e => {
-  if (e.target.id !== 'add-form') return;
   e.preventDefault();
-  const name = $('#add-name').value.trim(); if (!name) return;
-  tracker.members.push({ id: uid(), name, trade: $('#add-trade').value.trim(), inducted: $('#add-inducted').value, items: blankItems(), open: false });
-  save(KEY_TR, tracker); render(); toast(name + ' added');
+  if (e.target.id === 'add-form') {
+    const name = $('#add-name').value.trim(); if (!name) return;
+    if (currentMembers().some(m => m.name.toLowerCase() === name.toLowerCase())) { toast('There is already a member called ' + name); return; }
+    addMember(name, $('#add-trade').value.trim(), $('#add-inducted').value, ONLINE() ? $('#add-pass').value.trim() : '');
+  } else if (e.target.id === 'signin-form') {
+    const name = $('#si-name').value.trim(), pass = $('#si-pass').value; if (!name || !pass) return;
+    cache.lastName = name; save(KEY_CACHE, cache); signIn(name, pass);
+  } else if (e.target.id === 'coord-form') {
+    const pass = $('#co-pass').value; if (!pass) return; coordSignIn(pass);
+  }
 });
 
 window.addEventListener('hashchange', () => { routeFromHash(); render(); });
-if (CHAPTER.name) $('#eyebrow').textContent = CHAPTER.name + ' · new member mentoring';
+if (cfg.name) $('#eyebrow').textContent = cfg.name + ' · new member mentoring';
 routeFromHash();
 render();
+if (ONLINE() && (sess.member || sess.coord)) refreshOnline();
 </script>
 </body>
 </html>
