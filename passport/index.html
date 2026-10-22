@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="BNI Passport to Success: the new member's passport, mentor crib sheets for all ten sessions, the Mentor Coordinator's tracker and the reference rules.">
+<meta name="color-scheme" content="light dark">
+<title>Passport to Success</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+</style>
+<style>
+/* Layout: red masthead → sticky tab rail → one column of cards (max 920px).
+   Passport "pages" are cards that take a red ink stamp when a session is signed off. */
+:root{
+  --brand:#CF2030; --on-brand:#FFFFFF;
+  --accent:#CF2030; --accent-ink:#B5121F; --accent-soft:#FBE9EA;
+  --bg:#F4F4F2; --surface:#FFFFFF; --surface-2:#ECECEA; --fg:#1C1D1F; --muted:#66696D; --line:#DADAD6;
+  --green:#2F7D32; --green-soft:#E3F1E4; --amber:#A86300; --amber-soft:#FBEEDC; --blue:#1A5FB4; --blue-soft:#E2ECF9; --tlgrey:#7B7E82; --tlgrey-soft:#EBEBEC;
+  --display:"Arial Black","Archivo Black",Arial,Helvetica,sans-serif;
+  --body:Arial,Helvetica,"Liberation Sans",sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131416; --surface:#1C1D20; --surface-2:#26282C; --fg:#ECEDEE; --muted:#A5A8AC; --line:#303236;
+    --accent:#E8555F; --accent-ink:#F2707A; --accent-soft:#3A1F22;
+    --green:#74C478; --green-soft:#1E3320; --amber:#F2B45A; --amber-soft:#3A2C14; --blue:#7AB6F5; --blue-soft:#182A40; --tlgrey:#A0A3A7; --tlgrey-soft:#2B2D31;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131416; --surface:#1C1D20; --surface-2:#26282C; --fg:#ECEDEE; --muted:#A5A8AC; --line:#303236;
+  --accent:#E8555F; --accent-ink:#F2707A; --accent-soft:#3A1F22;
+  --green:#74C478; --green-soft:#1E3320; --amber:#F2B45A; --amber-soft:#3A2C14; --blue:#7AB6F5; --blue-soft:#182A40; --tlgrey:#A0A3A7; --tlgrey-soft:#2B2D31;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3,h4{font-family:var(--display);font-weight:400;letter-spacing:-0.01em;text-wrap:balance;margin:0}
+h1{font-size:1.5rem;line-height:1.15}
+h2{font-size:1.2rem;line-height:1.25}
+h3{font-size:1rem;line-height:1.3}
+h4{font-family:var(--body);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+p{margin:0}
+ul,ol{margin:0;padding-left:1.2em}
+li+li{margin-top:.35em}
+a{color:var(--blue)}
+button{font:inherit;color:inherit}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:.5em .65em;min-width:0;max-width:100%}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.mast{background:var(--brand);color:var(--on-brand)}
+.mast .in{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-block:1.1rem 1rem}
+.mast .eyebrow{font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;opacity:.9;margin-bottom:.25rem}
+.mast h1{color:var(--on-brand)}
+.mast .sub{font-size:.85rem;opacity:.92;max-width:34ch}
+.in{max-width:920px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:none;padding-block:.4rem}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:0;background:transparent;padding:.55rem .85rem;border-radius:8px;cursor:pointer;font-weight:700;font-size:.9rem;color:var(--muted);white-space:nowrap;display:flex;gap:.45rem;align-items:center}
+.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--accent-ink)}
+.tab .k{font-family:var(--display);font-size:.7rem;opacity:.7}
+main .in{padding-block:1.25rem 4rem;display:grid;gap:1rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.1rem;min-width:0}
+.card.flat{background:var(--surface-2);border-color:transparent}
+.stack{display:grid;gap:.75rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.row.between{justify-content:space-between}
+.grow{flex:1 1 auto;min-width:0}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.tiny{font-size:.76rem}
+.lead{font-size:1.02rem;max-width:62ch}
+.prose{max-width:66ch}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:.5rem .85rem;cursor:pointer;font-weight:700;font-size:.88rem;display:inline-flex;align-items:center;gap:.4rem;line-height:1.2}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn.primary:hover{filter:brightness(.93)}
+.btn.danger{color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:.35rem .6rem;font-size:.8rem}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--blue)}
+.btn[disabled]{opacity:.5;cursor:default}
+.chip{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.2rem .6rem;font-size:.76rem;font-weight:700;background:var(--surface-2);color:var(--fg);white-space:nowrap}
+.chip.green{background:var(--green-soft);color:var(--green)}
+.chip.amber{background:var(--amber-soft);color:var(--amber)}
+.chip.red{background:var(--accent-soft);color:var(--accent-ink)}
+.chip.blue{background:var(--blue-soft);color:var(--blue)}
+.chip.grey{background:var(--tlgrey-soft);color:var(--tlgrey)}
+.dot{width:.55em;height:.55em;border-radius:50%;background:currentColor;display:inline-block}
+.notice{border-left:4px solid var(--accent);background:var(--accent-soft);padding:.75rem .9rem;border-radius:6px;color:var(--fg)}
+.notice strong{color:var(--accent-ink)}
+/* progress */
+.prog{display:grid;grid-template-columns:repeat(13,1fr);gap:3px;height:10px}
+.prog i{display:block;border-radius:2px;background:var(--surface-2);border:1px solid var(--line)}
+.prog i.on{background:var(--accent);border-color:var(--accent)}
+.prog i.ms{border-style:dashed}
+/* passport pages */
+.page{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:start}
+.page .num{font-family:var(--display);font-size:1.6rem;line-height:1;color:var(--accent);min-width:2.2ch;text-align:right;padding-top:.1rem}
+.page .num.ms{font-size:.95rem;padding-top:.45rem;color:var(--muted)}
+.page .title{font-weight:700;font-size:1rem;line-height:1.3}
+.page .meta{font-size:.82rem;color:var(--muted);margin-top:.15rem}
+.page .status{min-width:0}
+.pagehead{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:start;width:100%;text-align:left;background:none;border:0;padding:0;cursor:pointer}
+.pagebody{margin-top:.9rem;padding-top:.9rem;border-top:1px dashed var(--line);display:grid;gap:.9rem}
+.sec h4{margin-bottom:.3rem}
+.stamp{width:78px;height:78px;border:3px solid var(--accent);border-radius:50%;display:grid;place-content:center;text-align:center;transform:rotate(-12deg);color:var(--accent);font-family:var(--display);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;line-height:1.15;opacity:.95;box-shadow:inset 0 0 0 2px var(--surface),inset 0 0 0 3px var(--accent)}
+.stamp b{display:block;font-size:.62rem;margin-top:.15em;font-family:var(--body);letter-spacing:0;text-transform:none}
+.stamp.todo{border-style:dashed;color:var(--muted);border-color:var(--line);box-shadow:none;transform:none;font-size:.56rem}
+.stamp.next{border-color:var(--amber);color:var(--amber);border-style:dashed;box-shadow:none;transform:none}
+/* mentor picker */
+.picker{display:flex;gap:.4rem;flex-wrap:wrap}
+.pick{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:.45rem .6rem;cursor:pointer;font-size:.82rem;font-weight:700;display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;min-width:0;max-width:100%}
+.pick .n{font-family:var(--display);color:var(--accent);font-size:.9rem}
+.pick[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.pick span.t{font-weight:400;color:var(--muted);font-size:.74rem;text-align:left}
+.crib{display:grid;gap:1rem}
+.crib .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:640px){.crib .grid2{grid-template-columns:1fr}}
+.timing{display:flex;gap:.75rem;align-items:center;background:var(--surface-2);border-radius:8px;padding:.7rem .85rem}
+.timing .big{font-family:var(--display);font-size:1.4rem;color:var(--accent);line-height:1}
+/* tracker */
+.member{display:grid;gap:.75rem}
+.member .top{display:grid;grid-template-columns:1fr auto;gap:.75rem;align-items:start}
+.member .name{font-weight:700;font-size:1.05rem}
+.strip{display:flex;gap:.35rem;flex-wrap:wrap}
+.cell{border:1px solid var(--line);background:var(--surface);border-radius:7px;min-width:44px;height:46px;padding:0 .4rem;cursor:pointer;display:grid;place-items:center;font-size:.74rem;font-weight:700;line-height:1;color:var(--muted)}
+.cell.on{background:var(--accent);border-color:var(--accent);color:var(--on-brand)}
+.cell.ms{border-style:dashed}
+.cell.ms.on{border-style:solid}
+.cell small{font-weight:400;font-size:.62rem;opacity:.85;margin-top:2px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.15rem .75rem;font-size:.86rem}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-variant-numeric:tabular-nums}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{text-align:left;padding:.45rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.tablewrap{overflow-x:auto;max-width:100%}
+td input{width:100%}
+.form{display:grid;grid-template-columns:2fr 2fr 1.4fr auto;gap:.5rem;align-items:end}
+.form label{display:grid;gap:.25rem;font-size:.76rem;font-weight:700;color:var(--muted)}
+.form label input{width:100%}
+@media (max-width:640px){.form{grid-template-columns:1fr 1fr}.form .span{grid-column:1/-1}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem}
+.stat{background:var(--surface-2);border-radius:8px;padding:.6rem .75rem}
+.stat .v{font-family:var(--display);font-size:1.35rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .l{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:.15rem}
+/* reference */
+details{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+details+details{margin-top:.6rem}
+summary{cursor:pointer;padding:.85rem 1.1rem;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--display);color:var(--accent);font-size:1.1rem}
+details[open] summary::after{content:"–"}
+details .body{padding:0 1.1rem 1rem;display:grid;gap:.75rem}
+.glossary{display:grid;grid-template-columns:auto 1fr;gap:.3rem .9rem;font-size:.9rem}
+.glossary b{font-family:var(--display);color:var(--accent);font-weight:400}
+.tl{display:grid;gap:.4rem}
+.tl div{display:flex;gap:.6rem;align-items:baseline}
+.tl i{width:14px;height:14px;border-radius:50%;flex:0 0 auto;transform:translateY(2px)}
+.levels{display:grid;gap:.5rem}
+.levels div{display:grid;grid-template-columns:auto 1fr;gap:.75rem;align-items:start}
+.levels .lv{font-family:var(--display);color:var(--accent);font-size:1.1rem;line-height:1.2;min-width:2.4ch}
+.script{background:var(--surface-2);border-radius:8px;padding:.85rem 1rem;white-space:pre-wrap;font-size:.9rem;line-height:1.5}
+.checklist{display:grid;gap:.45rem}
+.checklist label{display:flex;gap:.6rem;align-items:flex-start;font-size:.9rem;cursor:pointer}
+.checklist input{margin-top:.2rem;flex:0 0 auto}
+.checklist label.done{color:var(--muted);text-decoration:line-through}
+/* overlay sheet */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:end center;z-index:20;padding:0}
+.overlay[hidden]{display:none}
+.sheet{background:var(--surface);color:var(--fg);width:100%;max-width:720px;border-radius:14px 14px 0 0;padding:1rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(1rem + env(safe-area-inset-bottom,0px));display:grid;gap:.75rem;max-height:85vh}
+.sheet textarea{width:100%;min-height:180px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;resize:vertical}
+.toast{position:fixed;left:50%;bottom:calc(1.25rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:.6rem 1rem;border-radius:999px;font-size:.85rem;font-weight:700;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+.empty{text-align:center;color:var(--muted);padding:1.5rem 1rem;border:1px dashed var(--line);border-radius:var(--r)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:700px){.two{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="in">
+    <div>
+      <div class="eyebrow">BNI new member mentoring</div>
+      <h1>Passport to Success</h1>
+    </div>
+    <p class="sub">Ten one-hour 121s with ten different members. Ten to fifteen minutes of BNI each; the rest is getting to know each other.</p>
+  </div>
+</header>
+<nav class="rail" aria-label="Sections">
+  <div class="in">
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-view="passport" id="tab-passport"><span class="k">01</span>My Passport</button>
+      <button class="tab" role="tab" data-view="mentor" id="tab-mentor"><span class="k">02</span>Mentor crib sheets</button>
+      <button class="tab" role="tab" data-view="tracker" id="tab-tracker"><span class="k">03</span>Coordinator tracker</button>
+      <button class="tab" role="tab" data-view="reference" id="tab-reference"><span class="k">04</span>Reference</button>
+    </div>
+  </div>
+</nav>
+<main><div class="in" id="view"></div></main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="row between"><h3 id="sheet-title">Copy</h3><button class="btn sm" id="sheet-close">Close</button></div>
+    <p class="small muted" id="sheet-help"></p>
+    <textarea id="sheet-text" aria-label="Text"></textarea>
+    <div class="row" id="sheet-actions"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------------- Content: the Passport to Success pack, de-duplicated ---------------- */
+const SESSIONS = {
+  '1': {
+    n: 1, title: 'Roles, Agenda, Expectations & Weekly Commitment', short: 'Roles & commitment',
+    by: 'President or Past President',
+    why: 'New members don’t know what they don’t know, so the President leads the conversation and sets out what matters.',
+    covers: [
+      'The Leadership Team roles, and that every member is expected to take one on at some point during their membership',
+      'The weekly meeting agenda, step by step, and how the meeting is run',
+      'Expectations: be there 30 minutes before the start for open networking, stay to the end, be professional and respectful, keep to the attendance policy, make time outside the meeting for 121s and training, and bring visitors',
+      'The weekly commitment: a valid contribution every week. “I have a referral for…”, “I have brought a visitor…” or “I have a written testimonial for…”. A 121 or a Chapter Education Unit is not a valid contribution; a Thank You For The Business can be announced but does not count. Nobody passes.',
+      'The BNI Code of Ethics'
+    ],
+    bring: ['A copy of the BNI Member Policies brochure', 'The weekly meeting agenda'],
+    prep: ['Skim the weekly meeting agenda and note anything that puzzled you in your first meetings'],
+    actions: [
+      'Decide your default contribution for the next four weeks. When you are new, a visitor is the easiest one to deliver.',
+      'Read the Code of Ethics on the inside back cover of your Passport',
+      'Name one Leadership Team role you could see yourself doing in a year'
+    ],
+    mentorNotes: [
+      'Walk through the agenda with the Member Policies brochure open and ask what they did not follow in their first meetings',
+      'Be clear that passing in the contribution round is not an option and is noticed by the room',
+      'Refer anything you cannot answer to the Ambassador or Director Consultant'
+    ]
+  },
+  '2': {
+    n: 2, title: 'Rules of the Game, PALMS Report & Member Traffic Lights', short: 'Policies, PALMS & Traffic Lights',
+    by: 'Vice President or Past Vice President',
+    why: 'The VP oversees the Membership Committee, so this is the person to explain how the chapter measures itself and why.',
+    covers: [
+      'The BNI General Policies, in particular Policy 5 (attendance) and Policy 6 (bring bona fide referrals and visitors)',
+      'The PALMS report pulled from BNI Connect: Present, Absent, Late, Medical or managed absence, Substitute, plus referrals given and received (internal and external), visitors, 121s, Thank You For The Business, Chapter Education Units and testimonials',
+      'Member Traffic Lights: PALMS numbers combined with training attended give a score out of 100, banded Green, Amber, Red and Grey. New members show as Blue for their first three months.',
+      'How to get into Green early: be present, do your Passport 121s and Power Team 121s, bring people, give testimonials. Referrals come once relationships exist, so inviting is your contribution in the early weeks.'
+    ],
+    bring: ['The BNI Member Policies (bni.co.uk/policies)', 'A recent PALMS report for the chapter', 'The latest Member Traffic Lights'],
+    prep: ['Read the BNI General Policies before you meet and bring any questions', 'Have a look at your own line on the PALMS report if you have been sent one'],
+    actions: [
+      'Set a target date to be in Green on the Traffic Lights',
+      'Pick two things from the PALMS list you can do every week from now (being present and a 121 are the obvious two)',
+      'Keep the policies link somewhere you can find it'
+    ],
+    mentorNotes: [
+      'Review the policies yourself beforehand so you can answer questions on them',
+      'Explain that the chapter runs like a business: it tracks activity weekly because that is what produces results for members',
+      'Treat the Traffic Lights as a prompt for how to contribute more, not a league table to be anxious about'
+    ]
+  },
+  '3': {
+    n: 3, title: 'Biography Sheet, Speaker Rotation, Chapter Fees & Membership Renewal', short: 'Bio, speakers, fees & renewal',
+    by: 'Secretary/Treasurer or Past Secretary/Treasurer',
+    why: 'The Secretary/Treasurer reads the bio out before a Feature Presentation and runs the money side, so this is the natural owner.',
+    covers: [
+      'Your Biography Sheet in BNI Connect: it introduces you just before your Feature Presentation. Keep it positive, use it to educate the room and build credibility, and if you share something nobody knows about you, make sure it builds your image rather than embarrasses you.',
+      'Speaker rotation: once you have completed the Member Success Programme you join the rota for an 8 to 10 minute Feature Presentation, your chance to teach the room how to find referrals for you',
+      'Chapter fees: a weekly meeting fee, paid monthly. Check how to set up payment if you have not already.',
+      'Membership renewal: the process starts 90 days before your expiry date, BNI dues are due 30 days before, and renewals are at the discretion of the Membership Committee'
+    ],
+    bring: ['How the chapter collects fees and sets up payment', 'The next Member Success Programme dates'],
+    prep: ['Log into BNI Connect and find the bio section so you know where it lives'],
+    actions: [
+      'Complete your bio in BNI Connect this week',
+      'Set up your chapter fee payment with the Secretary/Treasurer if it is not already running',
+      'Book the Member Success Programme if you have not done so. You cannot present until you have been.'
+    ],
+    mentorNotes: [
+      'Ask whether they need help finding and registering for the next Member Success Programme online',
+      'Explain venue or meeting fees if your chapter has them'
+    ]
+  },
+  '4': {
+    n: 4, title: 'Attendance & Substitutes', short: 'Attendance & substitutes',
+    by: 'Membership Committee member',
+    why: 'Attendance is the policy new members most often fall foul of, and the Membership Committee is the body that enforces it.',
+    covers: [
+      'General Policy 5: you may not miss more than three meetings in a rolling six-month period. On the fourth absence the Membership Committee may open your classification.',
+      'The Substitute Programme: a qualified substitute attending for you does not count as an absence. Typically up to three substitutes in any six-month period.',
+      'Abusing the substitute system signals a lack of commitment and brings General Policy 12 into play: the Membership Committee may put a member on probation.',
+      'Finding good substitutes: ask colleagues, clients or contacts who know your business and can speak for it; give them your weekly presentation and your specific asks; choose someone positive who reflects BNI values; build a shortlist in advance and debrief and thank them afterwards'
+    ],
+    bring: ['The attendance and substitute wording from the policies', 'Your own substitute shortlist as an example'],
+    prep: ['Think about who in your world could stand in for you at a meeting'],
+    actions: [
+      'Write down five qualified substitutes',
+      'Invite each of them to visit the meeting before you need them, so the room and the process are familiar',
+      'Save your weekly presentation somewhere you can send to a substitute at short notice'
+    ],
+    mentorNotes: [
+      'Work through the five names with them in the session rather than leaving it as homework',
+      'A substitute who has already visited is far more likely to turn up when needed'
+    ]
+  },
+  '5': {
+    n: 5, title: 'Referrals vs Leads, Giving Referrals, Receiving Referrals', short: 'Referrals vs leads',
+    by: 'Education Coordinator',
+    why: 'The difference between a referral and a lead is the most common confusion for a new member, and education is this role’s job.',
+    covers: [
+      'A lead involves two people: you and the member you give it to. Nobody has spoken to the third party about whether they want the product or service, so the contact is not expecting the call and both sides risk embarrassment.',
+      'A referral involves three people: your contact, you and the member. The contact has said yes to being contacted, so nobody is surprised. The carpet-cleaner story: noticing a stain is a lead; asking about it and getting a yes to an introduction is a referral.',
+      'Internal referrals (you doing business with a fellow member) are encouraged and build trust. External referrals from your own network are where the real value is.',
+      'The five levels of referral: 1 name and contact details; 2 plus literature or a business card; 3 an introduction such as a two-way email with your recommendation; 4 plus an appointment booked; 5 you attend the meeting and introduce them in person. Aim for level 3 or higher.',
+      'Giving referrals: do 121s, write down the referral requests you hear each week and check your network, carry your BNI cardholder and wear your pin as conversation starters, listen for problems a member could solve, and get to a referral skills workshop early',
+      'Receiving referrals: Givers Gain. Referrals are not guaranteed; they follow relationships, and your weekly presentation should show specifically how you solve problems.'
+    ],
+    bring: ['A quick Givers Gain story of your own', 'This week’s referral requests from the meeting as a worked example'],
+    prep: ['Note the referral requests you heard at the last meeting'],
+    actions: [
+      'Start a running list of other members’ referral requests and review it after every meeting',
+      'Pass one internal referral or one level 3 external referral in the next fortnight',
+      'Book a referral skills workshop'
+    ],
+    mentorNotes: [
+      'Use the carpet-cleaner example and then ask them for one of their own',
+      'Be honest that receiving takes time; the members who stay are the ones who understood this early'
+    ]
+  },
+  '6': {
+    n: 6, title: 'One-to-One Etiquette & GAINS', short: '121 etiquette & GAINS',
+    by: 'A member who conducts quality 121s and scores high on the Traffic Lights',
+    why: 'Trust is the first step in the referral process, and quality 121s are the fastest way to build it. Lead by example.',
+    covers: [
+      'What a 121 is: a focused meeting between two members to exchange detailed insight about each other’s businesses, spot collaboration and raise the odds of meaningful referrals',
+      'Why: know, like, trust; educate each other on ideal clients, services and success stories; show commitment and reliability; find collaborations that go beyond referrals',
+      'How: ask, do not be shy; agree a day, time and place; allow about an hour and respect it; turn up on time and prepared; it is not a sales pitch; use the GAINS profile; finish by booking the next one',
+      'GAINS: Goals, Accomplishments, Interests, Networks, Skills'
+    ],
+    bring: ['Your own completed GAINS profile', 'Any 121 documents you use, such as your ideal-client sheet'],
+    prep: ['Draft your GAINS answers using the prompts in Reference'],
+    actions: [
+      'Finish your GAINS profile and keep it on your phone',
+      'Book your next three 121s, starting with your Power Team',
+      'End every 121 by agreeing when the next one is'
+    ],
+    mentorNotes: [
+      'Share your GAINS profile first so they see what a finished one looks like',
+      'Relationship building is a journey; make the point that the Passport 121s are their first ten'
+    ]
+  },
+  '7': {
+    n: 7, title: 'Chapter Tools: BNI Connect & the BNI App', short: 'Connect & the app',
+    by: 'A member who uses BNI Connect and the app well',
+    why: 'Do this session first if you can. A member with a working profile and the app can pass referrals and register visitors from week one.',
+    covers: [
+      'The sites: BNIWelcome.com for tools and resources; the regional sites bnisouthwales.com and bni-bas.co.uk for events and chapter locations; BNIConnectGlobal.com and the app for activity slips, inviting and your profile; MyBNI.com as the one-stop shop; BNI Academy (Business Builder) for the Member Success Programme, courses, webinars and podcasts',
+      'A 100% complete profile gets you found: more visibility, more credibility, more referrals, including from other chapters and countries. You can only reach 100% on the desktop version.',
+      'Using the app: pass referrals, post a Thank You For The Business, record a 121, register a visitor, and check your own numbers at 6 months, 12 months and lifetime',
+      'Testimonials: when business with a member goes well, put it in writing so they can use it on their profile and in marketing',
+      'Slips: everything can be entered in BNI Connect; print your weekly slips before the meeting to go into the door prize draw'
+    ],
+    bring: ['Your BNI Connect login, open on a laptop or tablet so you can do it together'],
+    prep: ['Install the BNI Connect app and make sure you can log in'],
+    actions: [
+      'Get your profile to 100% on the desktop site this week',
+      'Enter your first slip in the app, even if it is a 121 with your mentor',
+      'Check in with your mentor next week to confirm the profile is at 100%'
+    ],
+    mentorNotes: [
+      'Do it live: set up the profile together and enter a slip while they watch, then let them do one',
+      'Agree a check-in at next week’s meeting on the 100% profile',
+      'The Coordinator’s effectiveness checklist asks for this to be the first session'
+    ]
+  },
+  '8': {
+    n: 8, title: 'Gold Club Badge, Bringing People & the Value of a Visitor', short: 'Inviting & Gold Club',
+    by: 'A Gold Club Badge member (six or more sponsored), or the Director Consultant or Ambassador if the chapter has none',
+    why: 'A new member cannot pass many referrals yet, but their network is the one thing nobody else in the room has.',
+    covers: [
+      'Your network is unique in the chapter. Introducing it to the chapter lifts referrals, membership and local awareness for everyone.',
+      'Two types of people to invite. Guests cannot join (classification taken, or another BNI member) but carry the BNI story into their networks, refer visitors and do business with members. Eligible visitors have an open classification and could apply; they are the people who grow the chapter.',
+      'Who to invite: friends, clients, suppliers, social media contacts, people you meet, your Power Team, what the chapter needs, who you can help and who can help you',
+      'A simple invitation script you can send after any connection request (see Reference)',
+      'Registering them on BNI Connect: choose the visit date and the profession, then Visitor for a first-timer with an open classification, Guest for a second visit or a clash, Substitute if they are standing in for someone',
+      'The Gold Club Badge: presented to a member who has sponsored six or more members into BNI'
+    ],
+    bring: ['Your own invitation message as an example', 'BNI Connect open at the visitor registration screen'],
+    prep: ['List ten people you could invite'],
+    actions: [
+      'Send three invitations this week using the script',
+      'Register every accepted invitation on BNI Connect straight away',
+      'Keep a running invite list and add two names a week'
+    ],
+    mentorNotes: [
+      'Make the point that everyone is welcome to visit, including people who could never join',
+      'Walk through the profession dropdown on registration; it is the part people get stuck on'
+    ]
+  },
+  '9': {
+    n: 9, title: 'Visitor Host Experience', short: 'Visitor host day',
+    by: 'Visitor Host Team member',
+    why: 'Serving one day on the welcome table teaches Givers Gain from the inside and shows that every member serves the chapter in some way.',
+    covers: [
+      'You will spend one meeting with the Visitor Host Team on the welcome table',
+      'The role: greet people as they arrive; give visitors and guests their name badges; take each visitor into the room and introduce them to members in their contact sphere or Power Team; leave them with a member and come back to the table for the next arrival',
+      'After the meeting, go with the host team to the visitor orientation and listen as next steps are explained. You went through this yourself.',
+      'You may be asked to make a follow-up call to at least one visitor or guest that day to answer their questions'
+    ],
+    bring: ['A date for their hosting day', 'The Visitor Host ribbon badge on the day (collect it back afterwards)'],
+    prep: ['Agree a date with the host team and put it in your diary'],
+    actions: [
+      'Host on the agreed date and arrive early',
+      'Make one follow-up call to a visitor the same day',
+      'Tell your mentor how it went'
+    ],
+    mentorNotes: [
+      'Brief them the day before on exactly what they will be doing',
+      'On the day, make them the greeter and have them introduce visitors to the Leadership Team',
+      'Follow up afterwards to check the call was made'
+    ]
+  },
+  '10': {
+    n: 10, title: 'Local Training Events, BNI U & Business Builder', short: 'Training',
+    by: 'A member who regularly attends training and uses Business Builder',
+    why: 'Lifelong Learning is a BNI core value, and members who train get more from their membership.',
+    covers: [
+      'What is available and when: the Member Success Programme within your first six weeks; Passport to Success weekly for ten weeks; monthly Advanced Training and Skills Workshops to attend when needed; BNI podcasts and Business Builder available any time; chapter Forums for Leadership Teams at least every two months',
+      'BNI Academy and Business Builder at mybni.com: assigned courses, the calendar, the Recognition Wall, training programmes, resources and Referral Exchanges',
+      'Live local and national events, booked through the regional events calendar',
+      'Podcasts and blogs: ivanmisner.com, bnipodcast.com and bnipowerofone.com. Learn more to earn more.'
+    ],
+    bring: ['Business Builder logged in on a laptop or tablet', 'The regional events calendar open'],
+    prep: ['Check whether you can log into mybni.com'],
+    actions: [
+      'Register for the next Member Success Programme if you have not been, plus one Skills Workshop',
+      'Start one Business Builder course',
+      'Subscribe to one of the podcasts'
+    ],
+    mentorNotes: [
+      'Show them how to find and register for events online, then have them do the next booking themselves',
+      'Start a Business Builder course together so they have seen the inside of it'
+    ]
+  }
+};
+
+const MILESTONES = {
+  'LP':  { label: 'LP',  title: 'Launch Pad', by: 'Regional team', short: 'Launch Pad',
+           text: 'Regional session for new members. Ask your Mentor Coordinator for the next date.' },
+  '11':  { label: 'RT',  title: 'Regional Team sign-off', by: 'Director Consultant', short: 'Regional sign-off',
+           text: 'Seek out your Director Consultant or Executive Director and get them to sign your Passport.' },
+  'MSP': { label: 'MSP', title: 'Member Success Programme completed', by: 'BNI regional training', short: 'MSP done',
+           text: 'BNI’s foundation training, delivered in the region. Book it within your first six weeks. It is required before you can give a Feature Presentation and before your Completion Certificate.' }
+};
+
+const ORDER = ['1','2','3','4','LP','5','6','7','8','9','10','11','MSP'];          // as the tracker sheet lists them
+const RECOMMENDED = ['7','1','2','3','4','LP','5','6','8','9','10','11','MSP'];    // Chapter Tools first
+const TARGET_DAYS = 84;
+
+const QUICK_TIPS = [
+  'The Passport is an engagement tool, not a training tool. Mentors spend most of the hour on the relationship and GAINS.',
+  'The Member Success Programme is the best way for a new member to get trained. Get them booked on it as soon as possible.',
+  'The Mentor Coordinator should not be a Member Mentor. The job is to make the whole process happen.',
+  'Keep the Passport out of the New Member Pack. Handed over separately, it gets noticed and completed.',
+  'Mentors take the lead in scheduling. New members are often shy and will not make the first move.',
+  'No group 121s. The point is one relationship at a time.',
+  'Pace it: ten to twelve weeks is right. Ten sessions in a fortnight is efficient and ineffective.',
+  'Keep a record of which mentor is paired with each new member.',
+  'Encourage new members to seek out the Executive Director and get their Passport signed.',
+  'When the Passport is complete, arrange for the President to present the Mentor Completion Certificate in the Notable Networker slot.'
+];
+
+const CHECKLIST = [
+  { g: 'Awareness', items: ['All new members know about the Passport to Success programme', 'All mentors are engaged with the programme', 'Mentors have been shown how to run their session', 'The programme’s purpose and benefits are explained at the member’s initial orientation'] },
+  { g: 'Mentor engagement', items: ['There is a WhatsApp group between the Mentor Coordinator and the mentors', 'Mentors run complete sessions from the crib sheet and slides', 'The tracker is in place and kept up to date by the Mentor Coordinator', 'Mentors feed back progress so the tracker stays current', 'The tracker is shared every week in Announcements'] },
+  { g: 'New member participation', items: ['New members are chasing mentors to deliver their sessions', 'There is evidence of action: 100% Connect profile, training booked and attended'] },
+  { g: 'Completion', items: ['We know what percentage of new members complete within 90 days', 'Common barriers to completion have been identified and addressed'] },
+  { g: 'Feedback and recognition', items: ['Feedback from new members and mentors is collected and shared in the Chapter Success Meeting', 'The Membership Committee reviews the programme’s effectiveness regularly', 'Members who complete are recognised in the meeting', 'Mentors are acknowledged for their contribution'] },
+  { g: 'Programme order', items: ['Chapter Tools is run as the first session', 'There is a last check before the certificate: MSP done and 100% Connect profile'] }
+];
+
+const POLICIES = [
+  'Only one person from each BNI classification can join a chapter, and each member holds only one classification.',
+  'Members represent only their primary professional classification as approved by the Membership Committee.',
+  'Members arrive on time and stay for the entire published meeting time.',
+  'A member may belong to only one BNI chapter, and to no other programme that allows one member per profession or has referral generation as a goal of membership.',
+  'Three absences are allowed within a continuous six-month period. A substitute attending for you does not count as an absence.',
+  'Members are expected to engage by bringing qualified referrals and/or visitors.',
+  'Visitors may attend chapter meetings up to two times.',
+  'Only members who have completed the Member Success Programme, and BNI Directors or Director Consultants, may give Feature Presentations.',
+  'Leaves of absence are possible for certain extenuating circumstances at the discretion of the Membership Committee.',
+  'To change classification, a member submits a new membership application for approval.',
+  'Membership lists are for referrals and relationships only. Marketing or solicitation to members outside your chapter needs their freely given, specific, informed and unambiguous consent.',
+  'Membership renewal is subject to approval by the chapter Membership Committee.'
+];
+
+const ETHICS = [
+  'I will display a positive and supportive attitude with BNI members.',
+  'I will build goodwill and trust among members and their referrals.',
+  'I will be truthful with the members and their referrals.',
+  'I will provide the quality of services at the prices that I have quoted.',
+  'I will live up to the ethical standards of my profession. (Professional standards in a formal code of ethics supersede these.)',
+  'I will take responsibility for following up on the referrals I receive.'
+];
+
+const PALMS = [
+  ['P','Present'],['A','Absent'],['L','Late'],['M','Medical / managed absence'],['S','Substitute'],
+  ['RGI','Referrals given, internal'],['RGO','Referrals given, external'],['RRI','Referrals received, internal'],['RRO','Referrals received, external'],
+  ['V','Visitors'],['1-2-1','One-to-ones'],['TYFTB','Thank You For The Business'],['CEU','Chapter Education Unit'],['T','Testimonials']
+];
+
+const ROLES = [
+  ['President','Facilitates the meeting'],
+  ['Vice President','Oversees the Membership Committee'],
+  ['Secretary/Treasurer','Manages chapter fees and collects BNI membership dues'],
+  ['Membership Committee','Enforces policies, interviews applicants, reviews participation'],
+  ['Education Coordinator','Educates members weekly'],
+  ['Mentor Coordinator','Supports new members and runs this programme'],
+  ['Visitor Host Team','Greets and supports visitors'],
+  ['Training & Events Coordinator','Plans chapter events, training and Visitors’ Days'],
+  ['Power Team Coordinator','Develops Power Teams in the chapter']
+];
+
+const TRAINING = [
+  ['Member Success Programme','Within the first 6 weeks','Foundation course on the basics of BNI'],
+  ['Passport to Success','One a week for the first 10 weeks','To build relationships with members'],
+  ['Advanced Training','Monthly, attend when needed','To increase your return on investment'],
+  ['Skills Workshops','Monthly, attend when needed','Presentations, 121s and your GAINS profile'],
+  ['BNI Podcasts','Any time','Answers to the questions you have'],
+  ['Business Builder','Any time','Self-paced courses to get more from membership'],
+  ['Chapter Forums','At least every 2 months, Leadership Teams','Goal-setting for the chapter’s growth']
+];
+
+const LINKS = [
+  ['BNI Connect (desktop)','https://www.bniconnectglobal.com','Profile, slips, inviting. Only the desktop site gets a profile to 100%.'],
+  ['MyBNI / BNI Academy','https://www.mybni.com','Business Builder courses, the Member Success Programme, podcasts and resources'],
+  ['BNI South Wales events','https://www.bnisouthwales.com/en-GB/events','Book local and national training and events'],
+  ['BNI BAS (regional)','https://www.bni-bas.co.uk','Regional site for events and chapter locations'],
+  ['BNI Welcome','https://www.bniwelcome.com','Tools, information and resources for new members'],
+  ['BNI UK policies','https://www.bni.co.uk/policies','The current General Policies'],
+  ['Ivan Misner','https://ivanmisner.com','Blog and 10 to 15 minute podcasts from BNI’s founder'],
+  ['The Official BNI Podcast','https://www.bnipodcast.com','Weekly networking podcast'],
+  ['BNI Power of One','https://bnipowerofone.com','BNI-specific podcast']
+];
+
+const INVITE_SCRIPT = `Hi, thank you for the connection request, it’s great to connect with you. I’d love to find out more about your business and how I can help you and your business to grow.
+
+I’m at a networking event next week and wondered if you’d like to join me for a coffee. There will be about 25 other businesses there, so a good opportunity to connect with some other business owners.
+
+The details of the event are here: [insert link]
+
+If you want some more info, feel free to send me a message.
+
+Best wishes`;
+
+const GAINS = [
+  ['Goals','What are you trying to achieve in business and personally this year?'],
+  ['Accomplishments','What are you proudest of, in and out of work?'],
+  ['Interests','What do you do when you are not working?'],
+  ['Networks','Which groups, trades, clubs and communities are you part of?'],
+  ['Skills','What are you good at that people might not know about?']
+];
+
+/* ---------------- Helpers ---------------- */
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function parseISO(s){ if(!s) return null; const [y,m,d]=s.split('-').map(Number); if(!y||!m||!d) return null; return new Date(y,m-1,d); }
+function fmt(s){ const d=parseISO(s); return d ? `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : ''; }
+function fmtShort(s){ const d=parseISO(s); return d ? `${d.getDate()} ${MONTHS[d.getMonth()]}` : ''; }
+function addDays(s,n){ const d=parseISO(s); if(!d) return ''; d.setDate(d.getDate()+n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function daysBetween(a,b){ const da=parseISO(a), db=parseISO(b); if(!da||!db) return null; return Math.round((db-da)/86400000); }
+function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
+function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function itemTitle(k){ return SESSIONS[k] ? SESSIONS[k].title : MILESTONES[k].title; }
+function itemShort(k){ return SESSIONS[k] ? SESSIONS[k].short : MILESTONES[k].short; }
+function itemLabel(k){ return SESSIONS[k] ? 'S'+k : MILESTONES[k].label; }
+function lcA(s){ return String(s).replace(/^A /,'a '); }
+function itemBy(k){ return SESSIONS[k] ? SESSIONS[k].by : MILESTONES[k].by; }
+function blankItems(){ const o={}; ORDER.forEach(k=>o[k]={done:'',mentor:''}); return o; }
+function normalise(items){ const o=blankItems(); if(items) ORDER.forEach(k=>{ if(items[k]) o[k]={done:items[k].done||'',mentor:items[k].mentor||''}; }); return o; }
+
+/* Progress and pace. Expected pace: one session a week from induction, over 10 weeks; milestones are extra. */
+function progress(m, asOf){
+  asOf = asOf || todayISO();
+  const items = normalise(m.items);
+  const done = ORDER.filter(k=>items[k].done).length;
+  const sessionsDone = Object.keys(SESSIONS).filter(k=>items[k].done).length;
+  const days = m.inducted ? daysBetween(m.inducted, asOf) : null;
+  const week = days==null ? null : Math.floor(Math.max(0,days)/7)+1;
+  const target = m.inducted ? addDays(m.inducted, TARGET_DAYS) : '';
+  const next = RECOMMENDED.find(k => SESSIONS[k] && !items[k].done) || null;
+  let status, tone;
+  if (done === ORDER.length) { status='Complete'; tone='grey'; }
+  else if (days==null) { status='No induction date'; tone='grey'; }
+  else if (days > TARGET_DAYS) { status='Overdue'; tone='red'; }
+  else {
+    const expected = Math.min(10, Math.floor(days/7));   // sessions you would expect by now at one a week
+    if (sessionsDone < expected - 1) { status='Behind pace'; tone='amber'; }
+    else { status='On track'; tone='green'; }
+  }
+  return { items, done, sessionsDone, days, week, target, next, status, tone, total: ORDER.length };
+}
+
+/* ---------------- State ---------------- */
+const KEY_ME = 'p2s.me.v1', KEY_TR = 'p2s.tracker.v1', KEY_CK = 'p2s.checklist.v1', KEY_UI = 'p2s.ui.v1';
+let me = load(KEY_ME, { name:'', trade:'', inducted:'', items: blankItems(), open: { setup: true } });
+me.items = normalise(me.items); me.open = me.open || {};
+let tracker = load(KEY_TR, { chapter:'', members: [] });
+tracker.members = (tracker.members||[]).map(m => ({ id:m.id||uid(), name:m.name||'', trade:m.trade||'', inducted:m.inducted||'', items:normalise(m.items), open:!!m.open }));
+let checks = load(KEY_CK, {});
+let ui = load(KEY_UI, { view:'passport', session:'7' });
+let confirmId = null;
+
+/* ---------------- Views ---------------- */
+function renderPassport(){
+  const p = progress(me);
+  const setupOpen = !me.name || !me.inducted || me.open.setup;
+  let h = '';
+  h += `<div class="card">
+    <div class="row between">
+      <div class="grow">
+        <h4>Your passport</h4>
+        <h2>${me.name ? esc(me.name) : 'New member'}${me.trade ? ` <span class="muted" style="font-family:var(--body);font-weight:400;font-size:.95rem">· ${esc(me.trade)}</span>` : ''}</h2>
+        <p class="small muted">${me.inducted ? `Inducted ${fmt(me.inducted)} · week ${p.week} · complete by ${fmt(p.target)}` : 'Add your induction date to see your 12-week target'}</p>
+      </div>
+      ${(me.name && me.inducted) ? `<button class="btn sm" data-act="toggle-setup">${setupOpen ? 'Hide details' : 'Edit details'}</button>` : ''}
+    </div>
+    ${setupOpen ? `<div class="form" style="margin-top:.9rem">
+      <label>Your name<input id="me-name" data-bind="me.name" value="${esc(me.name)}" placeholder="e.g. James Rees"></label>
+      <label>Business / classification<input id="me-trade" data-bind="me.trade" value="${esc(me.trade)}" placeholder="e.g. Plumber"></label>
+      <label>Date inducted<input id="me-inducted" type="date" data-bind="me.inducted" value="${esc(me.inducted)}"></label>
+      <div class="tiny muted span">Saved on this device only. Your mentors sign the paper Passport; this is your own record.</div>
+    </div>` : ''}
+    <div style="margin-top:1rem" class="stack">
+      <div class="row between"><span class="small"><strong>${p.done}</strong> of ${p.total} stamped</span><span class="chip ${p.tone}"><i class="dot"></i>${p.status}</span></div>
+      <div class="prog" aria-label="${p.done} of ${p.total} stamped">${ORDER.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}" title="${esc(itemTitle(k))}"></i>`).join('')}</div>
+    </div>
+  </div>`;
+
+  if (!me.name && !p.done) {
+    h += `<div class="card flat prose stack">
+      <h3>How this works</h3>
+      <p>You will have ten one-hour 121s, each with a different member of the chapter. Each covers ten to fifteen minutes of BNI content; the rest is the two of you getting to know each other using GAINS. Your mentor gets a page of your Passport signed at the end of each one.</p>
+      <p>Mentors are meant to book the sessions, but chase them if they don’t. Aim to have everything stamped within twelve weeks, with the Member Success Programme done in your first six.</p>
+    </div>`;
+  }
+
+  if (p.next) {
+    h += `<div class="notice"><strong>Next up: Session ${p.next} · ${esc(SESSIONS[p.next].short)}</strong><br><span class="small">Book it with ${esc(lcA(SESSIONS[p.next].by))}. ${p.next==='7' ? 'Chapter Tools comes first so you can pass referrals and register visitors from week one.' : ''}</span></div>`;
+  } else if (p.done === p.total) {
+    h += `<div class="notice"><strong>Passport complete.</strong> <span class="small">Tell your Mentor Coordinator so the President can present your Completion Certificate in the Notable Networker slot.</span></div>`;
+  }
+
+  h += `<h4 style="margin-top:.25rem">Sessions</h4>`;
+  ORDER.forEach(k => {
+    const it = p.items[k]; const isMs = !!MILESTONES[k]; const s = SESSIONS[k]; const open = !!me.open[k];
+    const stamp = it.done
+      ? `<div class="stamp">Stamped<b>${fmtShort(it.done)}</b></div>`
+      : (p.next===k ? `<div class="stamp next">Next</div>` : `<div class="stamp todo">Not yet</div>`);
+    h += `<div class="card" id="page-${k}">
+      <button class="pagehead" data-act="toggle-page" data-k="${k}" aria-expanded="${open}">
+        <div class="num ${isMs?'ms':''}">${isMs ? MILESTONES[k].label : k}</div>
+        <div class="grow">
+          <div class="title">${esc(itemTitle(k))}</div>
+          <div class="meta">${isMs ? esc(MILESTONES[k].by) : 'Book with ' + esc(lcA(s.by))}${it.mentor ? ' · ' + esc(it.mentor) : ''}</div>
+        </div>
+        <div class="status">${stamp}</div>
+      </button>
+      ${open ? `<div class="pagebody">
+        ${isMs ? `<p class="prose">${esc(MILESTONES[k].text)}</p>` : `
+          <p class="small muted prose">${esc(s.why)}</p>
+          <div class="sec"><h4>What we’ll cover</h4><ul class="small">${s.covers.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+          <div class="two">
+            <div class="sec"><h4>Before you meet</h4><ul class="small">${s.prep.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+            <div class="sec"><h4>Your actions afterwards</h4><ul class="small">${s.actions.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+          </div>`}
+        <div class="row" style="gap:.75rem;align-items:end">
+          <label class="small muted" style="display:grid;gap:.25rem">${isMs?'Signed by':'Mentor'}<input data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="Name" style="max-width:220px"></label>
+          <label class="small muted" style="display:grid;gap:.25rem">Date<input type="date" data-item="${k}" data-field="done" value="${esc(it.done)}"></label>
+          ${it.done ? `<button class="btn sm" data-act="unstamp" data-k="${k}">Remove stamp</button>` : `<button class="btn primary sm" data-act="stamp" data-k="${k}">Stamp today</button>`}
+        </div>
+      </div>` : ''}
+    </div>`;
+  });
+
+  h += `<div class="card flat prose stack">
+    <h3>Finishing</h3>
+    <p class="small">Before the certificate there is a last check: the Member Success Programme done and a 100% complete BNI Connect profile. The President then presents your Mentor Completion Certificate during the Notable Networker part of the meeting.</p>
+    <div class="row"><button class="btn sm" data-act="reset-me">Clear my passport on this device</button></div>
+  </div>`;
+  return h;
+}
+
+function renderMentor(){
+  const k = SESSIONS[ui.session] ? ui.session : '7';
+  const s = SESSIONS[k];
+  let h = `<div class="card stack">
+    <div><h4>Member Mentor crib sheets</h4><p class="small muted prose">Pick your session. Everything from the pack for that session is on one screen: what to bring, what to talk through, what to leave the new member doing, and the booking message to send them.</p></div>
+    <div class="picker" role="group" aria-label="Session">${RECOMMENDED.filter(x=>SESSIONS[x]).map(x=>`<button class="pick" data-act="pick" data-k="${x}" aria-pressed="${x===k}"><span class="n">${x}</span><span class="t">${esc(SESSIONS[x].short)}</span></button>`).join('')}</div>
+  </div>`;
+
+  h += `<div class="card crib" id="crib">
+    <div>
+      <h4>Member Mentor #${k}</h4>
+      <h2>${esc(s.title)}</h2>
+      <p class="small muted" style="margin-top:.3rem">Delivered by ${esc(lcA(s.by))}</p>
+    </div>
+    <div class="timing"><div class="big">10–15</div><div class="small"><strong>minutes on the BNI content.</strong> The balance of the hour is for getting to know each other using GAINS. The Passport is an engagement tool, not a training tool.</div></div>
+    <p class="prose small">${esc(s.why)}</p>
+    <div class="grid2">
+      <div class="sec"><h4>Bring with you</h4><ul class="small">${s.bring.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="sec"><h4>Ask them to do beforehand</h4><ul class="small">${s.prep.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    </div>
+    <div class="sec"><h4>Talk through</h4><ol class="small">${s.covers.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>
+    <div class="sec"><h4>Mentor notes</h4><ul class="small">${s.mentorNotes.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="sec"><h4>Leave them with these actions</h4><ul class="small">${s.actions.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="sec"><h4>Before you part</h4><ul class="small">
+      <li>Work through GAINS: Goals, Accomplishments, Interests, Networks, Skills</li>
+      <li>Sign their Passport for this session</li>
+      <li>Check they know who to book next, and that the Mentor Coordinator will hear it is done</li>
+    </ul></div>
+    <div class="row">
+      <button class="btn primary" data-act="copy-booking" data-k="${k}">Copy a booking message</button>
+      <button class="btn" data-act="copy-crib" data-k="${k}">Copy this crib sheet as text</button>
+      <button class="btn ghost" data-act="copy-link" data-k="${k}">Copy link to this session</button>
+    </div>
+  </div>`;
+
+  h += `<div class="card stack">
+    <h3>Ten things every mentor should know</h3>
+    <ol class="small prose">${QUICK_TIPS.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+  </div>`;
+  return h;
+}
+
+function bookingMessage(k, name){
+  const s = SESSIONS[k];
+  return `Hi${name ? ' ' + name : ''}, I’m your Member Mentor for Passport session ${k}: ${s.short}. It’s an hour, mostly the two of us getting to know each other, with about fifteen minutes on ${s.short.toLowerCase()}. Could you do one of these?\n\n• [day/time option 1]\n• [day/time option 2]\n\nBefore we meet: ${s.prep[0].replace(/\.$/,'')}. Bring your Passport so I can sign it.`;
+}
+function cribText(k){
+  const s = SESSIONS[k];
+  const L = [];
+  L.push(`MEMBER MENTOR #${k}: ${s.title.toUpperCase()}`);
+  L.push(`Delivered by: ${s.by}`);
+  L.push(`Timing: 10–15 minutes on BNI content; the rest of the hour on GAINS and the relationship.`);
+  L.push(''); L.push('BRING'); s.bring.forEach(x=>L.push('- '+x));
+  L.push(''); L.push('TALK THROUGH'); s.covers.forEach((x,i)=>L.push(`${i+1}. ${x}`));
+  L.push(''); L.push('MENTOR NOTES'); s.mentorNotes.forEach(x=>L.push('- '+x));
+  L.push(''); L.push('THEIR ACTIONS'); s.actions.forEach(x=>L.push('- '+x));
+  L.push(''); L.push('Before you part: GAINS, sign the Passport, confirm who they book next.');
+  return L.join('\n');
+}
+
+function renderTracker(){
+  const ms = tracker.members.slice().sort((a,b)=> (a.inducted||'9') < (b.inducted||'9') ? -1 : 1);
+  const ps = ms.map(m => ({ m, p: progress(m) }));
+  const counts = { total: ms.length, complete: ps.filter(x=>x.p.status==='Complete').length, behind: ps.filter(x=>x.p.tone==='amber').length, overdue: ps.filter(x=>x.p.tone==='red').length };
+  let h = `<div class="card stack">
+    <div class="row between">
+      <div class="grow"><h4>Mentor Coordinator</h4><h2>${tracker.chapter ? esc(tracker.chapter) : 'Chapter tracker'}</h2></div>
+      <label class="small muted" style="display:grid;gap:.25rem">Chapter name<input id="tr-chapter" data-bind="tracker.chapter" value="${esc(tracker.chapter)}" placeholder="e.g. BNI Elli" style="max-width:200px"></label>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="v">${counts.total}</div><div class="l">In programme</div></div>
+      <div class="stat"><div class="v">${counts.complete}</div><div class="l">Complete</div></div>
+      <div class="stat"><div class="v" style="color:${counts.behind?'var(--amber)':'inherit'}">${counts.behind}</div><div class="l">Behind pace</div></div>
+      <div class="stat"><div class="v" style="color:${counts.overdue?'var(--accent-ink)':'inherit'}">${counts.overdue}</div><div class="l">Past 84 days</div></div>
+    </div>
+    <div class="row">
+      <button class="btn primary" data-act="copy-summary" ${ms.length?'':'disabled'}>Copy weekly summary</button>
+      <button class="btn" data-act="export">Export</button>
+      <button class="btn" data-act="import">Import</button>
+    </div>
+    <p class="tiny muted">Data lives on this device. Export before changing phone or handing over to the next Coordinator, and paste the weekly summary into Announcements or the chapter WhatsApp.</p>
+  </div>`;
+
+  h += `<div class="card stack">
+    <h3>Add a new member</h3>
+    <form class="form" id="add-form">
+      <label>Name<input id="add-name" required placeholder="Name"></label>
+      <label>Business / classification<input id="add-trade" placeholder="e.g. Plumber"></label>
+      <label>Date inducted<input id="add-inducted" type="date" required value="${todayISO()}"></label>
+      <button class="btn primary span" type="submit">Add</button>
+    </form>
+  </div>`;
+
+  if (!ms.length) {
+    h += `<div class="empty">No new members yet. Add the first one above and tap the cells as each session is signed off.</div>`;
+  }
+
+  ps.forEach(({m,p}) => {
+    h += `<div class="card member" id="m-${m.id}">
+      <div class="top">
+        <div>
+          <div class="name">${esc(m.name)}${m.trade?` <span class="muted" style="font-weight:400">· ${esc(m.trade)}</span>`:''}</div>
+          <div class="small muted">Inducted ${fmt(m.inducted)||'—'} · ${p.week?`week ${p.week}`:''} · target ${fmt(p.target)||'—'}</div>
+        </div>
+        <span class="chip ${p.tone}"><i class="dot"></i>${p.status}</span>
+      </div>
+      <div class="prog" aria-label="${p.done} of ${p.total} stamped">${ORDER.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}"></i>`).join('')}</div>
+      <div class="strip" role="group" aria-label="Sessions for ${esc(m.name)}">
+        ${ORDER.map(k=>{ const it=p.items[k]; return `<button class="cell ${it.done?'on':''} ${MILESTONES[k]?'ms':''}" data-act="cell" data-id="${m.id}" data-k="${k}" title="${esc(itemTitle(k))}${it.mentor?' · '+esc(it.mentor):''}${it.done?' · '+fmt(it.done):''}" aria-pressed="${!!it.done}"><span>${itemLabel(k)}</span>${it.done?`<small>${fmtShort(it.done)}</small>`:(it.mentor?`<small>${esc(it.mentor.split(' ')[0])}</small>`:'')}</button>`; }).join('')}
+      </div>
+      <div class="row between">
+        <span class="small muted">${p.done} of ${p.total} stamped${p.next?` · next S${p.next} ${esc(SESSIONS[p.next].short)}${p.items[p.next].mentor?' with '+esc(p.items[p.next].mentor):''}`:''}</span>
+        <div class="row">
+          <button class="btn sm" data-act="toggle-member" data-id="${m.id}">${m.open?'Hide details':'Dates & mentors'}</button>
+          ${confirmId===m.id ? `<button class="btn sm danger" data-act="remove-confirm" data-id="${m.id}">Confirm remove</button><button class="btn sm" data-act="remove-cancel">Keep</button>` : `<button class="btn sm ghost" data-act="remove" data-id="${m.id}">Remove</button>`}
+        </div>
+      </div>
+      ${m.open ? `<div class="tablewrap"><table>
+        <thead><tr><th></th><th>Session</th><th>Mentor</th><th>Signed off</th></tr></thead>
+        <tbody>${ORDER.map(k=>{ const it=p.items[k]; return `<tr>
+          <td><strong>${itemLabel(k)}</strong></td>
+          <td>${esc(itemShort(k))}<div class="tiny muted">${esc(itemBy(k))}</div></td>
+          <td><input data-mid="${m.id}" data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="Paired mentor" style="min-width:140px"></td>
+          <td><input type="date" data-mid="${m.id}" data-item="${k}" data-field="done" value="${esc(it.done)}"></td>
+        </tr>`; }).join('')}</tbody>
+      </table></div>
+      <div class="row" style="justify-content:flex-start;gap:.75rem;align-items:end">
+        <label class="small muted" style="display:grid;gap:.25rem">Name<input data-mid="${m.id}" data-mfield="name" value="${esc(m.name)}"></label>
+        <label class="small muted" style="display:grid;gap:.25rem">Classification<input data-mid="${m.id}" data-mfield="trade" value="${esc(m.trade)}"></label>
+        <label class="small muted" style="display:grid;gap:.25rem">Inducted<input type="date" data-mid="${m.id}" data-mfield="inducted" value="${esc(m.inducted)}"></label>
+      </div>` : ''}
+    </div>`;
+  });
+
+  h += `<div class="card stack">
+    <h3>Running the programme</h3>
+    <p class="small prose">The Mentor Coordinator does not mentor; the job is to make the process happen. Pair each new member with a mentor for every session, keep this tracker current from mentors’ feedback, read it out in Announcements each week, and arrange the certificate when the last check (MSP done, 100% Connect profile) is passed.</p>
+    <h4>Effectiveness review</h4>
+    <p class="tiny muted">The Membership Committee’s self-check. Ticks are saved on this device.</p>
+    ${CHECKLIST.map((g,gi)=>`<div class="stack" style="gap:.35rem"><strong class="small">${esc(g.g)}</strong><div class="checklist">${g.items.map((x,i)=>{ const id=`c${gi}-${i}`; const on=!!checks[id]; return `<label class="${on?'done':''}"><input type="checkbox" id="${id}" data-check="${id}" ${on?'checked':''}><span>${esc(x)}</span></label>`; }).join('')}</div></div>`).join('')}
+    <div class="row"><button class="btn sm" data-act="reset-checks">Reset ticks</button></div>
+  </div>`;
+  return h;
+}
+
+function weeklySummary(){
+  const ms = tracker.members.slice().sort((a,b)=> (a.inducted||'9') < (b.inducted||'9') ? -1 : 1);
+  const L = [];
+  L.push(`Passport to Success${tracker.chapter?' – '+tracker.chapter:''} – ${fmt(todayISO())}`);
+  ms.forEach(m => {
+    const p = progress(m);
+    let line = `• ${m.name}${m.trade?' ('+m.trade+')':''} – `;
+    if (p.status==='Complete') line += `complete, ${p.done}/${p.total}. Certificate due.`;
+    else {
+      line += `${p.week?'week '+p.week+', ':''}${p.done}/${p.total} stamped, ${p.status.toLowerCase()}`;
+      if (p.next) line += `. Next: S${p.next} ${SESSIONS[p.next].short}${p.items[p.next].mentor?' with '+p.items[p.next].mentor:' (mentor to be paired)'}`;
+    }
+    L.push(line);
+  });
+  L.push('');
+  L.push('Mentors: please book your next 121 with your new member this week and let me know when it’s done.');
+  return L.join('\n');
+}
+
+function renderReference(){
+  const tlColour = (c)=>({Green:'var(--green)',Amber:'var(--amber)',Red:'var(--accent)',Grey:'var(--tlgrey)',Blue:'var(--blue)'}[c]);
+  let h = `<div class="card"><h4>Reference</h4><p class="small muted prose">The rules and definitions that come up across the ten sessions, in one place.</p></div>`;
+  h += `<div>
+    <details open><summary>Weekly commitment: what counts</summary><div class="body small">
+      <p>Every week, in the Referrals & Testimonials round, say one of:</p>
+      <ul><li>“I have a referral for …”</li><li>“I have brought a visitor …”</li><li>“I have a written testimonial for …”</li></ul>
+      <p>A 121 or a Chapter Education Unit is not a valid contribution. A Thank You For The Business can be announced but does not count. Nobody passes.</p>
+    </div></details>
+    <details><summary>Member Traffic Lights</summary><div class="body small">
+      <p>PALMS numbers and training attended combine into a score out of 100, banded into four colours. Green members tend to get the best returns.</p>
+      <div class="tl">
+        <div><i style="background:${tlColour('Green')}"></i><span><strong>Green</strong> · aim to be here as soon as possible</span></div>
+        <div><i style="background:${tlColour('Amber')}"></i><span><strong>Amber</strong></span></div>
+        <div><i style="background:${tlColour('Red')}"></i><span><strong>Red</strong></span></div>
+        <div><i style="background:${tlColour('Grey')}"></i><span><strong>Grey</strong></span></div>
+        <div><i style="background:${tlColour('Blue')}"></i><span><strong>Blue</strong> · new members for their first three months</span></div>
+      </div>
+      <p>Points come from being present, 121s (your Passport sessions count), bringing people and giving testimonials. Treat the colours as a prompt for how to contribute more.</p>
+    </div></details>
+    <details><summary>PALMS report codes</summary><div class="body"><div class="glossary">${PALMS.map(([a,b])=>`<b>${esc(a)}</b><span class="small">${esc(b)}</span>`).join('')}</div></div></details>
+    <details><summary>Referrals vs leads, and the five levels</summary><div class="body small">
+      <p><strong>Lead:</strong> two people, you and the member. The contact is not expecting a call. <strong>Referral:</strong> three people, and the contact has said yes. “A genuine opportunity for a member to present their business to someone who is in the market for their product or service and where that presentation will be looked forward to with anticipation.”</p>
+      <div class="levels">
+        <div><span class="lv">1</span><span>You recommend someone and share their contact details. A lot of work is left for the member.</span></div>
+        <div><span class="lv">2</span><span>Plus literature: an email, flyer, website or at least the member’s business card.</span></div>
+        <div><span class="lv">3</span><span>You make an introduction, for example a two-way email with your recommendation or testimonial. <strong>The minimum to aim for.</strong></span></div>
+        <div><span class="lv">4</span><span>Plus you book the appointment for the member and your contact.</span></div>
+        <div><span class="lv">5</span><span>Plus you attend the meeting and introduce them in person.</span></div>
+      </div>
+    </div></details>
+    <details><summary>GAINS profile prompts</summary><div class="body"><div class="glossary">${GAINS.map(([a,b])=>`<b style="font-size:.95rem">${a[0]}</b><span class="small"><strong>${esc(a)}</strong> · ${esc(b)}</span>`).join('')}</div><p class="tiny muted">Bring your answers to every 121. The point is to let the other member spot referrals for you.</p></div></details>
+    <details><summary>Invitation script</summary><div class="body">
+      <div class="script" id="invite-script">${esc(INVITE_SCRIPT)}</div>
+      <div class="row"><button class="btn sm" data-act="copy-invite">Copy script</button></div>
+      <p class="tiny muted">On BNI Connect, register a first-time visitor with an open classification as Visitor; a second visit, a classification clash or another BNI member as Guest; someone standing in for a member as Substitute.</p>
+    </div></details>
+    <details><summary>Attendance and substitutes</summary><div class="body small">
+      <ul>
+        <li>No more than three absences in a rolling six-month period. On the fourth the Membership Committee may open your classification.</li>
+        <li>A qualified substitute attending for you does not count as an absence. Typically up to three substitutes in six months.</li>
+        <li>Abusing the substitute system can lead to probation under General Policy 12.</li>
+        <li>Keep five qualified substitutes who have already visited the meeting and have your talking points.</li>
+      </ul>
+    </div></details>
+    <details><summary>BNI General Policies</summary><div class="body"><ol class="small">${POLICIES.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><p class="tiny muted">Membership Committees may put a member on probation or open a classification for failure to comply with the policies, the Code of Ethics or the Core Values. Policies change; the current version is at bni.co.uk/policies.</p></div></details>
+    <details><summary>Code of Ethics</summary><div class="body"><ol class="small">${ETHICS.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div></details>
+    <details><summary>Leadership Team roles</summary><div class="body"><div class="glossary">${ROLES.map(([a,b])=>`<b style="font-family:var(--body);font-weight:700;color:var(--fg);font-size:.86rem">${esc(a)}</b><span class="small">${esc(b)}</span>`).join('')}</div><p class="tiny muted">Every member is expected to take a role at some point. Givers Gain.</p></div></details>
+    <details><summary>Fees, renewal and speaking</summary><div class="body small"><ul>
+      <li>Chapter fees: a weekly meeting fee, paid monthly. Set up payment with the Secretary/Treasurer.</li>
+      <li>Renewal: the process starts 90 days before expiry; BNI dues are due 30 days before; renewal is at the Membership Committee’s discretion.</li>
+      <li>Speaker rotation: after the Member Success Programme you join the rota for an 8 to 10 minute Feature Presentation. Your bio in BNI Connect is read out to introduce you.</li>
+    </ul></div></details>
+    <details><summary>Training: what and when</summary><div class="body"><div class="tablewrap"><table><thead><tr><th>Training</th><th>When</th><th>Why</th></tr></thead><tbody>${TRAINING.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></details>
+    <details><summary>Links</summary><div class="body"><div class="stack" style="gap:.5rem">${LINKS.map(([t,u,d])=>`<div class="small"><a href="${u}" target="_blank" rel="noopener">${esc(t)}</a><div class="muted">${esc(d)}</div></div>`).join('')}</div></div></details>
+  </div>`;
+  return h;
+}
+
+/* ---------------- Render & routing ---------------- */
+const VIEWS = { passport: renderPassport, mentor: renderMentor, tracker: renderTracker, reference: renderReference };
+function render(){
+  const v = VIEWS[ui.view] ? ui.view : 'passport';
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view===v)));
+  $('#view').innerHTML = VIEWS[v]();
+  save(KEY_UI, ui);
+}
+function setView(v, opts={}){
+  ui.view = v; if (opts.session) ui.session = opts.session;
+  render();
+  try { history.replaceState(null, '', '#' + (v==='mentor' ? 'mentor-'+ui.session : v)); } catch(e){}
+  if (!opts.keepScroll) window.scrollTo({ top: 0 });
+}
+function routeFromHash(){
+  const hsh = (location.hash||'').replace('#','');
+  const m = hsh.match(/^mentor-(\d{1,2})$/);
+  if (m && SESSIONS[m[1]]) { ui.view='mentor'; ui.session=m[1]; }
+  else if (VIEWS[hsh]) ui.view = hsh;
+}
+
+/* ---------------- Clipboard & sheet ---------------- */
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1800); }
+function openSheet(title, help, text, actions){
+  $('#sheet-title').textContent = title; $('#sheet-help').textContent = help||'';
+  const ta = $('#sheet-text'); ta.value = text||''; ta.readOnly = !actions || !actions.some(a=>a.id==='load');
+  const row = $('#sheet-actions'); row.innerHTML = '';
+  (actions||[]).forEach(a => { const b=document.createElement('button'); b.className='btn '+(a.primary?'primary':''); b.textContent=a.label; b.addEventListener('click', ()=>a.run(ta)); row.appendChild(b); });
+  $('#overlay').hidden = false; setTimeout(()=>{ ta.focus(); if (ta.readOnly) ta.select(); }, 30);
+}
+function closeSheet(){ $('#overlay').hidden = true; }
+async function copyText(text, label){
+  try { await navigator.clipboard.writeText(text); toast((label||'Copied')+' to clipboard'); }
+  catch(e){ openSheet(label||'Copy', 'Copying was blocked here. Select the text below and copy it yourself.', text, [{label:'Close', run: closeSheet}]); }
+}
+
+/* ---------------- Events ---------------- */
+$('#tabs').addEventListener('click', e => { const t=e.target.closest('.tab'); if (t) setView(t.dataset.view); });
+$('#sheet-close').addEventListener('click', closeSheet);
+$('#overlay').addEventListener('click', e => { if (e.target.id==='overlay') closeSheet(); });
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeSheet(); });
+
+function memberById(id){ return tracker.members.find(m=>m.id===id); }
+
+$('#view').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, k = b.dataset.k, id = b.dataset.id;
+  switch (act) {
+    case 'toggle-setup': me.open.setup = !me.open.setup; save(KEY_ME, me); render(); break;
+    case 'toggle-page': me.open[k] = !me.open[k]; save(KEY_ME, me); render(); break;
+    case 'stamp': me.items[k].done = todayISO(); save(KEY_ME, me); render(); toast('Stamped'); break;
+    case 'unstamp': me.items[k].done = ''; save(KEY_ME, me); render(); break;
+    case 'reset-me': if (b.dataset.sure) { me = { name:'', trade:'', inducted:'', items: blankItems(), open:{ setup: true } }; save(KEY_ME, me); render(); toast('Cleared'); } else { b.dataset.sure='1'; b.textContent='Tap again to clear'; b.classList.add('danger'); } break;
+    case 'pick': setView('mentor', { session: k, keepScroll: true }); $('#crib')?.scrollIntoView({ behavior:'smooth', block:'start' }); break;
+    case 'copy-booking': copyText(bookingMessage(k, ''), 'Booking message'); break;
+    case 'copy-crib': copyText(cribText(k), 'Crib sheet'); break;
+    case 'copy-link': { const base = location.href.split('#')[0]; copyText(base + '#mentor-' + k, 'Link'); break; }
+    case 'copy-invite': copyText(INVITE_SCRIPT, 'Invitation script'); break;
+    case 'copy-summary': copyText(weeklySummary(), 'Weekly summary'); break;
+    case 'export': openSheet('Export tracker', 'Copy this and keep it somewhere safe, or paste it into the Import box on another device.', JSON.stringify(tracker, null, 2), [{label:'Copy', primary:true, run: ta => copyText(ta.value, 'Tracker data')}, {label:'Close', run: closeSheet}]); break;
+    case 'import': openSheet('Import tracker', 'Paste an export here. It replaces what is on this device.', '', [{id:'load', label:'Load', primary:true, run: ta => {
+        try { const d = JSON.parse(ta.value); if (!d || !Array.isArray(d.members)) throw new Error('shape');
+          tracker = { chapter: d.chapter||'', members: d.members.map(m => ({ id:m.id||uid(), name:m.name||'', trade:m.trade||'', inducted:m.inducted||'', items:normalise(m.items), open:false })) };
+          save(KEY_TR, tracker); closeSheet(); render(); toast('Tracker loaded'); }
+        catch(err){ $('#sheet-help').textContent = 'That does not look like an export from this tracker. Paste the whole text, starting with { and ending with }.'; }
+      }}, {label:'Cancel', run: closeSheet}]); break;
+    case 'cell': { const m = memberById(id); if (!m) return; const it = m.items[k]; it.done = it.done ? '' : todayISO(); save(KEY_TR, tracker); render(); break; }
+    case 'toggle-member': { const m = memberById(id); if (m) { m.open = !m.open; save(KEY_TR, tracker); render(); } break; }
+    case 'remove': confirmId = id; render(); break;
+    case 'remove-cancel': confirmId = null; render(); break;
+    case 'remove-confirm': tracker.members = tracker.members.filter(m=>m.id!==id); confirmId=null; save(KEY_TR, tracker); render(); toast('Removed'); break;
+    case 'reset-checks': checks = {}; save(KEY_CK, checks); render(); break;
+  }
+});
+
+$('#view').addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.check) { checks[el.dataset.check] = el.checked; save(KEY_CK, checks); el.closest('label').classList.toggle('done', el.checked); return; }
+  if (el.dataset.bind === 'me.inducted') { me.inducted = el.value; save(KEY_ME, me); render(); return; }
+  if (el.dataset.item && !el.dataset.mid) { me.items[el.dataset.item][el.dataset.field] = el.value; save(KEY_ME, me); if (el.dataset.field==='done') render(); return; }
+  if (el.dataset.mid) {
+    const m = memberById(el.dataset.mid); if (!m) return;
+    if (el.dataset.mfield) m[el.dataset.mfield] = el.value; else m.items[el.dataset.item][el.dataset.field] = el.value;
+    save(KEY_TR, tracker); render(); return;
+  }
+});
+$('#view').addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.bind === 'me.name') { me.name = el.value; save(KEY_ME, me); }
+  else if (el.dataset.bind === 'me.trade') { me.trade = el.value; save(KEY_ME, me); }
+  else if (el.dataset.bind === 'tracker.chapter') { tracker.chapter = el.value; save(KEY_TR, tracker); const h = el.closest('.card').querySelector('h2'); if (h) h.textContent = el.value || 'Chapter tracker'; }
+  else if (el.dataset.item && !el.dataset.mid && el.dataset.field==='mentor') { me.items[el.dataset.item].mentor = el.value; save(KEY_ME, me); }
+  else if (el.dataset.mid && el.dataset.field==='mentor') { const m = memberById(el.dataset.mid); if (m) { m.items[el.dataset.item].mentor = el.value; save(KEY_TR, tracker); } }
+});
+$('#view').addEventListener('submit', e => {
+  if (e.target.id !== 'add-form') return;
+  e.preventDefault();
+  const name = $('#add-name').value.trim(); if (!name) return;
+  tracker.members.push({ id: uid(), name, trade: $('#add-trade').value.trim(), inducted: $('#add-inducted').value, items: blankItems(), open: false });
+  save(KEY_TR, tracker); render(); toast(name + ' added');
+});
+
+window.addEventListener('hashchange', () => { routeFromHash(); render(); });
+routeFromHash();
+render();
+</script>
+</body>
+</html>
