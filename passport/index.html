@@ -966,12 +966,35 @@ function renderReference(){
 
 /* ---------------- Render & routing ---------------- */
 const VIEWS = { passport: renderPassport, mentor: renderMentor, tracker: renderTracker, reference: renderReference };
+function focusKey(el){
+  if (!el || el === document.body || !$('#view').contains(el)) return null;
+  if (el.id) return '#' + CSS.escape(el.id);
+  const d = el.dataset;
+  if (d.mid && d.mfield) return `[data-mid="${d.mid}"][data-mfield="${d.mfield}"]`;
+  if (d.mid && d.item) return `[data-mid="${d.mid}"][data-item="${d.item}"][data-field="${d.field}"]`;
+  if (d.item && d.field) return `[data-item="${d.item}"][data-field="${d.field}"]:not([data-mid])`;
+  if (d.bind) return `[data-bind="${d.bind}"]`;
+  return null;
+}
+function isDateBoxFocused(){ const a = document.activeElement; return !!(a && a.type === 'date' && $('#view').contains(a)); }
+let renderPending = false;
 function render(){
   const v = VIEWS[ui.view] ? ui.view : 'passport';
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view===v)));
+  const active = document.activeElement, key = focusKey(active);
+  const caret = (active && typeof active.selectionStart === 'number') ? active.selectionStart : null;
   $('#view').innerHTML = VIEWS[v]();
+  if (key) {
+    const el = $('#view').querySelector(key);
+    if (el && el.type !== 'date') { el.focus({ preventScroll: true }); try { if (caret != null && el.setSelectionRange) el.setSelectionRange(caret, caret); } catch(e){} }
+  }
+  renderPending = false;
   save(KEY_UI, ui);
 }
+/* A date box fires a change on every keystroke in desktop browsers; redrawing then would throw the cursor out. Wait until focus leaves it. */
+function requestRender(){ if (isDateBoxFocused()) { renderPending = true; return; } render(); }
+/* Accept a date only once it is complete: empty (cleared) or a year between 2000 and 2100. Half-typed years such as 0002 are ignored. */
+function saneDate(v){ if (v === '') return true; const d = parseISO(v); return !!d && d.getFullYear() >= 2000 && d.getFullYear() <= 2100; }
 function setView(v, opts={}){
   ui.view = v; if (opts.session) ui.session = opts.session;
   render();
@@ -1044,13 +1067,18 @@ $('#view').addEventListener('click', e => {
 $('#view').addEventListener('change', e => {
   const el = e.target;
   if (el.dataset.check) { checks[el.dataset.check] = el.checked; save(KEY_CK, checks); el.closest('label').classList.toggle('done', el.checked); return; }
-  if (el.dataset.bind === 'me.inducted') { me.inducted = el.value; save(KEY_ME, me); render(); return; }
-  if (el.dataset.item && !el.dataset.mid) { me.items[el.dataset.item][el.dataset.field] = el.value; save(KEY_ME, me); if (el.dataset.field==='done') render(); return; }
+  if (el.type === 'date' && !saneDate(el.value)) return;   // still being typed
+  if (el.dataset.bind === 'me.inducted') { me.inducted = el.value; save(KEY_ME, me); requestRender(); return; }
+  if (el.dataset.item && !el.dataset.mid) { me.items[el.dataset.item][el.dataset.field] = el.value; save(KEY_ME, me); if (el.dataset.field==='done') requestRender(); return; }
   if (el.dataset.mid) {
     const m = memberById(el.dataset.mid); if (!m) return;
     if (el.dataset.mfield) m[el.dataset.mfield] = el.value; else m.items[el.dataset.item][el.dataset.field] = el.value;
-    save(KEY_TR, tracker); render(); return;
+    save(KEY_TR, tracker); requestRender(); return;
   }
+});
+$('#view').addEventListener('focusout', () => {
+  if (!renderPending) return;
+  setTimeout(() => { if (renderPending && !isDateBoxFocused()) render(); }, 0);
 });
 $('#view').addEventListener('input', e => {
   const el = e.target;
