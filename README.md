@@ -16,6 +16,10 @@ Built from the BNI South Wales *Passport to Success 2026-27* pack (ten mentor cr
 - **Coordinator tracker** – replaces the spreadsheet. Data stays on the Coordinator's own device; use **Export** before changing phone or handing over, and **Copy weekly summary** for Announcements.
 - **Reference** – the rules that recur across the sessions.
 
+### Chapter setup
+
+The top of the script in `passport/index.html` has a `CHAPTER` block holding the chapter name, the mentor pool for each session (usual mentor first, alternative second), whether Launch Pad and the Regional Team sign-off are tracked, and the new members loaded into the tracker the first time it opens on a device. It was filled from the chapter's Mentor Tracking Sheet on 22 Oct 2026. Edit that block to change who the passport tells new members to book with.
+
 ## Editing
 
 Each page is one `index.html` with its styles and script inside. Edit the file, commit to `main`, and GitHub Pages publishes it within a minute or two.

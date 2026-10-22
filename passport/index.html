@@ -95,7 +95,7 @@ main .in{padding-block:1.25rem 4rem;display:grid;gap:1rem}
 .notice{border-left:4px solid var(--accent);background:var(--accent-soft);padding:.75rem .9rem;border-radius:6px;color:var(--fg)}
 .notice strong{color:var(--accent-ink)}
 /* progress */
-.prog{display:grid;grid-template-columns:repeat(13,1fr);gap:3px;height:10px}
+.prog{display:grid;gap:3px;height:10px}
 .prog i{display:block;border-radius:2px;background:var(--surface-2);border:1px solid var(--line)}
 .prog i.on{background:var(--accent);border-color:var(--accent)}
 .prog i.ms{border-style:dashed}
@@ -188,7 +188,7 @@ details .body{padding:0 1.1rem 1rem;display:grid;gap:.75rem}
 <header class="mast">
   <div class="in">
     <div>
-      <div class="eyebrow">BNI new member mentoring</div>
+      <div class="eyebrow" id="eyebrow">BNI new member mentoring</div>
       <h1>Passport to Success</h1>
     </div>
     <p class="sub">Ten one-hour 121s with ten different members. Ten to fifteen minutes of BNI each; the rest is getting to know each other.</p>
@@ -217,6 +217,35 @@ details .body{padding:0 1.1rem 1rem;display:grid;gap:.75rem}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+/* ---------------- Chapter setup: edit this block for your chapter ---------------- */
+const CHAPTER = {
+  name: 'BNI Elli',
+  // Who delivers each session: the usual mentor first, then the alternative. From the chapter's Mentor Tracking Sheet.
+  mentors: {
+    '1': ['Matthew', 'Eleanor'],
+    '2': ['Rhys D', 'Cerith'],
+    '3': ['James R', 'David D'],
+    '4': ['Des', 'Carys'],
+    '5': ['Phil', 'Cerith'],
+    '6': ['David', 'Cerith'],
+    '7': ['Cerith', 'David'],
+    '8': ['Eleanor', 'David'],
+    '9': ['John L', 'Rachel'],
+    '10': ['Eleanor', 'Barrie H']
+  },
+  // Tracked beyond the ten sessions and MSP. Add 'LP' for Launch Pad and 'RT' for the Regional Team sign-off if the chapter uses them.
+  extraItems: [],
+  // New members already in the programme, loaded the first time the tracker opens on a device.
+  seedDate: '2026-10-22',
+  seed: [
+    { name: 'Luke E',  inducted: '2026-05-01', msp: true },
+    { name: 'Suzzane', inducted: '2026-07-01', msp: true },
+    { name: 'Anthony', inducted: '2026-07-01' },
+    { name: 'James',   inducted: '2026-10-15' },
+    { name: 'Jon G',   inducted: '2026-10-15' }
+  ]
+};
+
 /* ---------------- Content: the Passport to Success pack, de-duplicated ---------------- */
 const SESSIONS = {
   '1': {
@@ -454,14 +483,18 @@ const SESSIONS = {
 const MILESTONES = {
   'LP':  { label: 'LP',  title: 'Launch Pad', by: 'Regional team', short: 'Launch Pad',
            text: 'Regional session for new members. Ask your Mentor Coordinator for the next date.' },
-  '11':  { label: 'RT',  title: 'Regional Team sign-off', by: 'Director Consultant', short: 'Regional sign-off',
+  'RT':  { label: 'RT',  title: 'Regional Team sign-off', by: 'Director Consultant', short: 'Regional sign-off',
            text: 'Seek out your Director Consultant or Executive Director and get them to sign your Passport.' },
   'MSP': { label: 'MSP', title: 'Member Success Programme completed', by: 'BNI regional training', short: 'MSP done',
            text: 'BNI’s foundation training, delivered in the region. Book it within your first six weeks. It is required before you can give a Feature Presentation and before your Completion Certificate.' }
 };
 
-const ORDER = ['1','2','3','4','LP','5','6','7','8','9','10','11','MSP'];          // as the tracker sheet lists them
-const RECOMMENDED = ['7','1','2','3','4','LP','5','6','8','9','10','11','MSP'];    // Chapter Tools first
+const EXTRA = new Set(CHAPTER.extraItems || []);
+const ORDER = ['1','2','3','4', ...(EXTRA.has('LP') ? ['LP'] : []), '5','6','7','8','9','10', ...(EXTRA.has('RT') ? ['RT'] : []), 'MSP'];  // as the tracker sheet lists them
+const RECOMMENDED = ['7', ...ORDER.filter(k => k !== '7')];   // Chapter Tools first
+function mentorsFor(k){ return (CHAPTER.mentors && CHAPTER.mentors[k]) || []; }
+function mentorText(k){ const m = mentorsFor(k); return m.length ? m.join(' or ') : ''; }
+function hasDate(s){ return !!parseISO(s); }
 const TARGET_DAYS = 84;
 
 const QUICK_TIPS = [
@@ -615,7 +648,13 @@ function progress(m, asOf){
 const KEY_ME = 'p2s.me.v1', KEY_TR = 'p2s.tracker.v1', KEY_CK = 'p2s.checklist.v1', KEY_UI = 'p2s.ui.v1';
 let me = load(KEY_ME, { name:'', trade:'', inducted:'', items: blankItems(), open: { setup: true } });
 me.items = normalise(me.items); me.open = me.open || {};
-let tracker = load(KEY_TR, { chapter:'', members: [] });
+function seedTracker(){
+  return { chapter: CHAPTER.name || '', seeded: CHAPTER.seedDate || '', members: (CHAPTER.seed || []).map(x => {
+    const items = blankItems(); if (x.msp) items.MSP.done = 'yes'; (x.done || []).forEach(k => { if (items[k]) items[k].done = 'yes'; });
+    return { id: uid(), name: x.name || '', trade: x.trade || '', inducted: x.inducted || '', items, open: false };
+  }) };
+}
+let tracker = load(KEY_TR, null); if (!tracker) tracker = seedTracker();
 tracker.members = (tracker.members||[]).map(m => ({ id:m.id||uid(), name:m.name||'', trade:m.trade||'', inducted:m.inducted||'', items:normalise(m.items), open:!!m.open }));
 let checks = load(KEY_CK, {});
 let ui = load(KEY_UI, { view:'passport', session:'7' });
@@ -643,7 +682,7 @@ function renderPassport(){
     </div>` : ''}
     <div style="margin-top:1rem" class="stack">
       <div class="row between"><span class="small"><strong>${p.done}</strong> of ${p.total} stamped</span><span class="chip ${p.tone}"><i class="dot"></i>${p.status}</span></div>
-      <div class="prog" aria-label="${p.done} of ${p.total} stamped">${ORDER.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}" title="${esc(itemTitle(k))}"></i>`).join('')}</div>
+      <div class="prog" style="grid-template-columns:repeat(${ORDER.length},1fr)" aria-label="${p.done} of ${p.total} stamped">${ORDER.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}" title="${esc(itemTitle(k))}"></i>`).join('')}</div>
     </div>
   </div>`;
 
@@ -656,7 +695,7 @@ function renderPassport(){
   }
 
   if (p.next) {
-    h += `<div class="notice"><strong>Next up: Session ${p.next} · ${esc(SESSIONS[p.next].short)}</strong><br><span class="small">Book it with ${esc(lcA(SESSIONS[p.next].by))}. ${p.next==='7' ? 'Chapter Tools comes first so you can pass referrals and register visitors from week one.' : ''}</span></div>`;
+    h += `<div class="notice"><strong>Next up: Session ${p.next} · ${esc(SESSIONS[p.next].short)}</strong><br><span class="small">Book it with ${mentorText(p.next) ? esc(mentorText(p.next)) + ' (' + esc(lcA(SESSIONS[p.next].by)) + ')' : esc(lcA(SESSIONS[p.next].by))}. ${p.next==='7' ? 'Chapter Tools comes first so you can pass referrals and register visitors from week one.' : ''}</span></div>`;
   } else if (p.done === p.total) {
     h += `<div class="notice"><strong>Passport complete.</strong> <span class="small">Tell your Mentor Coordinator so the President can present your Completion Certificate in the Notable Networker slot.</span></div>`;
   }
@@ -672,7 +711,7 @@ function renderPassport(){
         <div class="num ${isMs?'ms':''}">${isMs ? MILESTONES[k].label : k}</div>
         <div class="grow">
           <div class="title">${esc(itemTitle(k))}</div>
-          <div class="meta">${isMs ? esc(MILESTONES[k].by) : 'Book with ' + esc(lcA(s.by))}${it.mentor ? ' · ' + esc(it.mentor) : ''}</div>
+          <div class="meta">${isMs ? esc(MILESTONES[k].by) : 'Book with ' + (mentorText(k) ? esc(mentorText(k)) + ' · ' + esc(lcA(s.by)) : esc(lcA(s.by)))}${it.mentor ? ' · booked with ' + esc(it.mentor) : ''}</div>
         </div>
         <div class="status">${stamp}</div>
       </button>
@@ -685,7 +724,7 @@ function renderPassport(){
             <div class="sec"><h4>Your actions afterwards</h4><ul class="small">${s.actions.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
           </div>`}
         <div class="row" style="gap:.75rem;align-items:end">
-          <label class="small muted" style="display:grid;gap:.25rem">${isMs?'Signed by':'Mentor'}<input data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="Name" style="max-width:220px"></label>
+          <label class="small muted" style="display:grid;gap:.25rem">${isMs?'Signed by':'Mentor'}<input data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="${esc(mentorText(k) || 'Name')}" style="max-width:220px"></label>
           <label class="small muted" style="display:grid;gap:.25rem">Date<input type="date" data-item="${k}" data-field="done" value="${esc(it.done)}"></label>
           ${it.done ? `<button class="btn sm" data-act="unstamp" data-k="${k}">Remove stamp</button>` : `<button class="btn primary sm" data-act="stamp" data-k="${k}">Stamp today</button>`}
         </div>
@@ -714,6 +753,7 @@ function renderMentor(){
       <h4>Member Mentor #${k}</h4>
       <h2>${esc(s.title)}</h2>
       <p class="small muted" style="margin-top:.3rem">Delivered by ${esc(lcA(s.by))}</p>
+      ${mentorsFor(k).length ? `<p class="small" style="margin-top:.35rem"><strong>${esc(CHAPTER.name)}:</strong> ${esc(mentorsFor(k)[0])}${mentorsFor(k)[1] ? `, with ${esc(mentorsFor(k)[1])} as the alternative` : ''}</p>` : ''}
     </div>
     <div class="timing"><div class="big">10–15</div><div class="small"><strong>minutes on the BNI content.</strong> The balance of the hour is for getting to know each other using GAINS. The Passport is an engagement tool, not a training tool.</div></div>
     <p class="prose small">${esc(s.why)}</p>
@@ -781,7 +821,7 @@ function renderTracker(){
       <button class="btn" data-act="export">Export</button>
       <button class="btn" data-act="import">Import</button>
     </div>
-    <p class="tiny muted">Data lives on this device. Export before changing phone or handing over to the next Coordinator, and paste the weekly summary into Announcements or the chapter WhatsApp.</p>
+    <p class="tiny muted">Data lives on this device. Export before changing phone or handing over to the next Coordinator, and paste the weekly summary into Announcements or the chapter WhatsApp.${tracker.seeded ? ` Started from the chapter sheet dated ${fmt(tracker.seeded)}: add classifications and any sessions already done.` : ''}</p>
   </div>`;
 
   h += `<div class="card stack">
@@ -807,12 +847,12 @@ function renderTracker(){
         </div>
         <span class="chip ${p.tone}"><i class="dot"></i>${p.status}</span>
       </div>
-      <div class="prog" aria-label="${p.done} of ${p.total} stamped">${ORDER.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}"></i>`).join('')}</div>
+      <div class="prog" style="grid-template-columns:repeat(${ORDER.length},1fr)" aria-label="${p.done} of ${p.total} stamped">${ORDER.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}"></i>`).join('')}</div>
       <div class="strip" role="group" aria-label="Sessions for ${esc(m.name)}">
         ${ORDER.map(k=>{ const it=p.items[k]; return `<button class="cell ${it.done?'on':''} ${MILESTONES[k]?'ms':''}" data-act="cell" data-id="${m.id}" data-k="${k}" title="${esc(itemTitle(k))}${it.mentor?' · '+esc(it.mentor):''}${it.done?' · '+fmt(it.done):''}" aria-pressed="${!!it.done}"><span>${itemLabel(k)}</span>${it.done?`<small>${fmtShort(it.done)}</small>`:(it.mentor?`<small>${esc(it.mentor.split(' ')[0])}</small>`:'')}</button>`; }).join('')}
       </div>
       <div class="row between">
-        <span class="small muted">${p.done} of ${p.total} stamped${p.next?` · next S${p.next} ${esc(SESSIONS[p.next].short)}${p.items[p.next].mentor?' with '+esc(p.items[p.next].mentor):''}`:''}</span>
+        <span class="small muted">${p.done} of ${p.total} stamped${p.next?` · next S${p.next} ${esc(SESSIONS[p.next].short)}${p.items[p.next].mentor?' with '+esc(p.items[p.next].mentor):(mentorText(p.next)?' · '+esc(mentorText(p.next)):'')}`:''}</span>
         <div class="row">
           <button class="btn sm" data-act="toggle-member" data-id="${m.id}">${m.open?'Hide details':'Dates & mentors'}</button>
           ${confirmId===m.id ? `<button class="btn sm danger" data-act="remove-confirm" data-id="${m.id}">Confirm remove</button><button class="btn sm" data-act="remove-cancel">Keep</button>` : `<button class="btn sm ghost" data-act="remove" data-id="${m.id}">Remove</button>`}
@@ -823,8 +863,8 @@ function renderTracker(){
         <tbody>${ORDER.map(k=>{ const it=p.items[k]; return `<tr>
           <td><strong>${itemLabel(k)}</strong></td>
           <td>${esc(itemShort(k))}<div class="tiny muted">${esc(itemBy(k))}</div></td>
-          <td><input data-mid="${m.id}" data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="Paired mentor" style="min-width:140px"></td>
-          <td><input type="date" data-mid="${m.id}" data-item="${k}" data-field="done" value="${esc(it.done)}"></td>
+          <td><input data-mid="${m.id}" data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="${esc(mentorText(k) || 'Paired mentor')}" style="min-width:140px"></td>
+          <td><input type="date" data-mid="${m.id}" data-item="${k}" data-field="done" value="${hasDate(it.done)?esc(it.done):''}">${it.done && !hasDate(it.done) ? '<div class="tiny muted">Done, date not recorded</div>' : ''}</td>
         </tr>`; }).join('')}</tbody>
       </table></div>
       <div class="row" style="justify-content:flex-start;gap:.75rem;align-items:end">
@@ -841,7 +881,7 @@ function renderTracker(){
     <h4>Effectiveness review</h4>
     <p class="tiny muted">The Membership Committee’s self-check. Ticks are saved on this device.</p>
     ${CHECKLIST.map((g,gi)=>`<div class="stack" style="gap:.35rem"><strong class="small">${esc(g.g)}</strong><div class="checklist">${g.items.map((x,i)=>{ const id=`c${gi}-${i}`; const on=!!checks[id]; return `<label class="${on?'done':''}"><input type="checkbox" id="${id}" data-check="${id}" ${on?'checked':''}><span>${esc(x)}</span></label>`; }).join('')}</div></div>`).join('')}
-    <div class="row"><button class="btn sm" data-act="reset-checks">Reset ticks</button></div>
+    <div class="row"><button class="btn sm" data-act="reset-checks">Reset ticks</button>${CHAPTER.seed && CHAPTER.seed.length ? `<button class="btn sm" data-act="reset-tracker">Reset tracker to the chapter sheet</button>` : ''}</div>
   </div>`;
   return h;
 }
@@ -856,7 +896,7 @@ function weeklySummary(){
     if (p.status==='Complete') line += `complete, ${p.done}/${p.total}. Certificate due.`;
     else {
       line += `${p.week?'week '+p.week+', ':''}${p.done}/${p.total} stamped, ${p.status.toLowerCase()}`;
-      if (p.next) line += `. Next: S${p.next} ${SESSIONS[p.next].short}${p.items[p.next].mentor?' with '+p.items[p.next].mentor:' (mentor to be paired)'}`;
+      if (p.next) line += `. Next: S${p.next} ${SESSIONS[p.next].short}${p.items[p.next].mentor?' with '+p.items[p.next].mentor:(mentorText(p.next)?' ('+mentorText(p.next)+')':' (mentor to be paired)')}`;
     }
     L.push(line);
   });
@@ -997,6 +1037,7 @@ $('#view').addEventListener('click', e => {
     case 'remove-cancel': confirmId = null; render(); break;
     case 'remove-confirm': tracker.members = tracker.members.filter(m=>m.id!==id); confirmId=null; save(KEY_TR, tracker); render(); toast('Removed'); break;
     case 'reset-checks': checks = {}; save(KEY_CK, checks); render(); break;
+    case 'reset-tracker': if (b.dataset.sure) { tracker = seedTracker(); save(KEY_TR, tracker); render(); toast('Tracker reset'); } else { b.dataset.sure='1'; b.textContent='Tap again to replace everything on this device'; b.classList.add('danger'); } break;
   }
 });
 
@@ -1028,6 +1069,7 @@ $('#view').addEventListener('submit', e => {
 });
 
 window.addEventListener('hashchange', () => { routeFromHash(); render(); });
+if (CHAPTER.name) $('#eyebrow').textContent = CHAPTER.name + ' · new member mentoring';
 routeFromHash();
 render();
 </script>
