@@ -182,6 +182,39 @@ details .body{padding:0 1.1rem 1rem;display:grid;gap:.75rem}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media (max-width:700px){.two{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* v2: bookings, mentor panel, certificate */
+.stamp.booked{border-color:var(--amber);color:var(--amber);border-style:solid;box-shadow:none;transform:rotate(-6deg)}
+.cell.bk{border-color:var(--amber);color:var(--amber);border-style:solid}
+.pill{display:inline-block;font-family:var(--display);color:var(--accent);font-size:.8rem;min-width:2.2em}
+.owe{border-top:1px solid var(--line);padding-top:.75rem;display:grid;gap:.5rem}
+.owe-row{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center;padding:.4rem 0}
+@media (max-width:760px){.owe-row{grid-template-columns:1fr}}
+.cert{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;padding:1rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.cert[hidden]{display:none}
+.cert-bar{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;max-width:1100px;margin:0 auto 1rem}
+.cert-page{background:#fff;color:#1C1D1F;max-width:1100px;margin:0 auto;aspect-ratio:297/210;padding:3.5%;box-shadow:0 10px 40px rgba(0,0,0,.18)}
+.cert-inner{height:100%;border:6px double #CF2030;padding:5% 6%;display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:space-between;gap:.5rem}
+.cert-eyebrow{font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;color:#75787B}
+.cert-title{font-family:var(--display);font-size:clamp(1.4rem,3.6vw,2.6rem);color:#CF2030;line-height:1.1}
+.cert-sub{font-size:clamp(.9rem,1.8vw,1.25rem);letter-spacing:.14em;text-transform:uppercase;color:#1C1D1F}
+.cert-presented{font-style:italic;color:#75787B}
+.cert-name{font-family:var(--display);font-size:clamp(1.6rem,4.4vw,3.2rem);line-height:1.1;border-bottom:2px solid #CF2030;padding:0 1em .15em}
+.cert-body{max-width:60ch;font-size:clamp(.8rem,1.5vw,1.05rem);line-height:1.5}
+.cert-mentors{font-size:clamp(.72rem,1.3vw,.9rem);color:#75787B}
+.cert-sign{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;width:100%;margin-top:.5rem}
+.cert-line{border-bottom:1px solid #1C1D1F;height:2.2em}
+.cert-date{height:2.2em;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #1C1D1F;font-weight:700}
+.cert-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:#75787B;margin-top:.35rem}
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  body.printing-cert > :not(#cert){display:none!important}
+  body.printing-cert{background:#fff}
+  .cert{position:static;padding:0;background:#fff;overflow:visible}
+  .cert-bar{display:none}
+  .cert-page{box-shadow:none;max-width:none;width:100%;height:100%;aspect-ratio:auto;padding:0}
+  .cert-inner{min-height:180mm}
+}
 .signin select{width:100%}
 button.chip{font:inherit;line-height:inherit}
 </style>
@@ -200,7 +233,7 @@ button.chip{font:inherit;line-height:inherit}
   <div class="in">
     <div class="tabs" role="tablist" id="tabs">
       <button class="tab" role="tab" data-view="passport" id="tab-passport"><span class="k">01</span>My Passport</button>
-      <button class="tab" role="tab" data-view="mentor" id="tab-mentor"><span class="k">02</span>Mentor crib sheets</button>
+      <button class="tab" role="tab" data-view="mentor" id="tab-mentor"><span class="k">02</span>Mentors</button>
       <button class="tab" role="tab" data-view="tracker" id="tab-tracker"><span class="k">03</span>Coordinator tracker</button>
       <button class="tab" role="tab" data-view="reference" id="tab-reference"><span class="k">04</span>Reference</button>
     </div>
@@ -217,6 +250,25 @@ button.chip{font:inherit;line-height:inherit}
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="cert" class="cert" hidden>
+  <div class="cert-bar"><button class="btn primary" data-act="cert-print">Print / Save as PDF</button><button class="btn" data-act="cert-close">Close</button><span class="small muted">A4 landscape prints best.</span></div>
+  <div class="cert-page">
+    <div class="cert-inner">
+      <div class="cert-eyebrow" id="cert-chapter">BNI Elli</div>
+      <div class="cert-title">Passport to Success</div>
+      <div class="cert-sub">Certificate of Completion</div>
+      <div class="cert-presented">presented to</div>
+      <div class="cert-name" id="cert-name">Member name</div>
+      <div class="cert-body">for completing the BNI Passport to Success new member mentoring programme: ten one-to-ones with ten members of the chapter, and the Member Success Programme.</div>
+      <div class="cert-mentors" id="cert-mentors"></div>
+      <div class="cert-sign">
+        <div><div class="cert-line"></div><div class="cert-label">President</div></div>
+        <div><div class="cert-line"></div><div class="cert-label">Mentor Coordinator</div></div>
+        <div><div class="cert-date" id="cert-date">22 Oct 2026</div><div class="cert-label">Date</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ---------------- Chapter setup: edit this block for your chapter ---------------- */
@@ -629,8 +681,9 @@ function itemTitle(k){ return SESSIONS[k] ? SESSIONS[k].title : MILESTONES[k].ti
 function itemShort(k){ return SESSIONS[k] ? SESSIONS[k].short : MILESTONES[k].short; }
 function itemLabel(k){ return SESSIONS[k] ? 'S'+k : MILESTONES[k].label; }
 function itemBy(k){ return SESSIONS[k] ? SESSIONS[k].by : MILESTONES[k].by; }
-function blankItems(){ const o={}; ORDER().forEach(k=>o[k]={done:'',mentor:''}); return o; }
-function normalise(items){ const o=blankItems(); if(items) ORDER().forEach(k=>{ if(items[k]) o[k]={done:items[k].done||'',mentor:items[k].mentor||''}; }); return o; }
+function blankItems(){ const o={}; ORDER().forEach(k=>o[k]={done:'',mentor:'',booked:''}); return o; }
+function normalise(items){ const o=blankItems(); if(items) ORDER().forEach(k=>{ if(items[k]) o[k]={done:items[k].done||'',mentor:items[k].mentor||'',booked:items[k].booked||''}; }); return o; }
+function pageLink(){ return (cfg.pageLink || location.href.split('#')[0]).replace(/#.*$/, ''); }
 function idFor(name){ let h = 5381; const t = String(name||'').trim().toLowerCase(); for (let i=0;i<t.length;i++) h = ((h*33) ^ t.charCodeAt(i)) >>> 0; return 'n' + h.toString(36); }
 function normMember(m){ return { id:m.id||idFor(m.name)||uid(), name:m.name||'', password:m.password||'', trade:m.trade||'', inducted:m.inducted||'', completed:m.completed||'', items:normalise(m.items), open:!!m.open }; }
 
@@ -670,10 +723,10 @@ let tracker = load(KEY_TR, null); if (!tracker) tracker = seedTracker();
 tracker.members = (tracker.members||[]).map(normMember); tracker.archived = (tracker.archived||[]).map(normMember);
 let checks = load(KEY_CK, {});
 let ui = load(KEY_UI, { view:'passport', session:'7' });
-let sess = load(KEY_SESS, { member:null, coord:null });
+let sess = load(KEY_SESS, { member:null, coord:null, mentor:null });
 let cache = load(KEY_CACHE, { me:null, list:null, names:null });
 /* Online-only state (never persisted beyond the cache above) */
-let online = { me: cache.me ? normMember(cache.me) : null, members: [], archived: [], names: cache.names || null, loaded:false, listLoaded:false };
+let online = { me: cache.me ? normMember(cache.me) : null, members: [], archived: [], names: cache.names || null, mentorNames: cache.mentorNames || null, mentorMembers: [], mentorLoaded:false, loaded:false, listLoaded:false };
 let net = { busy:false, status:'', error:'', namesError:'' };    // status: '' | 'saving' | 'saved' | 'failed'
 let confirmId = null, pageOpen = {};   // per-session UI: which member cards / passport pages are expanded
 
@@ -689,12 +742,13 @@ function applySettings(s){
   if (s.chapter) cfg.name = s.chapter;
   if (s.mentors && Object.keys(s.mentors).length) cfg.mentors = s.mentors;
   if (Array.isArray(s.extraItems)) cfg.extraItems = s.extraItems;
+  if (s.pageLink) cfg.pageLink = s.pageLink;
   if (cfg.name) $('#eyebrow').textContent = cfg.name + ' · new member mentoring';
 }
 async function loadNames(){
   if (net.namesLoading) return; net.namesLoading = true; net.namesError = '';
   try { const r = await fetch(cfg.apiUrl + (cfg.apiUrl.includes('?') ? '&' : '?') + 'action=names', { redirect:'follow' }); const j = await r.json(); if (!j.ok) throw new Error(j.error || 'failed');
-    online.names = j.names || []; cache.names = online.names; save(KEY_CACHE, cache); applySettings(j.settings); }
+    online.names = j.names || []; online.mentorNames = j.mentorNames || []; cache.names = online.names; cache.mentorNames = online.mentorNames; save(KEY_CACHE, cache); applySettings(j.settings); }
   catch(e){ net.namesError = 'Could not fetch the member list. Check your signal, or type your name below.'; }
   net.namesLoading = false; render();
 }
@@ -720,6 +774,7 @@ async function refreshOnline(){
   try {
     if (sess.member) { const j = await api({ action:'login', name: sess.member.name, password: sess.member.password }); online.me = normMember(j.member); online.loaded = true; cache.me = online.me; applySettings(j.settings); }
     if (sess.coord) { const j = await api({ action:'list', password: sess.coord.password }); takeList(j); }
+    if (sess.mentor) { const j = await api({ action:'mentorLogin', name: sess.mentor.name, password: sess.mentor.password }); takeMentor(j); }
     save(KEY_CACHE, cache);
   } catch(e){ net.error = e.message; if (/recognis|password/i.test(e.message)) { if (sess.member && /name/i.test(e.message)) sess.member = null; } }
   net.busy = false; render();
@@ -771,7 +826,7 @@ async function coordAction(payload, after){
 function addMember(name, trade, inducted, password){
   const m = normMember({ name, trade, inducted, password });
   if (!ONLINE()) { tracker.members.push(m); save(KEY_TR, tracker); render(); toast(name + ' added'); return; }
-  coordAction({ action:'upsert', member: { name, password, trade, inducted, items: m.items } }, () => toast(name + ' added'));
+  coordAction({ action:'upsert', member: { name, password, trade, inducted, items: m.items } }, () => { const added = currentMembers().find(x => x.name.toLowerCase() === name.toLowerCase()); if (added) openSheet('Welcome message for ' + name, 'Send this to them on WhatsApp. It has the link, their name as it appears in the list, and their password.', welcomeMessage(added), [{label:'Copy', primary:true, run: ta => copyText(ta.value, 'Welcome message')}, {label:'Close', run: closeSheet}]); else toast(name + ' added'); });
 }
 function archiveMember(id){
   const m = memberById(id); if (!m) return; const completed = todayISO();
@@ -783,6 +838,74 @@ function removeMember(id){
   if (!ONLINE()) { tracker.members = tracker.members.filter(x=>x.id!==id); tracker.archived = tracker.archived.filter(x=>x.id!==id); save(KEY_TR, tracker); render(); toast('Removed'); return; }
   coordAction({ action:'remove', name: m.name, archived: !!m.completed }, () => toast('Removed'));
 }
+
+/* Mentor session */
+function takeMentor(j){ online.mentorMembers = (j.members||[]).map(normMember); online.mentorLoaded = true; applySettings(j.settings); }
+async function mentorSignIn(name, password){
+  net.busy = true; net.error = ''; render();
+  try { const j = await api({ action:'mentorLogin', name, password }); sess.mentor = { name: j.mentor, password }; save(KEY_SESS, sess); takeMentor(j); }
+  catch(e){ net.error = /recognis/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
+  net.busy = false; render();
+}
+function mentorSignOut(){ sess.mentor = null; online.mentorMembers = []; online.mentorLoaded = false; save(KEY_SESS, sess); render(); }
+async function mentorSign(memberName, k, fields){
+  net.busy = true; net.error = ''; render();
+  try { const j = await api(Object.assign({ action:'mentorSign', name: sess.mentor.name, password: sess.mentor.password, member: memberName, item: k }, fields)); takeMentor(j); toast(fields.done ? 'Signed off' : (fields.booked ? 'Booked' : 'Updated')); }
+  catch(e){ net.error = e.message; }
+  net.busy = false; render();
+}
+function mentorOwes(me){   // sessions this mentor is responsible for, across active members
+  const rows = [];
+  const members = online.mentorMembers.slice().sort((a,b)=> (a.inducted||'9') < (b.inducted||'9') ? -1 : 1);
+  members.forEach(m => { const p = progress(m); ORDER().forEach(k => { if (!SESSIONS[k]) return; const it = m.items[k]; const roster = mentorsFor(k);
+    const paired = it.mentor && it.mentor.toLowerCase() === me.toLowerCase();
+    const usual = !it.mentor && roster[0] && roster[0].toLowerCase() === me.toLowerCase();
+    const alt = !it.mentor && roster[1] && roster[1].toLowerCase() === me.toLowerCase();
+    if (paired || usual || alt) rows.push({ m, k, it, role: paired ? 'paired' : (usual ? 'usual' : 'alternative'), isNext: p.next === k }); }); });
+  return rows;
+}
+function welcomeMessage(m){
+  const m7 = mentorText('7');
+  const lines = [`Hi ${m.name}, welcome to ${cfg.name || 'the chapter'}!`, '', `Your Passport to Success is here: ${pageLink()}`];
+  if (ONLINE()) lines.push(`Tap "My Passport", choose "${m.name}" from the list and sign in with the password: ${m.password || '[password]'}`);
+  lines.push('', `Start by booking Session 7 (Chapter Tools)${m7 ? ' with ' + m7 : ''} – it gets you set up on BNI Connect so you can pass referrals and register visitors from week one. Each session is an hour-ish 121 with a different member of the chapter, mostly getting to know each other; the mentor signs your passport when it’s done.`,
+    '', 'Aim to have all ten stamped within 12 weeks, with the Member Success Programme booked in your first six. Any questions, just ask me.');
+  return lines.join('\n');
+}
+function upcoming(){
+  const list = [];
+  currentMembers().forEach(m => ORDER().forEach(k => { const it = m.items[k]; if (!it.done && it.booked) list.push({ m, k, date: it.booked, mentor: it.mentor || mentorText(k) }); }));
+  return list.sort((a,b)=> a.date < b.date ? -1 : 1);
+}
+function health(){
+  const act = currentMembers(), arch = currentArchived(), all = act.concat(arch);
+  if (!all.length) return null;
+  const completedDays = arch.map(a => daysBetween(a.inducted, a.completed)).filter(x => x != null);
+  const avgDays = completedDays.length ? Math.round(completedDays.reduce((a,b)=>a+b,0) / completedDays.length) : null;
+  const rows = Object.keys(SESSIONS).map(k => {
+    const outstanding = act.filter(m => !m.items[k].done).length;
+    const booked = act.filter(m => !m.items[k].done && m.items[k].booked).length;
+    const weeks = all.map(m => { const it = m.items[k]; return (it.done && hasDate(it.done) && m.inducted) ? Math.floor(daysBetween(m.inducted, it.done) / 7) + 1 : null; }).filter(x => x != null).sort((a,b)=>a-b);
+    return { k, outstanding, booked, med: weeks.length ? weeks[Math.floor(weeks.length/2)] : null, n: weeks.length };
+  }).sort((a,b) => b.outstanding - a.outstanding || a.k - b.k);
+  return { avgDays, within: completedDays.filter(d => d <= 90).length, completed: completedDays.length, rows, active: act.length };
+}
+async function emailNow(){
+  net.busy = true; net.error = ''; render();
+  try { const j = await api({ action:'emailNow', password: sess.coord.password }); toast('Sent to ' + j.sentTo); }
+  catch(e){ net.error = e.message; }
+  net.busy = false; render();
+}
+function openCertificate(m){
+  const c = $('#cert'); const mentors = Object.keys(SESSIONS).map(k => m.items[k] && m.items[k].mentor).filter(Boolean);
+  const uniq = mentors.filter((x,i,a) => a.indexOf(x) === i);
+  $('#cert-chapter').textContent = cfg.name || (tracker.chapter || 'BNI');
+  $('#cert-name').textContent = m.name;
+  $('#cert-date').textContent = m.completed ? fmt(m.completed) : fmt(todayISO());
+  $('#cert-mentors').textContent = uniq.length ? 'With thanks to their Member Mentors: ' + uniq.join(', ') : '';
+  c.hidden = false; document.body.classList.add('printing-cert');
+}
+function closeCertificate(){ $('#cert').hidden = true; document.body.classList.remove('printing-cert'); }
 
 /* ---------------- Views ---------------- */
 function signInCard(){
@@ -859,13 +982,13 @@ function passportHTML(m, o){
     const it = p.items[k]; const isMs = !!MILESTONES[k]; const s = SESSIONS[k]; const open = !!pageOpen[k];
     const stamp = it.done
       ? `<div class="stamp">Stamped<b>${fmtShort(it.done) || '✓'}</b></div>`
-      : (p.next===k ? `<div class="stamp next">Next</div>` : `<div class="stamp todo">Not yet</div>`);
+      : (it.booked ? `<div class="stamp booked">Booked<b>${fmtShort(it.booked)}</b></div>` : (p.next===k ? `<div class="stamp next">Next</div>` : `<div class="stamp todo">Not yet</div>`));
     h += `<div class="card" id="page-${k}">
       <button class="pagehead" data-act="toggle-page" data-k="${k}" aria-expanded="${open}">
         <div class="num ${isMs?'ms':''}">${isMs ? MILESTONES[k].label : k}</div>
         <div class="grow">
           <div class="title">${esc(itemTitle(k))}</div>
-          <div class="meta">${isMs ? esc(MILESTONES[k].by) : 'Book with ' + (mentorText(k) ? esc(mentorText(k)) + ' · ' + esc(lcA(s.by)) : esc(lcA(s.by)))}${it.mentor ? ' · booked with ' + esc(it.mentor) : ''}</div>
+          <div class="meta">${isMs ? esc(MILESTONES[k].by) : 'Book with ' + (mentorText(k) ? esc(mentorText(k)) + ' · ' + esc(lcA(s.by)) : esc(lcA(s.by)))}${it.booked && !it.done ? ' · <strong>booked ' + fmtShort(it.booked) + (it.mentor ? ' with ' + esc(it.mentor) : '') + '</strong>' : (it.mentor ? ' · with ' + esc(it.mentor) : '')}</div>
         </div>
         <div class="status">${stamp}</div>
       </button>
@@ -879,7 +1002,8 @@ function passportHTML(m, o){
           </div>`}
         <div class="row" style="gap:.75rem;align-items:end">
           <label class="small muted" style="display:grid;gap:.25rem">${isMs?'Signed by':'Mentor'}<input data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="${esc(mentorText(k) || 'Name')}" style="max-width:220px"></label>
-          <label class="small muted" style="display:grid;gap:.25rem">Date<input type="date" data-item="${k}" data-field="done" value="${hasDate(it.done)?esc(it.done):''}"></label>
+          <label class="small muted" style="display:grid;gap:.25rem">Booked for<input type="date" data-item="${k}" data-field="booked" value="${hasDate(it.booked)?esc(it.booked):''}"></label>
+          <label class="small muted" style="display:grid;gap:.25rem">Signed off<input type="date" data-item="${k}" data-field="done" value="${hasDate(it.done)?esc(it.done):''}"></label>
           ${it.done ? `<button class="btn sm" data-act="unstamp" data-k="${k}">Remove stamp</button>` : `<button class="btn primary sm" data-act="stamp" data-k="${k}">Stamp today</button>`}
         </div>
       </div>` : ''}
@@ -894,10 +1018,58 @@ function passportHTML(m, o){
   return h;
 }
 
+function mentorPanel(){
+  if (!ONLINE()) return '';
+  if (!sess.mentor) {
+    const names = online.mentorNames; if (names === null && !net.namesError && !net.namesLoading) loadNames();
+    return `<div class="card stack signin">
+      <div><h4>Member Mentors</h4><h2>Your new members</h2><p class="small muted prose">Sign in to see which sessions you owe, book them and sign them off. Your password is in the Settings tab of the chapter sheet; ask the Mentor Coordinator.</p></div>
+      <form id="mentor-form" class="stack" style="max-width:380px">
+        <label class="small muted" style="display:grid;gap:.25rem">Your name
+          ${names && names.length ? `<select id="mt-name" required><option value="">Choose…</option>${names.map(n=>`<option value="${esc(n)}" ${cache.lastMentor===n?'selected':''}>${esc(n)}</option>`).join('')}</select>` : `<input id="mt-name" required placeholder="${net.namesLoading ? 'Loading names…' : 'Your name as it appears in the roster'}" value="${esc(cache.lastMentor||'')}">`}
+        </label>
+        <label class="small muted" style="display:grid;gap:.25rem">Mentor password<input id="mt-pass" type="password" required autocomplete="current-password"></label>
+        ${net.error ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
+        <div class="row"><button class="btn primary" type="submit" ${net.busy?'disabled':''}>${net.busy?'Signing in…':'Sign in'}</button></div>
+      </form>
+    </div>`;
+  }
+  if (!online.mentorLoaded) { if (!net.busy) refreshOnline(); return `<div class="card"><p class="small muted">Loading your new members…</p></div>`; }
+  const rows = mentorOwes(sess.mentor.name);
+  const open = rows.filter(r => !r.it.done && r.role !== 'alternative'), alt = rows.filter(r => !r.it.done && r.role === 'alternative'), done = rows.filter(r => r.it.done);
+  const byMember = {}; open.forEach(r => { (byMember[r.m.id] = byMember[r.m.id] || { m: r.m, rows: [] }).rows.push(r); });
+  const altByMember = {}; alt.forEach(r => { (altByMember[r.m.id] = altByMember[r.m.id] || { m: r.m, rows: [] }).rows.push(r); });
+  const memberBlock = ({m, rows}) => `<div class="owe">
+      <div class="row between"><div><strong>${esc(m.name)}</strong>${m.trade?` <span class="muted small">· ${esc(m.trade)}</span>`:''}<div class="tiny muted">Inducted ${fmt(m.inducted)||'—'}${progress(m).week?` · week ${progress(m).week}`:''}</div></div></div>
+      ${rows.map(r => `<div class="owe-row">
+        <div class="grow"><div><span class="pill">S${r.k}</span> ${esc(SESSIONS[r.k].short)}${r.isNext ? ' <span class="chip amber">their next</span>' : ''}</div>
+          <div class="tiny muted">${r.it.booked ? `Booked for ${fmt(r.it.booked)}${parseISO(r.it.booked) < parseISO(todayISO()) ? ' · date has passed' : ''}` : 'Not booked yet'}</div></div>
+        <div class="row" style="gap:.4rem;align-items:end">
+          <label class="tiny muted" style="display:grid;gap:.2rem">Book for<input type="date" id="bk-${m.id}-${r.k}" value="${hasDate(r.it.booked)?esc(r.it.booked):''}" style="padding:.35em .5em"></label>
+          <button class="btn sm" data-act="m-book" data-id="${m.id}" data-k="${r.k}" data-name="${esc(m.name)}" ${net.busy?'disabled':''}>Book</button>
+          <button class="btn sm primary" data-act="m-sign" data-k="${r.k}" data-name="${esc(m.name)}" ${net.busy?'disabled':''}>Signed off today</button>
+          <button class="btn sm ghost" data-act="pick" data-k="${r.k}">Crib sheet</button>
+          <button class="btn sm ghost" data-act="copy-booking-for" data-k="${r.k}" data-name="${esc(m.name)}">Message</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  return `<div class="card stack">
+    <div class="row between">
+      <div class="grow"><h4>Member Mentor</h4><h2>${esc(sess.mentor.name)}</h2><p class="small muted">${open.length ? `${open.length} session${open.length===1?'':'s'} to deliver` : 'Nothing outstanding'}${done.length ? ` · ${done.length} signed off` : ''}</p></div>
+      <div class="row" style="gap:.4rem"><button class="btn sm" data-act="refresh" ${net.busy?'disabled':''}>${net.busy?'Loading…':'Refresh'}</button><button class="btn sm ghost" data-act="mentor-signout">Sign out</button></div>
+    </div>
+    ${net.error ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
+    ${open.length ? Object.values(byMember).map(memberBlock).join('') : '<p class="small muted">No sessions waiting on you as the usual or paired mentor.</p>'}
+    ${alt.length ? `<details><summary class="small">Sessions where you are the alternative mentor (${alt.length})</summary><div class="body">${Object.values(altByMember).map(memberBlock).join('')}</div></details>` : ''}
+    ${done.length ? `<details><summary class="small">Signed off (${done.length})</summary><div class="body small">${done.map(r => `<div>S${r.k} ${esc(SESSIONS[r.k].short)} · ${esc(r.m.name)} · ${fmt(r.it.done) || 'date not recorded'} <button class="btn sm ghost" data-act="m-undo" data-k="${r.k}" data-name="${esc(r.m.name)}">Undo</button></div>`).join('')}</div></details>` : ''}
+  </div>`;
+}
+
 function renderMentor(){
   const k = SESSIONS[ui.session] ? ui.session : '7';
   const s = SESSIONS[k];
-  let h = `<div class="card stack">
+  let h = mentorPanel();
+  h += `<div class="card stack">
     <div><h4>Member Mentor crib sheets</h4><p class="small muted prose">Pick your session. Everything from the pack for that session is on one screen: what to bring, what to talk through, what to leave the new member doing, and the booking message to send them.</p></div>
     <div class="picker" role="group" aria-label="Session">${RECOMMENDED().filter(x=>SESSIONS[x]).map(x=>`<button class="pick" data-act="pick" data-k="${x}" aria-pressed="${x===k}"><span class="n">${x}</span><span class="t">${esc(SESSIONS[x].short)}</span></button>`).join('')}</div>
   </div>`;
@@ -976,7 +1148,7 @@ function renderTracker(){
   let h = `<div class="card stack">
     <div class="row between">
       <div class="grow"><h4>Mentor Coordinator</h4><h2>${chapterName ? esc(chapterName) : 'Chapter tracker'}</h2></div>
-      ${isOnline ? `<div class="row" style="gap:.4rem"><span data-netstatus>${statusHTML()}</span><button class="btn sm" data-act="refresh" ${net.busy?'disabled':''}>${net.busy?'Loading…':'Refresh'}</button><button class="btn sm ghost" data-act="coord-signout">Sign out</button></div>`
+      ${isOnline ? `<div class="row" style="gap:.4rem"><span data-netstatus>${statusHTML()}</span><button class="btn sm" data-act="refresh" ${net.busy?'disabled':''}>${net.busy?'Loading…':'Refresh'}</button><button class="btn sm" data-act="email-now" ${net.busy?'disabled':''}>Email summary now</button><button class="btn sm ghost" data-act="coord-signout">Sign out</button></div>`
                  : `<label class="small muted" style="display:grid;gap:.25rem">Chapter name<input id="tr-chapter" data-bind="tracker.chapter" value="${esc(tracker.chapter)}" placeholder="e.g. BNI Elli" style="max-width:200px"></label>`}
     </div>
     ${net.error && isOnline ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
@@ -1006,6 +1178,10 @@ function renderTracker(){
 
   if (!ms.length) h += `<div class="empty">No new members in the programme. Add the first one above and tap the cells as each session is signed off.</div>`;
 
+  const up = upcoming();
+  if (up.length) h += `<div class="card stack"><div class="row between"><h3>Booked 121s</h3><span class="chip blue">${up.length}</span></div>
+    <div class="stack" style="gap:.4rem">${up.map(u => { const past = parseISO(u.date) < parseISO(todayISO()); return `<div class="row between small" style="gap:.5rem"><span><strong>${fmt(u.date)}</strong> · ${esc(u.m.name)} · S${u.k} ${esc(itemShort(u.k))}${u.mentor?' with '+esc(u.mentor):''}</span>${past ? '<span class="chip amber">date passed — signed off?</span>' : ''}</div>`; }).join('')}</div></div>`;
+
   ps.forEach(({m,p}) => {
     const complete = p.status === 'Complete';
     h += `<div class="card member" id="m-${m.id}">
@@ -1018,13 +1194,14 @@ function renderTracker(){
       </div>
       <div class="prog" style="grid-template-columns:repeat(${order.length},1fr)" aria-label="${p.done} of ${p.total} stamped">${order.map(k=>`<i class="${p.items[k].done?'on':''} ${MILESTONES[k]?'ms':''}"></i>`).join('')}</div>
       <div class="strip" role="group" aria-label="Sessions for ${esc(m.name)}">
-        ${order.map(k=>{ const it=p.items[k]; return `<button class="cell ${it.done?'on':''} ${MILESTONES[k]?'ms':''}" data-act="cell" data-id="${m.id}" data-k="${k}" title="${esc(itemTitle(k))}${it.mentor?' · '+esc(it.mentor):''}${hasDate(it.done)?' · '+fmt(it.done):''}" aria-pressed="${!!it.done}"><span>${itemLabel(k)}</span>${it.done?`<small>${fmtShort(it.done)||'done'}</small>`:(it.mentor?`<small>${esc(it.mentor.split(' ')[0])}</small>`:'')}</button>`; }).join('')}
+        ${order.map(k=>{ const it=p.items[k]; return `<button class="cell ${it.done?'on':(it.booked?'bk':'')} ${MILESTONES[k]?'ms':''}" data-act="cell" data-id="${m.id}" data-k="${k}" title="${esc(itemTitle(k))}${it.mentor?' · '+esc(it.mentor):''}${hasDate(it.done)?' · '+fmt(it.done):(it.booked?' · booked '+fmt(it.booked):'')}" aria-pressed="${!!it.done}"><span>${itemLabel(k)}</span>${it.done?`<small>${fmtShort(it.done)||'done'}</small>`:(it.booked?`<small>${fmtShort(it.booked)}</small>`:(it.mentor?`<small>${esc(it.mentor.split(' ')[0])}</small>`:''))}</button>`; }).join('')}
       </div>
       ${complete ? `<div class="notice"><strong>Passport complete.</strong> <span class="small">Once the President has presented the certificate, archive ${esc(m.name)} to take them off the weekly summary. Their record is kept on the Archive list.</span></div>` : ''}
       <div class="row between">
-        <span class="small muted">${p.done} of ${p.total} stamped${p.next?` · next S${p.next} ${esc(SESSIONS[p.next].short)}${p.items[p.next].mentor?' with '+esc(p.items[p.next].mentor):(mentorText(p.next)?' · '+esc(mentorText(p.next)):'')}`:''}</span>
+        <span class="small muted">${p.done} of ${p.total} stamped${p.next?` · next S${p.next} ${esc(SESSIONS[p.next].short)}${p.items[p.next].booked?` · <strong>booked ${fmtShort(p.items[p.next].booked)}</strong>`:' · not booked'}${p.items[p.next].mentor?' with '+esc(p.items[p.next].mentor):(mentorText(p.next)?' · '+esc(mentorText(p.next)):'')}`:''}</span>
         <div class="row">
-          ${complete ? `<button class="btn sm primary" data-act="archive" data-id="${m.id}">Certificate presented — archive</button>` : ''}
+          ${complete ? `<button class="btn sm" data-act="certificate" data-id="${m.id}">Certificate</button><button class="btn sm primary" data-act="archive" data-id="${m.id}">Certificate presented — archive</button>` : ''}
+          <button class="btn sm ghost" data-act="copy-welcome" data-id="${m.id}">Welcome message</button>
           <button class="btn sm" data-act="toggle-member" data-id="${m.id}">${pageOpen['m'+m.id]?'Hide details':'Dates & mentors'}</button>
           ${confirmId===m.id ? `<button class="btn sm danger" data-act="remove-confirm" data-id="${m.id}">Confirm remove</button><button class="btn sm" data-act="remove-cancel">Keep</button>` : `<button class="btn sm ghost" data-act="remove" data-id="${m.id}">Remove</button>`}
         </div>
@@ -1037,7 +1214,29 @@ function renderTracker(){
   const within = arch.filter(a => a.inducted && a.completed && daysBetween(a.inducted, a.completed) !== null && daysBetween(a.inducted, a.completed) <= 90).length;
   h += `<div class="card stack">
     <div class="row between"><h3>Archive</h3><span class="chip grey">${arch.length} completed${arch.length ? ` · ${within} within 90 days` : ''}</span></div>
-    ${arch.length ? `<div class="tablewrap"><table><thead><tr><th>Name</th><th>Inducted</th><th>Completed</th><th>Days</th><th></th></tr></thead><tbody>${arch.map(a=>`<tr><td><strong>${esc(a.name)}</strong>${a.trade?`<div class="tiny muted">${esc(a.trade)}</div>`:''}</td><td>${fmt(a.inducted)||'—'}</td><td>${fmt(a.completed)||'—'}</td><td>${daysBetween(a.inducted,a.completed) ?? '—'}</td><td>${confirmId===a.id ? `<button class="btn sm danger" data-act="remove-confirm" data-id="${a.id}">Confirm</button> <button class="btn sm" data-act="remove-cancel">Keep</button>` : `<button class="btn sm ghost" data-act="remove" data-id="${a.id}">Remove</button>`}</td></tr>`).join('')}</tbody></table></div>` : `<p class="small muted">Members whose certificate has been presented appear here, with how long their Passport took. The effectiveness review asks what share complete within 90 days.</p>`}
+    ${arch.length ? `<div class="tablewrap"><table><thead><tr><th>Name</th><th>Inducted</th><th>Completed</th><th>Days</th><th></th></tr></thead><tbody>${arch.map(a=>`<tr><td><strong>${esc(a.name)}</strong>${a.trade?`<div class="tiny muted">${esc(a.trade)}</div>`:''}</td><td>${fmt(a.inducted)||'—'}</td><td>${fmt(a.completed)||'—'}</td><td>${daysBetween(a.inducted,a.completed) ?? '—'}</td><td class="row" style="gap:.3rem"><button class="btn sm ghost" data-act="certificate" data-id="${a.id}">Certificate</button>${confirmId===a.id ? `<button class="btn sm danger" data-act="remove-confirm" data-id="${a.id}">Confirm</button> <button class="btn sm" data-act="remove-cancel">Keep</button>` : `<button class="btn sm ghost" data-act="remove" data-id="${a.id}">Remove</button>`}</td></tr>`).join('')}</tbody></table></div>` : `<p class="small muted">Members whose certificate has been presented appear here, with how long their Passport took. The effectiveness review asks what share complete within 90 days.</p>`}
+  </div>`;
+
+  const hl = health();
+  if (hl) h += `<div class="card stack">
+    <h3>Programme health</h3>
+    <div class="stats">
+      <div class="stat"><div class="v">${hl.completed}</div><div class="l">Completed</div></div>
+      <div class="stat"><div class="v">${hl.completed ? hl.within + ' of ' + hl.completed : '—'}</div><div class="l">Within 90 days</div></div>
+      <div class="stat"><div class="v">${hl.avgDays != null ? hl.avgDays : '—'}</div><div class="l">Avg days to complete</div></div>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>Session</th><th>Outstanding (of ${hl.active})</th><th>Booked</th><th>Typical week signed off</th></tr></thead>
+    <tbody>${hl.rows.map(r => `<tr><td><strong>S${r.k}</strong> <span class="muted">${esc(SESSIONS[r.k].short)}</span></td><td>${r.outstanding}</td><td>${r.booked}</td><td>${r.med != null ? 'week ' + r.med + ' <span class="tiny muted">(' + r.n + ')</span>' : '—'}</td></tr>`).join('')}</tbody></table></div>
+    <p class="tiny muted">Sessions are listed with the most outstanding first. “Typical week” is the median week after induction in which that session was signed off, where a date was recorded.</p>
+  </div>`;
+
+  if (isOnline) h += `<div class="card stack">
+    <h3>Getting new members onto the page</h3>
+    <div class="two" style="align-items:center">
+      <div class="stack"><p class="small">Add them above, then tap <strong>Welcome message</strong> on their card: it carries the link, their name as it appears in the list and their password. The QR code goes in the induction pack or on a slide.</p>
+        <div class="row"><button class="btn sm" data-act="copy-page-link">Copy page link</button></div></div>
+      <div style="text-align:center"><img src="qr-passport.png" alt="QR code for the Passport page" style="width:160px;height:160px;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;padding:6px"></div>
+    </div>
   </div>`;
 
   h += `<div class="card stack">
@@ -1053,11 +1252,12 @@ function renderTracker(){
 
 function memberDetails(m, p, isOnline){
   return `<div class="tablewrap"><table>
-    <thead><tr><th></th><th>Session</th><th>Mentor</th><th>Signed off</th></tr></thead>
+    <thead><tr><th></th><th>Session</th><th>Mentor</th><th>Booked</th><th>Signed off</th></tr></thead>
     <tbody>${ORDER().map(k=>{ const it=p.items[k]; return `<tr>
       <td><strong>${itemLabel(k)}</strong></td>
       <td>${esc(itemShort(k))}<div class="tiny muted">${esc(itemBy(k))}</div></td>
       <td><input data-mid="${m.id}" data-item="${k}" data-field="mentor" value="${esc(it.mentor)}" placeholder="${esc(mentorText(k) || 'Paired mentor')}" style="min-width:140px"></td>
+      <td><input type="date" data-mid="${m.id}" data-item="${k}" data-field="booked" value="${hasDate(it.booked)?esc(it.booked):''}"></td>
       <td><input type="date" data-mid="${m.id}" data-item="${k}" data-field="done" value="${hasDate(it.done)?esc(it.done):''}">${it.done && !hasDate(it.done) ? '<div class="tiny muted">Done, date not recorded</div>' : ''}</td>
     </tr>`; }).join('')}</tbody>
   </table></div>
@@ -1080,7 +1280,7 @@ function weeklySummary(){
     if (p.status==='Complete') line += `complete, ${p.done}/${p.total}. Certificate due.`;
     else {
       line += `${p.week?'week '+p.week+', ':''}${p.done}/${p.total} stamped, ${p.status.toLowerCase()}`;
-      if (p.next) line += `. Next: S${p.next} ${SESSIONS[p.next].short}${p.items[p.next].mentor?' with '+p.items[p.next].mentor:(mentorText(p.next)?' ('+mentorText(p.next)+')':' (mentor to be paired)')}`;
+      if (p.next) { const it = p.items[p.next]; line += `. Next: S${p.next} ${SESSIONS[p.next].short}` + (it.booked ? ` – booked ${fmt(it.booked)}${it.mentor?' with '+it.mentor:''}` : ` – not booked${it.mentor?' ('+it.mentor+')':(mentorText(p.next)?' ('+mentorText(p.next)+')':'')}`); }
     }
     L.push(line);
   });
@@ -1225,6 +1425,17 @@ $('#view').addEventListener('click', e => {
     case 'unstamp': if (my) { my.items[k].done = ''; persistMe(); render(); } break;
     case 'reset-me': if (b.dataset.sure) { me = { name:'', trade:'', inducted:'', items: blankItems(), open:{ setup: true } }; save(KEY_ME, me); render(); toast('Cleared'); } else { b.dataset.sure='1'; b.textContent='Tap again to clear'; b.classList.add('danger'); } break;
     case 'signout': signOut(); break;
+    case 'mentor-signout': mentorSignOut(); break;
+    case 'm-book': { const d = $('#bk-' + id + '-' + k); const v = d ? d.value : ''; if (!saneDate(v) || !v) { toast('Pick a date first'); break; } mentorSign(b.dataset.name, k, { booked: v }); break; }
+    case 'm-sign': mentorSign(b.dataset.name, k, { done: todayISO() }); break;
+    case 'm-undo': mentorSign(b.dataset.name, k, { done: '' }); break;
+    case 'copy-booking-for': copyText(bookingMessage(k, b.dataset.name), 'Booking message'); break;
+    case 'email-now': emailNow(); break;
+    case 'copy-welcome': { const m = memberById(id); if (m) copyText(welcomeMessage(m), 'Welcome message'); break; }
+    case 'copy-page-link': copyText(pageLink(), 'Page link'); break;
+    case 'certificate': { const m = memberById(id); if (m) openCertificate(m); break; }
+    case 'cert-close': closeCertificate(); break;
+    case 'cert-print': try { window.print(); } catch(e){ toast('Printing is not available here'); } break;
     case 'coord-signout': coordSignOut(); break;
     case 'refresh': refreshOnline(); break;
     case 'retry-save': retrySave(); break;
@@ -1289,9 +1500,13 @@ $('#view').addEventListener('submit', e => {
     cache.lastName = name; save(KEY_CACHE, cache); signIn(name, pass);
   } else if (e.target.id === 'coord-form') {
     const pass = $('#co-pass').value; if (!pass) return; coordSignIn(pass);
+  } else if (e.target.id === 'mentor-form') {
+    const name = $('#mt-name').value.trim(), pass = $('#mt-pass').value; if (!name || !pass) return;
+    cache.lastMentor = name; save(KEY_CACHE, cache); mentorSignIn(name, pass);
   }
 });
 
+document.addEventListener('click', e => { const b = e.target.closest('#cert [data-act]'); if (!b) return; if (b.dataset.act === 'cert-close') closeCertificate(); if (b.dataset.act === 'cert-print') { try { window.print(); } catch(err){ toast('Printing is not available here'); } } });
 window.addEventListener('hashchange', () => { routeFromHash(); render(); });
 if (cfg.name) $('#eyebrow').textContent = cfg.name + ' · new member mentoring';
 routeFromHash();
