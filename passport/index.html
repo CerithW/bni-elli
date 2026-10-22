@@ -60,11 +60,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .mast .sub{font-size:.85rem;opacity:.92;max-width:34ch}
 .in{max-width:920px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
-.tabs{display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:none;padding-block:.4rem}
-.tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;border:0;background:transparent;padding:.55rem .85rem;border-radius:8px;cursor:pointer;font-weight:700;font-size:.9rem;color:var(--muted);white-space:nowrap;display:flex;gap:.45rem;align-items:center}
-.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--accent-ink)}
-.tab .k{font-family:var(--display);font-size:.7rem;opacity:.7}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;padding-block:.55rem}
+.tab{min-height:44px;border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:.4rem .35rem;cursor:pointer;font-weight:700;font-size:.82rem;line-height:1.15;color:var(--fg);display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal;min-width:0}
+.tab:hover{border-color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+@media (min-width:560px){.tab{font-size:.92rem;min-height:46px}}
 main .in{padding-block:1.25rem 4rem;display:grid;gap:1rem}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.1rem;min-width:0}
 .card.flat{background:var(--surface-2);border-color:transparent}
@@ -232,10 +232,10 @@ button.chip{font:inherit;line-height:inherit}
 <nav class="rail" aria-label="Sections">
   <div class="in">
     <div class="tabs" role="tablist" id="tabs">
-      <button class="tab" role="tab" data-view="passport" id="tab-passport"><span class="k">01</span>My Passport</button>
-      <button class="tab" role="tab" data-view="mentor" id="tab-mentor"><span class="k">02</span>Mentors</button>
-      <button class="tab" role="tab" data-view="tracker" id="tab-tracker"><span class="k">03</span>Coordinator tracker</button>
-      <button class="tab" role="tab" data-view="reference" id="tab-reference"><span class="k">04</span>Reference</button>
+      <button class="tab" role="tab" data-view="passport" id="tab-passport">My Passport</button>
+      <button class="tab" role="tab" data-view="mentor" id="tab-mentor">Mentors</button>
+      <button class="tab" role="tab" data-view="tracker" id="tab-tracker">Coordinator</button>
+      <button class="tab" role="tab" data-view="reference" id="tab-reference">Reference</button>
     </div>
   </div>
 </nav>
