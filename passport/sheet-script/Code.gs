@@ -1,5 +1,5 @@
 /**
- * Passport to Success – chapter store (v2)
+ * Passport to Success – chapter store (v3: adds Session 11, Meeting with Chapter Ambassador)
  *
  * Lives inside a Google Sheet (Extensions → Apps Script) and lets the Passport web page
  * read and write that sheet. Tabs:
@@ -16,19 +16,19 @@
  */
 
 var MEMBERS = 'Members', ARCHIVE = 'Archive', SETTINGS = 'Settings', DASHBOARD = 'Dashboard';
-var SESSION_KEYS = ['1','2','3','4','5','6','7','8','9','10'];
-var ITEM_KEYS = ['1','2','3','4','LP','5','6','7','8','9','10','RT','MSP'];
+var SESSION_KEYS = ['1','2','3','4','5','6','7','8','9','10','11'];
+var ITEM_KEYS = ['1','2','3','4','LP','5','6','7','8','9','10','11','RT','MSP'];
 var BASE = ['Name','Password','Classification','Inducted'];
 var TAIL = ['Completed','Notes'];
 var TARGET_DAYS = 84;
 var SESSION_SHORT = { '1':'Roles & commitment', '2':'Policies, PALMS & Traffic Lights', '3':'Bio, speakers, fees & renewal', '4':'Attendance & substitutes',
-  '5':'Referrals vs leads', '6':'121 etiquette', '7':'Connect & the app', '8':'Inviting & Gold Club', '9':'Visitor host day', '10':'Training',
+  '5':'Referrals vs leads', '6':'121 etiquette', '7':'Connect & the app', '8':'Inviting & Gold Club', '9':'Visitor host day', '10':'Training', '11':'Chapter Ambassador',
   'LP':'Launch Pad', 'RT':'Regional sign-off', 'MSP':'MSP' };
 var DEFAULT_PAGE = 'https://cerithw.github.io/bni-elli/passport/';
 
 function label(k){ return /^\d+$/.test(k) ? 'S' + k : k; }          // '1' → 'S1', 'MSP' → 'MSP'
 function keyFromLabel(h){ var m = /^S(\d+)$/.exec(h); return m ? m[1] : h; }
-function doneHeaders(){ return ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','MSP']; }
+function doneHeaders(){ return SESSION_KEYS.map(function(k){ return 'S' + k; }).concat(['MSP']); }
 function mentorHeaders(){ return doneHeaders().map(function(h){ return 'Mentor ' + h; }); }
 function bookedHeaders(){ return doneHeaders().map(function(h){ return 'Booked ' + h; }); }
 
@@ -47,6 +47,9 @@ function setup(){
       sh.setFrozenRows(1); sh.setFrozenColumns(1);
       sh.getRange(2, 1, 500, headers.length).setNumberFormat('@');   // keep dates as plain text, e.g. 2026-10-22
     } else {
+      for (var i = 1; i < SESSION_KEYS.length; i++) ['', 'Mentor ', 'Booked '].forEach(function(prefix){
+        insertColumnAfterHeader(sh, prefix + 'S' + SESSION_KEYS[i], prefix + 'S' + SESSION_KEYS[i - 1]);
+      });
       ensureHeaders(sh, headers);
     }
   });
@@ -56,17 +59,18 @@ function setup(){
   var wanted = [
     ['Chapter', isElli ? 'BNI Elli' : ss.getName().replace(/passport to success/i, '').replace(/[–\-:]+/g, ' ').trim() || 'BNI chapter', 'Shown at the top of the page'],
     ['Coordinator password', 'coord-' + rand4(), 'Change this to whatever you like. Needed to see every member.'],
-    ['Extra items', '', 'Leave blank for 10 sessions + MSP. Put LP and/or RT here to also track Launch Pad and the Regional Team sign-off.'],
-    ['Session 1 mentors', isElli ? 'Matthew, Eleanor' : '', 'Usual mentor first, then the alternative'],
-    ['Session 2 mentors', isElli ? 'Rhys D, Cerith' : '', ''],
-    ['Session 3 mentors', isElli ? 'James R, David D' : '', ''],
-    ['Session 4 mentors', isElli ? 'Des, Carys' : '', ''],
-    ['Session 5 mentors', isElli ? 'Phil, Cerith' : '', ''],
-    ['Session 6 mentors', isElli ? 'David, Cerith' : '', ''],
-    ['Session 7 mentors', isElli ? 'Cerith, David' : '', ''],
-    ['Session 8 mentors', isElli ? 'Eleanor, David' : '', ''],
-    ['Session 9 mentors', isElli ? 'John L, Rachel' : '', ''],
-    ['Session 10 mentors', isElli ? 'Eleanor, Barrie H' : '', ''],
+    ['Extra items', '', 'Leave blank for the sessions + MSP. Put LP here to also track Launch Pad.'],
+    ['Session 1 mentors', isElli ? 'Matthew' : '', 'Usual mentor first, then any alternative, separated by commas'],
+    ['Session 2 mentors', isElli ? 'Rhys D' : '', ''],
+    ['Session 3 mentors', isElli ? 'James R' : '', ''],
+    ['Session 4 mentors', isElli ? 'Des' : '', ''],
+    ['Session 5 mentors', isElli ? 'Phil' : '', ''],
+    ['Session 6 mentors', isElli ? 'David' : '', ''],
+    ['Session 7 mentors', isElli ? 'Cerith' : '', ''],
+    ['Session 8 mentors', isElli ? 'Eleanor' : '', ''],
+    ['Session 9 mentors', isElli ? 'John L' : '', ''],
+    ['Session 10 mentors', isElli ? 'Eleanor' : '', ''],
+    ['Session 11 mentors', isElli ? 'Barrie H' : '', 'Meeting with Chapter Ambassador: the final sign-off'],
     ['Page link', DEFAULT_PAGE, 'Used in the weekly email and welcome messages'],
     ['Weekly email', 'on', 'on / off. Sent every Wednesday at about 6pm with the summary and each mentor’s outstanding sessions.'],
     ['Weekly email to', ownerEmail(), 'Who receives the weekly email. Separate several addresses with commas.']
@@ -76,7 +80,13 @@ function setup(){
     setSh.setColumnWidth(1, 200); setSh.setColumnWidth(2, 240); setSh.setColumnWidth(3, 460);
   }
   var have = settingsMap();
-  wanted.forEach(function(r){ if (!(r[0].toLowerCase() in have)) setSh.appendRow(r); });
+  wanted.forEach(function(r){
+    if (r[0].toLowerCase() in have) return;
+    var m = /^Session (\d+) mentors$/.exec(r[0]);
+    var after = m ? findSettingRow(setSh, 'Session ' + (Number(m[1]) - 1) + ' mentors') : 0;
+    if (after) { setSh.insertRowAfter(after); setSh.getRange(after + 1, 1, 1, 3).setValues([r]); }
+    else setSh.appendRow(r);
+  });
   // one password per mentor named in the roster
   var s = settings();
   distinctMentors(s.mentors).forEach(function(name){
@@ -120,20 +130,24 @@ function applyFormatting(sh){
 function buildDashboard(ss){
   var dash = ss.getSheetByName(DASHBOARD) || ss.insertSheet(DASHBOARD);
   var h = headersOf(sheet(MEMBERS));
-  var L = function(name){ return colLetter(h.indexOf(name) + 1); };
-  var ind = L('Inducted'), s1 = L('S1'), s10 = L('S10'), msp = L('MSP');
+  var L = function(name){ var i = h.indexOf(name); return i < 0 ? '' : colLetter(i + 1); };
   var M = "'" + MEMBERS + "'!";
+  var ind = L('Inducted');
+  var sessCols = SESSION_KEYS.map(function(k){ return L('S' + k); }).filter(String);
+  var allCols = sessCols.concat([L('MSP')].filter(String));
+  var count = function(cols){ return cols.map(function(c){ return '(' + M + c + '2:' + c + '<>"")'; }).join('+'); };
+  var nS = SESSION_KEYS.length, nAll = nS + 1;
   var notBlank = "IF(" + M + "A2:A=\"\",\"\",";
   var rows = [
-    ['Name', 'Inducted', 'Days', 'Week', 'Target', 'Sessions done (of 10)', 'Stamped (of 11)', 'Status'],
+    ['Name', 'Inducted', 'Days', 'Week', 'Target', 'Sessions done (of ' + nS + ')', 'Stamped (of ' + nAll + ')', 'Status'],
     ["=ARRAYFORMULA(" + notBlank + M + "A2:A))",
      "=ARRAYFORMULA(" + notBlank + M + ind + "2:" + ind + "))",
      "=ARRAYFORMULA(" + notBlank + "IFERROR(TODAY()-DATEVALUE(" + M + ind + "2:" + ind + "),\"\")))",
      "=ARRAYFORMULA(IF(C2:C=\"\",\"\",INT(C2:C/7)+1))",
      "=ARRAYFORMULA(" + notBlank + "IFERROR(TEXT(DATEVALUE(" + M + ind + "2:" + ind + ")+" + TARGET_DAYS + ",\"dd mmm yyyy\"),\"\")))",
-     "=ARRAYFORMULA(" + notBlank + "MMULT(--(" + M + s1 + "2:" + s10 + "<>\"\"),TRANSPOSE(COLUMN(" + M + s1 + "2:" + s10 + "2)^0))))",
-     "=ARRAYFORMULA(" + notBlank + "MMULT(--(" + M + s1 + "2:" + msp + "<>\"\"),TRANSPOSE(COLUMN(" + M + s1 + "2:" + msp + "2)^0))))",
-     "=ARRAYFORMULA(IF(A2:A=\"\",\"\",IF(G2:G>=11,\"Complete\",IF(C2:C=\"\",\"No induction date\",IF(C2:C>" + TARGET_DAYS + ",\"Overdue\",IF(F2:F<IF(INT(C2:C/7)>10,10,INT(C2:C/7))-1,\"Behind pace\",\"On track\"))))))"]
+     "=ARRAYFORMULA(" + notBlank + count(sessCols) + "))",
+     "=ARRAYFORMULA(" + notBlank + count(allCols) + "))",
+     "=ARRAYFORMULA(IF(A2:A=\"\",\"\",IF(G2:G>=" + nAll + ",\"Complete\",IF(C2:C=\"\",\"No induction date\",IF(C2:C>" + TARGET_DAYS + ",\"Overdue\",IF(F2:F<IF(INT(C2:C/7)>" + nS + "," + nS + ",INT(C2:C/7))-1,\"Behind pace\",\"On track\"))))))"]
   ];
   dash.getRange(1, 1, 2, rows[0].length).setValues(rows);
   dash.getRange(1, 1, 1, rows[0].length).setFontWeight('bold');
@@ -145,6 +159,21 @@ function buildDashboard(ss){
     SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo('Overdue').setBackground('#F8C9CC').setRanges([status]).build(),
     SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo('Complete').setBackground('#E0E0E0').setRanges([status]).build()
   ]);
+}
+/* Put a new column straight after an existing one (data in later columns moves right with it) */
+function insertColumnAfterHeader(sh, newHeader, afterHeader){
+  var h = headersOf(sh); if (h.indexOf(newHeader) > -1) return true;
+  var i = h.indexOf(afterHeader); if (i < 0) return false;
+  sh.insertColumnAfter(i + 1);
+  sh.getRange(1, i + 2).setValue(newHeader).setFontWeight('bold');
+  sh.getRange(2, i + 2, 500, 1).setNumberFormat('@');
+  return true;
+}
+function findSettingRow(sh, label){
+  var n = sh.getLastRow(); if (!n) return 0;
+  var vals = sh.getRange(1, 1, n, 1).getValues(), want = String(label).toLowerCase();
+  for (var i = 0; i < vals.length; i++) if (String(vals[i][0]).trim().toLowerCase() === want) return i + 1;
+  return 0;
 }
 function colLetter(n){ var s = ''; while (n > 0) { var r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); } return s; }
 
@@ -210,7 +239,7 @@ function chaseList(members, mentors, order){
   });
   return out;
 }
-function orderFor(extra){ var x = extra || []; return ['1','2','3','4'].concat(x.indexOf('LP') > -1 ? ['LP'] : []).concat(['5','6','7','8','9','10']).concat(x.indexOf('RT') > -1 ? ['RT'] : []).concat(['MSP']); }
+function orderFor(extra){ var x = extra || []; return ['1','2','3','4'].concat(x.indexOf('LP') > -1 ? ['LP'] : []).concat(['5','6','7','8','9','10','11']).concat(x.indexOf('RT') > -1 ? ['RT'] : []).concat(['MSP']); }
 function progressOf(m, order, mentors){
   var items = m.items || {}, asOf = today();
   var done = order.filter(function(k){ return items[k] && items[k].done; }).length;
@@ -223,7 +252,7 @@ function progressOf(m, order, mentors){
   if (done === order.length) status = 'Complete';
   else if (days == null) status = 'No induction date';
   else if (days > TARGET_DAYS) status = 'Overdue';
-  else { var expected = Math.min(10, Math.floor(days / 7)); status = sessionsDone < expected - 1 ? 'Behind pace' : 'On track'; }
+  else { var expected = Math.min(SESSION_KEYS.length, Math.floor(days / 7)); status = sessionsDone < expected - 1 ? 'Behind pace' : 'On track'; }
   return { done: done, total: order.length, sessionsDone: sessionsDone, days: days, week: week, next: next, status: status };
 }
 
@@ -361,7 +390,7 @@ function settingsMap(){
   vals.forEach(function(r){ if (r[0]) map[String(r[0]).trim().toLowerCase()] = String(r[1] == null ? '' : r[1]).trim(); });
   return map;
 }
-function publicSettings(){ var s = settings(); return { chapter: s.chapter, mentors: s.mentors, extraItems: s.extraItems, pageLink: s.pageLink }; }
+function publicSettings(){ var s = settings(); return { chapter: s.chapter, mentors: s.mentors, extraItems: s.extraItems, pageLink: s.pageLink, sessions: SESSION_KEYS.slice(), version: 3 }; }
 function settings(){
   var map = settingsMap(), mentors = {}, mentorPasswords = {};
   SESSION_KEYS.forEach(function(k){ var v = map['session ' + k + ' mentors']; if (v) mentors[k] = v.split(',').map(function(x){ return x.trim(); }).filter(String); });

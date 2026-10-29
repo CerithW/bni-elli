@@ -228,6 +228,9 @@ details .body{padding:0 1.1rem 1rem;display:grid;gap:.75rem}
 select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238A8D91' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8em center;background-size:12px 8px;padding-right:2.4em;cursor:pointer}
 .signin select,.signin input{min-height:44px}
 @media (max-width:760px){input,select,textarea{font-size:16px}}
+
+.picker .pick:last-child:nth-child(odd){grid-column:1/-1}
+@media (min-width:560px){.picker .pick:last-child:nth-child(odd){grid-column:auto}.picker .pick:last-child:nth-child(5n+1){grid-column:1/-1}}
 .signin select{width:100%}
 button.chip{font:inherit;line-height:inherit}
 </style>
@@ -239,7 +242,7 @@ button.chip{font:inherit;line-height:inherit}
       <div class="eyebrow" id="eyebrow">BNI new member mentoring</div>
       <h1>Passport to Success</h1>
     </div>
-    <p class="sub">Ten one-hour 121s with ten different members. Ten to fifteen minutes of BNI each; the rest is getting to know each other.</p>
+    <p class="sub">Ten 121s with ten different members, then one with your Chapter Ambassador. Ten to fifteen minutes of BNI each; the rest is getting to know each other.</p>
   </div>
 </header>
 <nav class="rail" aria-label="Sections">
@@ -272,7 +275,7 @@ button.chip{font:inherit;line-height:inherit}
       <div class="cert-sub">Certificate of Completion</div>
       <div class="cert-presented">presented to</div>
       <div class="cert-name" id="cert-name">Member name</div>
-      <div class="cert-body">for completing the BNI Passport to Success new member mentoring programme: ten one-to-ones with ten members of the chapter, and the Member Success Programme.</div>
+      <div class="cert-body" id="cert-body">for completing the BNI Passport to Success new member mentoring programme: ten one-to-ones with ten members of the chapter, and the Member Success Programme.</div>
       <div class="cert-mentors" id="cert-mentors"></div>
       <div class="cert-sign">
         <div><div class="cert-line"></div><div class="cert-label">President</div></div>
@@ -300,9 +303,10 @@ const CHAPTER = {
     '7': ['Cerith'],
     '8': ['Eleanor'],
     '9': ['John L'],
-    '10': ['Eleanor']
+    '10': ['Eleanor'],
+    '11': ['Barrie H']
   },
-  // Tracked beyond the ten sessions and MSP. Add 'LP' for Launch Pad and 'RT' for the Regional Team sign-off if the chapter uses them.
+  // Tracked beyond the sessions and MSP. Add 'LP' for Launch Pad if the chapter uses it.
   extraItems: [],
   // On-device mode only: new members loaded the first time the tracker opens on a device. Online, the sheet holds them instead.
   seedDate: '2026-10-22',
@@ -546,6 +550,35 @@ const SESSIONS = {
       'Show them how to find and register for events online, then have them do the next booking themselves',
       'Start a Business Builder course together so they have seen the inside of it'
     ]
+  },
+  '11': {
+    n: 11, title: 'Meeting with Chapter Ambassador', short: 'Chapter Ambassador',
+    by: 'Chapter Ambassador (or the Director Consultant if the Ambassador is not available)',
+    why: 'Your Chapter Ambassador is your link to the regional team beyond the chapter. This is the last session in the Passport: it opens up BNI across the region and is the final check before your Completion Certificate.',
+    covers: [
+      'The regional team and who does what: the Executive Director runs the region; each chapter has a Director (Director Consultant) who supports its Leadership Team; Ambassadors are experienced members who volunteer to support the Director, the chapters they look after and their new members. Who to go to when the chapter cannot answer a question.',
+      'Networking across chapters: your network is bigger than one room. Find members of other chapters on BNI Connect (a 100% profile makes you findable too), use the Referral Exchanges in Business Builder, and visit another chapter as a guest to meet people who share your clients.',
+      'Regional events: what happens beyond the weekly meeting, from the Member Success Programme and skills workshops to Advanced Member Training and regional networking events, and how to book them on the regional events calendar.',
+      'Your contact sphere: the professions that serve the same clients as you without competing. Identify them, see which are already in this chapter and which you will find in other chapters, and plan 121s with them.',
+      'The final check before the certificate: the other ten sessions signed, the Member Success Programme done and the BNI Connect profile at 100%. Then a look at how membership is going so far and what would help next.'
+    ],
+    bring: ['Their Passport, with the other ten sessions signed', 'BNI Connect open, to check the profile is at 100% and to show how to find members of other chapters', 'The regional events calendar', 'One or two contacts in other chapters who share the new member’s clients'],
+    prep: ['Get your other ten sessions signed first: this is the final stamp', 'List the professions that serve the same clients as you, and note any you can’t find in the chapter', 'Bring any questions the chapter hasn’t been able to answer'],
+    actions: [
+      'Book 121s with two people in your contact sphere, at least one of them from another chapter',
+      'Register for one regional event or training',
+      'Save your Ambassador’s contact details: they are your first call when the chapter can’t answer something',
+      'If anything was missing at the final check, finish it and tell your Mentor Coordinator'
+    ],
+    mentorNotes: [
+      'This is the final sign-off. Check the other ten sessions, the Member Success Programme and a 100% Connect profile before you sign; if something is missing, agree a date and sign once it is done',
+      'Make at least one introduction to a member of another chapter in their contact sphere before you part',
+      'Ask how the Passport went and what would have helped, and pass the feedback to the Mentor Coordinator for the Chapter Success Meeting',
+      'Agree when you will next check in, for example at three and six months',
+      'Once you have signed, tell the Mentor Coordinator so the President can present the Completion Certificate in the Notable Networker slot'
+    ],
+    bookingIntro: 'I’m your Chapter Ambassador. The last session in your Passport to Success is a 121 with me: about an hour, partly getting to know each other and partly how BNI works across the region (the regional team, other chapters, events and your contact sphere). It’s also the final check before your Completion Certificate.',
+    final: true
   }
 };
 
@@ -625,7 +658,7 @@ const ROLES = [
 
 const TRAINING = [
   ['Member Success Programme','Within the first 6 weeks','Foundation course on the basics of BNI'],
-  ['Passport to Success','One a week for the first 10 weeks','To build relationships with members'],
+  ['Passport to Success','One a week, finishing within 12 weeks','To build relationships with members'],
   ['Advanced Training','Monthly, attend when needed','To increase your return on investment'],
   ['Skills Workshops','Monthly, attend when needed','Presentations, 121s and your GAINS profile'],
   ['BNI Podcasts','Any time','Answers to the questions you have'],
@@ -686,7 +719,11 @@ function saneDate(v){ if (v === '') return true; const d = parseISO(v); return !
 let cfg = { name: CHAPTER.name || '', apiUrl: CHAPTER.apiUrl || '', mentors: CHAPTER.mentors || {}, extraItems: CHAPTER.extraItems || [] };
 const ONLINE = () => !!cfg.apiUrl;
 const TARGET_DAYS = 84;
-function ORDER(){ const x = new Set(cfg.extraItems || []); return ['1','2','3','4', ...(x.has('LP') ? ['LP'] : []), '5','6','7','8','9','10', ...(x.has('RT') ? ['RT'] : []), 'MSP']; }
+/* Session 11 needs the v3 sheet script; online it switches on once the sheet says it stores it. On-device it is always on. */
+function sessionOn(k){ if (!SESSIONS[k]) return false; if (!ONLINE()) return true; return Array.isArray(cfg.sessions) ? cfg.sessions.indexOf(k) > -1 : Number(k) <= 10; }
+function ORDER(){ const x = new Set(cfg.extraItems || []); return ['1','2','3','4', ...(x.has('LP') ? ['LP'] : []), '5','6','7','8','9','10', ...(sessionOn('11') ? ['11'] : []), ...(x.has('RT') ? ['RT'] : []), 'MSP']; }
+function sessionKeys(){ return ORDER().filter(k => SESSIONS[k]); }
+function numWord(n){ return ['no','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'][n] || String(n); }
 function RECOMMENDED(){ return ['7', ...ORDER().filter(k => k !== '7')]; }
 function mentorsFor(k){ return (cfg.mentors && cfg.mentors[k]) || []; }
 function mentorText(k){ const m = mentorsFor(k); return m.length ? m.join(' or ') : ''; }
@@ -705,7 +742,7 @@ function progress(m, asOf){
   asOf = asOf || todayISO();
   const order = ORDER(), items = normalise(m.items);
   const done = order.filter(k=>items[k].done).length;
-  const sessionsDone = Object.keys(SESSIONS).filter(k=>items[k].done).length;
+  const sessionsDone = sessionKeys().filter(k=>items[k].done).length;
   const days = m.inducted ? daysBetween(m.inducted, asOf) : null;
   const week = days==null ? null : Math.floor(Math.max(0,days)/7)+1;
   const target = m.inducted ? addDays(m.inducted, TARGET_DAYS) : '';
@@ -715,7 +752,7 @@ function progress(m, asOf){
   else if (days==null) { status='No induction date'; tone='grey'; }
   else if (days > TARGET_DAYS) { status='Overdue'; tone='red'; }
   else {
-    const expected = Math.min(10, Math.floor(days/7));
+    const expected = Math.min(sessionKeys().length, Math.floor(days/7));
     if (sessionsDone < expected - 1) { status='Behind pace'; tone='amber'; }
     else { status='On track'; tone='green'; }
   }
@@ -758,8 +795,9 @@ function applySettings(s){
   if (s.mentors && Object.keys(s.mentors).length) cfg.mentors = s.mentors;
   if (Array.isArray(s.extraItems)) cfg.extraItems = s.extraItems;
   if (s.pageLink) cfg.pageLink = s.pageLink;
+  if (Array.isArray(s.sessions)) cfg.sessions = s.sessions.map(String);
   if (cfg.name) $('#eyebrow').textContent = cfg.name + ' · new member mentoring';
-  if (ONLINE()) { cache.settings = { chapter: s.chapter || '', mentors: s.mentors || {}, extraItems: s.extraItems || [], pageLink: s.pageLink || '' }; save(KEY_CACHE, cache); }
+  if (ONLINE()) { cache.settings = { chapter: s.chapter || '', mentors: s.mentors || {}, extraItems: s.extraItems || [], pageLink: s.pageLink || '', sessions: Array.isArray(s.sessions) ? s.sessions : null }; save(KEY_CACHE, cache); }
 }
 /* Mentor names for the sign-in dropdown: everyone on the roster, A–Z. Built from the roster itself so it is never empty. */
 function mentorNameList(){
@@ -777,11 +815,12 @@ function nameControl(id, list, chosen, placeholder){
 async function loadNames(){
   if (!ONLINE() || net.namesLoading) return;
   net.namesLoading = true; net.namesError = '';
-  const before = JSON.stringify([online.names, mentorNameList()]);
+  const before = JSON.stringify([online.names, mentorNameList()]), orderBefore = ORDER().join();
   try { const r = await fetch(cfg.apiUrl + (cfg.apiUrl.includes('?') ? '&' : '?') + 'action=names', { redirect:'follow' }); const j = await r.json(); if (!j.ok) throw new Error(j.error || 'failed');
     online.names = j.names || []; cache.names = online.names; save(KEY_CACHE, cache); applySettings(j.settings); net.namesFetched = true; }
   catch(e){ net.namesError = 'Could not fetch the member list. Check your signal, or type your name below.'; }
   net.namesLoading = false;
+  if (ORDER().join() !== orderBefore) { requestRender(); return; }
   const changed = JSON.stringify([online.names, mentorNameList()]) !== before;
   const waiting = document.querySelector('#si-name[placeholder^="Loading"]');
   if ((changed || waiting || net.namesError) && document.querySelector('#signin-form, #mentor-form')) render();
@@ -903,7 +942,7 @@ function welcomeMessage(m){
   const lines = [`Hi ${m.name}, welcome to ${cfg.name || 'the chapter'}!`, '', `Your Passport to Success is here: ${pageLink()}`];
   if (ONLINE()) lines.push(`Tap "My Passport", choose "${m.name}" from the list and sign in with the password: ${m.password || '[password]'}`);
   lines.push('', `Start by booking Session 7 (Chapter Tools)${m7 ? ' with ' + m7 : ''} – it gets you set up on BNI Connect so you can pass referrals and register visitors from week one. Each session is an hour-ish 121 with a different member of the chapter, mostly getting to know each other; the mentor signs your passport when it’s done.`,
-    '', 'Aim to have all ten stamped within 12 weeks, with the Member Success Programme booked in your first six. Any questions, just ask me.');
+    '', `Aim to have all ${numWord(sessionKeys().length)} stamped within 12 weeks, with the Member Success Programme booked in your first six. Any questions, just ask me.`);
   return lines.join('\n');
 }
 function upcoming(){
@@ -916,7 +955,7 @@ function health(){
   if (!all.length) return null;
   const completedDays = arch.map(a => daysBetween(a.inducted, a.completed)).filter(x => x != null);
   const avgDays = completedDays.length ? Math.round(completedDays.reduce((a,b)=>a+b,0) / completedDays.length) : null;
-  const rows = Object.keys(SESSIONS).map(k => {
+  const rows = sessionKeys().map(k => {
     const outstanding = act.filter(m => !m.items[k].done).length;
     const booked = act.filter(m => !m.items[k].done && m.items[k].booked).length;
     const weeks = all.map(m => { const it = m.items[k]; return (it.done && hasDate(it.done) && m.inducted) ? Math.floor(daysBetween(m.inducted, it.done) / 7) + 1 : null; }).filter(x => x != null).sort((a,b)=>a-b);
@@ -931,7 +970,8 @@ async function emailNow(){
   net.busy = false; render();
 }
 function openCertificate(m){
-  const c = $('#cert'); const mentors = Object.keys(SESSIONS).map(k => m.items[k] && m.items[k].mentor).filter(Boolean);
+  const c = $('#cert'); const mentors = sessionKeys().map(k => m.items[k] && m.items[k].mentor).filter(Boolean);
+  $('#cert-body').textContent = 'for completing the BNI Passport to Success new member mentoring programme: ten one-to-ones with members of the chapter' + (sessionOn('11') ? ', a meeting with the Chapter Ambassador' : '') + ', and the Member Success Programme.';
   const uniq = mentors.filter((x,i,a) => a.indexOf(x) === i);
   $('#cert-chapter').textContent = cfg.name || (tracker.chapter || 'BNI');
   $('#cert-name').textContent = m.name;
@@ -1001,7 +1041,7 @@ function passportHTML(m, o){
   if (!m.name && !p.done) {
     h += `<div class="card flat prose stack">
       <h3>How this works</h3>
-      <p>You will have ten one-hour 121s, each with a different member of the chapter. Each covers ten to fifteen minutes of BNI content; the rest is the two of you getting to know each other using GAINS. Your mentor gets a page of your Passport signed at the end of each one.</p>
+      <p>You will have ten one-hour 121s, each with a different member of the chapter. Each covers ten to fifteen minutes of BNI content; the rest is the two of you getting to know each other using GAINS. Your mentor gets a page of your Passport signed at the end of each one.${sessionOn('11') ? ' The last is with your Chapter Ambassador, who does the final sign-off.' : ''}</p>
       <p>Mentors are meant to book the sessions, but chase them if they don’t. Aim to have everything stamped within twelve weeks, with the Member Success Programme done in your first six.</p>
     </div>`;
   }
@@ -1125,7 +1165,7 @@ function renderMentor(){
     <div class="sec"><h4>Before you part</h4><ul class="small">
       <li>Work through GAINS: Goals, Accomplishments, Interests, Networks, Skills</li>
       <li>Sign their Passport for this session</li>
-      <li>Check they know who to book next, and that the Mentor Coordinator will hear it is done</li>
+      ${s.final ? '<li>Tell the Mentor Coordinator the Passport is complete, so the President can present the Completion Certificate in the Notable Networker slot</li>' : '<li>Check they know who to book next, and that the Mentor Coordinator will hear it is done</li>'}
     </ul></div>
     <div class="row">
       <button class="btn primary" data-act="copy-booking" data-k="${k}">Copy a booking message</button>
@@ -1142,7 +1182,8 @@ function renderMentor(){
 
 function bookingMessage(k, name){
   const s = SESSIONS[k];
-  return `Hi${name ? ' ' + name : ''}, I’m your Member Mentor for Passport session ${k}: ${s.short}. It’s an hour, mostly the two of us getting to know each other, with about fifteen minutes on ${s.short.toLowerCase()}. Could you do one of these?\n\n• [day/time option 1]\n• [day/time option 2]\n\nBefore we meet: ${s.prep[0].replace(/\.$/,'')}. Bring your Passport so I can sign it.`;
+  const intro = s.bookingIntro || `I’m your Member Mentor for Passport session ${k}: ${s.short}. It’s an hour, mostly the two of us getting to know each other, with about fifteen minutes on ${s.short.toLowerCase()}.`;
+  return `Hi${name ? ' ' + name : ''}, ${intro} Could you do one of these?\n\n• [day/time option 1]\n• [day/time option 2]\n\nBefore we meet: ${s.prep[0].replace(/\.$/,'')}. Bring your Passport so I can sign it.`;
 }
 function cribText(k){
   const s = SESSIONS[k]; const L = [];
@@ -1153,7 +1194,7 @@ function cribText(k){
   L.push(''); L.push('TALK THROUGH'); s.covers.forEach((x,i)=>L.push(`${i+1}. ${x}`));
   L.push(''); L.push('MENTOR NOTES'); s.mentorNotes.forEach(x=>L.push('- '+x));
   L.push(''); L.push('THEIR ACTIONS'); s.actions.forEach(x=>L.push('- '+x));
-  L.push(''); L.push('Before you part: GAINS, sign the Passport, confirm who they book next.');
+  L.push(''); L.push(s.final ? 'Before you part: GAINS, sign the Passport, tell the Mentor Coordinator it is complete.' : 'Before you part: GAINS, sign the Passport, confirm who they book next.');
   return L.join('\n');
 }
 
@@ -1324,7 +1365,7 @@ function weeklySummary(){
 
 function renderReference(){
   const tlColour = (c)=>({Green:'var(--green)',Amber:'var(--amber)',Red:'var(--accent)',Grey:'var(--tlgrey)',Blue:'var(--blue)'}[c]);
-  let h = `<div class="card"><h4>Reference</h4><p class="small muted prose">The rules and definitions that come up across the ten sessions, in one place.</p></div>`;
+  let h = `<div class="card"><h4>Reference</h4><p class="small muted prose">The rules and definitions that come up across the sessions, in one place.</p></div>`;
   h += `<div>
     <details open><summary>Weekly commitment: what counts</summary><div class="body small">
       <p>Every week, in the Referrals & Testimonials round, say one of:</p>
