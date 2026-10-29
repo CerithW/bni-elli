@@ -223,6 +223,11 @@ details .body{padding:0 1.1rem 1rem;display:grid;gap:.75rem}
   .cert-page{box-shadow:none;max-width:none;width:100%;height:100%;aspect-ratio:auto;padding:0}
   .cert-inner{min-height:180mm}
 }
+
+/* Dropdowns always look like dropdowns (own chevron, same on every phone); 16px form text on phones stops iPhones zooming in on tap */
+select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238A8D91' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8em center;background-size:12px 8px;padding-right:2.4em;cursor:pointer}
+.signin select,.signin input{min-height:44px}
+@media (max-width:760px){input,select,textarea{font-size:16px}}
 .signin select{width:100%}
 button.chip{font:inherit;line-height:inherit}
 </style>
@@ -284,18 +289,18 @@ const CHAPTER = {
   name: 'BNI Elli',
   // Web app address of the Google Sheet script (see README). Leave empty and everything stays on each person's own device.
   apiUrl: 'https://script.google.com/macros/s/AKfycbwK-mAfAy1NBkZBiypexnln_I_pLltCTI2H1EtDnTqSWmHcy28uSe3De0gbaW4VCEql-g/exec',
-  // Who delivers each session: the usual mentor first, then the alternative. Online, the Settings tab of the sheet overrides this.
+  // Who delivers each session (usual mentor first, then any alternative). Online, the Settings tab of the sheet overrides this; this copy matches the sheet as of 29 Oct 2026.
   mentors: {
-    '1': ['Matthew', 'Eleanor'],
-    '2': ['Rhys D', 'Cerith'],
-    '3': ['James R', 'David D'],
-    '4': ['Des', 'Carys'],
-    '5': ['Phil', 'Cerith'],
-    '6': ['David', 'Cerith'],
-    '7': ['Cerith', 'David'],
-    '8': ['Eleanor', 'David'],
-    '9': ['John L', 'Rachel'],
-    '10': ['Eleanor', 'Barrie H']
+    '1': ['Matthew'],
+    '2': ['Rhys D'],
+    '3': ['James R'],
+    '4': ['Des'],
+    '5': ['Phil'],
+    '6': ['David'],
+    '7': ['Cerith'],
+    '8': ['Eleanor'],
+    '9': ['John L'],
+    '10': ['Eleanor']
   },
   // Tracked beyond the ten sessions and MSP. Add 'LP' for Launch Pad and 'RT' for the Regional Team sign-off if the chapter uses them.
   extraItems: [],
@@ -734,8 +739,10 @@ let ui = load(KEY_UI, { view:'passport', session:'7' });
 let sess = load(KEY_SESS, { member:null, coord:null, mentor:null });
 let cache = load(KEY_CACHE, { me:null, list:null, names:null });
 /* Online-only state (never persisted beyond the cache above) */
-let online = { me: cache.me ? normMember(cache.me) : null, members: [], archived: [], names: cache.names || null, mentorNames: cache.mentorNames || null, mentorMembers: [], mentorLoaded:false, loaded:false, listLoaded:false };
-let net = { busy:false, status:'', error:'', namesError:'' };    // status: '' | 'saving' | 'saved' | 'failed'
+if (cache && typeof cache === 'object' && 'mentorNames' in cache) { delete cache.mentorNames; save(KEY_CACHE, cache); }   // older versions kept a separate, sometimes empty, mentor list
+let online = { me: cache.me ? normMember(cache.me) : null, members: [], archived: [], names: (cache.names && cache.names.length) ? cache.names : null, mentorMembers: [], mentorLoaded:false, loaded:false, listLoaded:false };
+let net = { busy:false, status:'', error:'', namesError:'', namesLoading:false, namesFetched:false };
+let clearPasswords = false;   // set after a wrong password so the next redraw empties the password box    // status: '' | 'saving' | 'saved' | 'failed'
 let confirmId = null, pageOpen = {};   // per-session UI: which member cards / passport pages are expanded
 
 /* ---------------- Online store (Google Sheet web app) ---------------- */
@@ -752,27 +759,46 @@ function applySettings(s){
   if (Array.isArray(s.extraItems)) cfg.extraItems = s.extraItems;
   if (s.pageLink) cfg.pageLink = s.pageLink;
   if (cfg.name) $('#eyebrow').textContent = cfg.name + ' · new member mentoring';
+  if (ONLINE()) { cache.settings = { chapter: s.chapter || '', mentors: s.mentors || {}, extraItems: s.extraItems || [], pageLink: s.pageLink || '' }; save(KEY_CACHE, cache); }
+}
+/* Mentor names for the sign-in dropdown: everyone on the roster, A–Z. Built from the roster itself so it is never empty. */
+function mentorNameList(){
+  const seen = {}, out = [];
+  Object.keys(cfg.mentors || {}).forEach(k => (cfg.mentors[k] || []).forEach(n => { const t = String(n || '').trim(), key = t.toLowerCase(); if (t && !seen[key]) { seen[key] = 1; out.push(t); } }));
+  return out.sort((a, b) => a.localeCompare(b, 'en-GB', { sensitivity: 'base' }));
+}
+/* A name picker: a dropdown when there is a list, otherwise a text box */
+function nameControl(id, list, chosen, placeholder){
+  const want = String(chosen || '').toLowerCase();
+  return list && list.length
+    ? `<select id="${id}" required data-keep><option value="">Choose your name…</option>${list.map(n => `<option value="${esc(n)}" ${n.toLowerCase() === want ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>`
+    : `<input id="${id}" required data-keep autocomplete="name" placeholder="${esc(placeholder)}" value="${esc(chosen || '')}">`;
 }
 async function loadNames(){
-  if (net.namesLoading) return; net.namesLoading = true; net.namesError = '';
+  if (!ONLINE() || net.namesLoading) return;
+  net.namesLoading = true; net.namesError = '';
+  const before = JSON.stringify([online.names, mentorNameList()]);
   try { const r = await fetch(cfg.apiUrl + (cfg.apiUrl.includes('?') ? '&' : '?') + 'action=names', { redirect:'follow' }); const j = await r.json(); if (!j.ok) throw new Error(j.error || 'failed');
-    online.names = j.names || []; online.mentorNames = j.mentorNames || []; cache.names = online.names; cache.mentorNames = online.mentorNames; save(KEY_CACHE, cache); applySettings(j.settings); }
+    online.names = j.names || []; cache.names = online.names; save(KEY_CACHE, cache); applySettings(j.settings); net.namesFetched = true; }
   catch(e){ net.namesError = 'Could not fetch the member list. Check your signal, or type your name below.'; }
-  net.namesLoading = false; render();
+  net.namesLoading = false;
+  const changed = JSON.stringify([online.names, mentorNameList()]) !== before;
+  const waiting = document.querySelector('#si-name[placeholder^="Loading"]');
+  if ((changed || waiting || net.namesError) && document.querySelector('#signin-form, #mentor-form')) render();
 }
 async function signIn(name, password){
   net.busy = true; net.error = ''; render();
   try { const j = await api({ action:'login', name, password });
     sess.member = { name: j.member.name, password }; save(KEY_SESS, sess);
     online.me = normMember(j.member); online.loaded = true; cache.me = online.me; save(KEY_CACHE, cache); applySettings(j.settings); pageOpen = {};
-  } catch(e){ net.error = /recognis|password|name/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
+  } catch(e){ if (/recognis/i.test(e.message)) clearPasswords = true; net.error = /recognis|password|name/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
   net.busy = false; render();
 }
 function signOut(){ sess.member = null; online.me = null; online.loaded = false; cache.me = null; net.status=''; save(KEY_SESS, sess); save(KEY_CACHE, cache); render(); }
 async function coordSignIn(password){
   net.busy = true; net.error = ''; render();
   try { const j = await api({ action:'list', password }); sess.coord = { password }; save(KEY_SESS, sess); takeList(j); }
-  catch(e){ net.error = /password/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
+  catch(e){ if (/recognis/i.test(e.message)) clearPasswords = true; net.error = /password/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
   net.busy = false; render();
 }
 function coordSignOut(){ sess.coord = null; online.members = []; online.archived = []; online.listLoaded = false; cache.list = null; save(KEY_SESS, sess); save(KEY_CACHE, cache); render(); }
@@ -852,7 +878,7 @@ function takeMentor(j){ online.mentorMembers = (j.members||[]).map(normMember); 
 async function mentorSignIn(name, password){
   net.busy = true; net.error = ''; render();
   try { const j = await api({ action:'mentorLogin', name, password }); sess.mentor = { name: j.mentor, password }; save(KEY_SESS, sess); takeMentor(j); }
-  catch(e){ net.error = /recognis/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
+  catch(e){ if (/recognis/i.test(e.message)) clearPasswords = true; net.error = /recognis/i.test(e.message) ? e.message : 'Could not sign in: ' + e.message; }
   net.busy = false; render();
 }
 function mentorSignOut(){ sess.mentor = null; online.mentorMembers = []; online.mentorLoaded = false; save(KEY_SESS, sess); render(); }
@@ -918,14 +944,14 @@ function closeCertificate(){ $('#cert').hidden = true; document.body.classList.r
 /* ---------------- Views ---------------- */
 function signInCard(){
   const names = online.names;
-  if (names === null && !net.namesError && !net.namesLoading) loadNames();
+  if (!net.namesFetched && !net.namesError && !net.namesLoading) loadNames();
   return `<div class="card stack signin">
     <div><h4>Your passport</h4><h2>Sign in</h2><p class="small muted prose">Pick your name and enter the password your Mentor Coordinator gave you. You will only see your own passport.</p></div>
     <form id="signin-form" class="stack" style="max-width:380px">
       <label class="small muted" style="display:grid;gap:.25rem">Your name
-        ${names && names.length ? `<select id="si-name" required><option value="">Choose…</option>${names.map(n=>`<option value="${esc(n)}" ${cache.lastName===n?'selected':''}>${esc(n)}</option>`).join('')}</select>` : `<input id="si-name" required placeholder="${net.namesLoading ? 'Loading names…' : 'Type your name as the Coordinator has it'}" value="${esc(cache.lastName||'')}">`}
+        ${nameControl('si-name', names, cache.lastName, net.namesLoading ? 'Loading names…' : 'Type your name as the Coordinator has it')}
       </label>
-      <label class="small muted" style="display:grid;gap:.25rem">Password<input id="si-pass" type="password" required autocomplete="current-password"></label>
+      <label class="small muted" style="display:grid;gap:.25rem">Password<input id="si-pass" type="password" required data-keep autocomplete="current-password"></label>
       ${net.namesError ? `<p class="tiny muted">${esc(net.namesError)}</p>` : ''}
       ${net.error ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
       <div class="row"><button class="btn primary" type="submit" ${net.busy?'disabled':''}>${net.busy?'Signing in…':'Sign in'}</button></div>
@@ -1029,14 +1055,14 @@ function passportHTML(m, o){
 function mentorPanel(){
   if (!ONLINE()) return '';
   if (!sess.mentor) {
-    const names = online.mentorNames; if (names === null && !net.namesError && !net.namesLoading) loadNames();
+    if (!net.namesFetched && !net.namesError && !net.namesLoading) loadNames();
     return `<div class="card stack signin">
       <div><h4>Member Mentors</h4><h2>Your new members</h2><p class="small muted prose">Sign in to see which sessions you owe, book them and sign them off. Your password is in the Settings tab of the chapter sheet; ask the Mentor Coordinator.</p></div>
       <form id="mentor-form" class="stack" style="max-width:380px">
         <label class="small muted" style="display:grid;gap:.25rem">Your name
-          ${names && names.length ? `<select id="mt-name" required><option value="">Choose…</option>${names.map(n=>`<option value="${esc(n)}" ${cache.lastMentor===n?'selected':''}>${esc(n)}</option>`).join('')}</select>` : `<input id="mt-name" required placeholder="${net.namesLoading ? 'Loading names…' : 'Your name as it appears in the roster'}" value="${esc(cache.lastMentor||'')}">`}
+          ${nameControl('mt-name', mentorNameList(), cache.lastMentor, 'Your name as it appears in the roster')}
         </label>
-        <label class="small muted" style="display:grid;gap:.25rem">Mentor password<input id="mt-pass" type="password" required autocomplete="current-password"></label>
+        <label class="small muted" style="display:grid;gap:.25rem">Mentor password<input id="mt-pass" type="password" required data-keep autocomplete="current-password"></label>
         ${net.error ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
         <div class="row"><button class="btn primary" type="submit" ${net.busy?'disabled':''}>${net.busy?'Signing in…':'Sign in'}</button></div>
       </form>
@@ -1135,7 +1161,7 @@ function coordSignInCard(){
   return `<div class="card stack signin">
     <div><h4>Mentor Coordinator</h4><h2>Coordinator sign-in</h2><p class="small muted prose">Enter the coordinator password from the Settings tab of the chapter sheet to see every new member’s progress.</p></div>
     <form id="coord-form" class="stack" style="max-width:380px">
-      <label class="small muted" style="display:grid;gap:.25rem">Coordinator password<input id="co-pass" type="password" required autocomplete="current-password"></label>
+      <label class="small muted" style="display:grid;gap:.25rem">Coordinator password<input id="co-pass" type="password" required data-keep autocomplete="current-password"></label>
       ${net.error ? `<p class="small" style="color:var(--accent-ink)">${esc(net.error)}</p>` : ''}
       <div class="row"><button class="btn primary" type="submit" ${net.busy?'disabled':''}>${net.busy?'Signing in…':'Sign in'}</button></div>
     </form>
@@ -1374,7 +1400,13 @@ function render(){
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view===v)));
   const active = document.activeElement, key = focusKey(active);
   const caret = (active && typeof active.selectionStart === 'number') ? active.selectionStart : null;
+  const kept = {}; $('#view').querySelectorAll('[data-keep]').forEach(el => { if (el.id) kept[el.id] = el.value; });
   $('#view').innerHTML = VIEWS[v]();
+  Object.keys(kept).forEach(id => { const el = document.getElementById(id), val = kept[id]; if (!el || !val) return;
+    if (el.type === 'password' && clearPasswords) return;
+    if (el.tagName === 'SELECT') { const o = [...el.options].find(o => o.value.toLowerCase() === String(val).toLowerCase()); if (o) el.value = o.value; }
+    else el.value = val; });
+  clearPasswords = false;
   if (key) {
     const el = $('#view').querySelector(key);
     if (el && el.type !== 'date') { el.focus({ preventScroll: true }); try { if (caret != null && el.setSelectionRange) el.setSelectionRange(caret, caret); } catch(e){} }
@@ -1515,10 +1547,12 @@ $('#view').addEventListener('submit', e => {
 
 document.addEventListener('click', e => { const b = e.target.closest('#cert [data-act]'); if (!b) return; if (b.dataset.act === 'cert-close') closeCertificate(); if (b.dataset.act === 'cert-print') { try { window.print(); } catch(err){ toast('Printing is not available here'); } } });
 window.addEventListener('hashchange', () => { routeFromHash(); render(); });
+if (ONLINE() && cache.settings) applySettings(cache.settings);
 if (cfg.name) $('#eyebrow').textContent = cfg.name + ' · new member mentoring';
 routeFromHash();
 render();
-if (ONLINE() && (sess.member || sess.coord)) refreshOnline();
+if (ONLINE()) loadNames();
+if (ONLINE() && (sess.member || sess.coord || sess.mentor)) refreshOnline();
 </script>
 </body>
 </html>
